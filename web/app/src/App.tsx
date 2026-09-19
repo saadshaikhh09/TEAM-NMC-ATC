@@ -22,10 +22,25 @@ function App() {
     )
   }, [])
 
+  const decide = async (decision: 'approve' | 'reject') => {
+    if (!data) return
+    const plan = await (decision === 'approve'
+      ? travelService.approvePlan(data.plan.id)
+      : travelService.rejectPlan(data.plan.id))
+    setData({ ...data, plan })
+  }
+
   return (
     <AppShell>
       {data ? (
-        <Dashboard actions={data.actions} rejections={data.plan.rejections} timelinePaceMs={850} trip={data.trip} />
+        <Dashboard
+          actions={data.actions}
+          onApprove={() => decide('approve')}
+          onReject={() => decide('reject')}
+          plan={data.plan}
+          timelinePaceMs={850}
+          trip={data.trip}
+        />
       ) : (
         <div className="h-80 animate-pulse rounded-lg bg-surface-container" aria-label="Loading trip" />
       )}

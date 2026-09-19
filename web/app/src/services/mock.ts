@@ -7,6 +7,6 @@ export const mockTravelService = {
   getTrip: async (id: string) => trips.find((trip) => trip.id === id) ?? null,
   getTimeline: async (tripId: string) => timelineActions.filter((action) => action.trip_id === tripId),
   getPlan: async () => recoveryPlan,
-  approvePlan: async () => ({ ...recoveryPlan, state: 'APPROVED' as const }),
-  rejectPlan: async () => ({ ...recoveryPlan, state: 'REJECTED' as const }),
+  approvePlan: async (_id: string) => ({ ...recoveryPlan, state: 'APPROVED' as const }),
+  rejectPlan: async (_id: string) => ({ ...recoveryPlan, state: 'REJECTED' as const }),
 }
