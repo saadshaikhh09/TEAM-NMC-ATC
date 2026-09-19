@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>
+  @layer base { 
+    html, body { margin: 0; padding: 0; } 
+    body { overscroll-behavior: none; } 
+    main > :first-child { margin-top: 0 !important; } 
+    main > :last-child { margin-bottom: 0 !important; } 
+  } 
+  ::-webkit-scrollbar { display: none; }
+
+  /* Radar sweep beam animation */
+  @keyframes radarSweep {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .animate-radar-sweep {
+    animation: radarSweep 4s linear infinite;
+    transform-origin: 200px 60px;
+  }
+
+  /* Radar pulse waves */
+  @keyframes radarPing {
+    0% { r: 10px; opacity: 0.9; }
+    100% { r: 120px; opacity: 0; }
+  }
+  .animate-radar-ring-1 {
+    animation: radarPing 3.2s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+    transform-origin: 200px 60px;
+  }
+  .animate-radar-ring-2 {
+    animation: radarPing 3.2s cubic-bezier(0.2, 0.6, 0.35, 1) infinite 1.6s;
+    transform-origin: 200px 60px;
+  }
+
+  /* Trajectory dashoffset flow */
+  @keyframes flightPathFlow {
+    from { stroke-dashoffset: 260; }
+    to { stroke-dashoffset: 0; }
+  }
+  .animate-flight-path {
+    stroke-dasharray: 6 5;
+    animation: flightPathFlow 2.8s linear infinite;
+  }
+
+  /* Miniature airplane cruising along SVG path */
+  @keyframes flightCruise {
+    0% { offset-distance: 0%; opacity: 0.2; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0.2; }
+  }
+  .cruising-plane {
+    offset-path: path('M 15 105 Q 110 15 200 45');
+    animation: flightCruise 5.5s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+  }
+
+  /* Button shimmer effect */
+  @keyframes buttonShimmer {
+    0% { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(200%) skewX(-15deg); }
+  }
+  .animate-shimmer {
+    animation: buttonShimmer 3s ease-in-out infinite;
+  }
+
+  /* Entrance reveal animations */
+  @keyframes enterFadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .reveal-card {
+    animation: enterFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .reveal-delay-1 { animation-delay: 0.08s; opacity: 0; }
+  .reveal-delay-2 { animation-delay: 0.16s; opacity: 0; }
+  .reveal-delay-3 { animation-delay: 0.24s; opacity: 0; }
+
+  /* Custom styled slider thumb */
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    background: #0050cb;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 3px rgba(0, 80, 203, 0.25), 0 2px 6px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 5px rgba(0, 80, 203, 0.35), 0 3px 8px rgba(0,0,0,0.25);
+  }
+  input[type=range]::-moz-range-thumb {
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    background: #0050cb;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 3px rgba(0, 80, 203, 0.25);
+    cursor: pointer;
+  }
+
+  /* Respect user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-radar-sweep,
+    .animate-radar-ring-1,
+    .animate-radar-ring-2,
+    .animate-flight-path,
+    .cruising-plane,
+    .animate-shimmer,
+    .reveal-card {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary": "#ffffff", "inverse-primary": "#b3c5ff", "background": "#f8f9ff", "on-surface": "#0b1c30", "tertiary-fixed": "#cce5ff", "on-primary-fixed": "#001849", "surface-tint": "#0054d6", "outline-variant": "#c2c6d8", "surface-container-low": "#eff4ff", "on-tertiary-fixed-variant": "#004b73", "surface-variant": "#d3e4fe", "on-primary-container": "#f8f7ff", "secondary": "#49607e", "surface-container": "#e5eeff", "primary-fixed": "#dae1ff", "secondary-container": "#c4dcff", "on-error-container": "#93000a", "on-error": "#ffffff", "tertiary": "#005e90", "on-primary": "#ffffff", "secondary-fixed": "#d2e4ff", "on-primary-fixed-variant": "#003fa4", "surface-dim": "#cbdbf5", "surface": "#f8f9ff", "on-surface-variant": "#424656", "inverse-surface": "#213145", "on-secondary-fixed": "#001c37", "surface-container-high": "#dce9ff", "tertiary-fixed-dim": "#93ccff", "outline": "#727687", "error": "#ba1a1a", "on-tertiary": "#ffffff", "on-tertiary-fixed": "#001d31", "surface-container-highest": "#d3e4fe", "error-container": "#ffdad6", "surface-container-lowest": "#ffffff", "primary-container": "#0066ff", "surface-bright": "#f8f9ff", "on-background": "#0b1c30", "on-secondary-fixed-variant": "#314865", "tertiary-container": "#0078b6", "secondary-fixed-dim": "#b0c8eb", "inverse-on-surface": "#eaf1ff", "primary-fixed-dim": "#b3c5ff", "on-tertiary-container": "#f5f8ff", "primary": "#0050cb", "on-secondary-container": "#49617f" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-sm": "0.5rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "margin": "2rem", "gutter": "1.5rem", "space-md": "1rem", "gutter-mobile": "0.75rem", "margin-mobile": "1rem", "space-xl": "2.5rem" }, "fontFamily": { "headline-lg-mobile": ["Plus Jakarta Sans"], "body-sm": ["Inter"], "display-lg-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "code-flight": ["JetBrains Mono"], "label-sm": ["JetBrains Mono"], "label-md": ["Inter"], "body-md": ["Inter"], "headline-lg": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "display-lg": ["Plus Jakarta Sans"] }, "fontSize": { "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" }], "display-lg-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "code-flight": ["14px", { "lineHeight": "20px", "letterSpacing": "0.06em", "fontWeight": "600" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "500" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }], "display-lg": ["44px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(10,37,64,0.04)] transition-all"><div class="h-20 w-full px-margin flex items-center justify-between"><div class="flex items-center gap-space-xl"><a class="flex items-center gap-space-sm group" data-path="dashboard-monitor" href="#"><div class="flex items-center tracking-tight font-headline-lg text-headline-lg font-bold text-on-surface"><span class="text-primary-container group-hover:text-primary transition-colors">ATC</span></div><span class="bg-surface-container text-tertiary font-label-sm text-label-sm uppercase px-space-sm py-space-xs rounded-full font-semibold tracking-wider group-hover:bg-surface-container-high transition-colors">Concierge AI</span></a><nav class="hidden lg:flex items-center gap-space-xs" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" data-path="dashboard-monitor" href="#">Dashboard / Monitor</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" data-path="my-trips" href="#">My Trips</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" data-path="auto-rebook-settings" href="#">Auto-Rebook Settings</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" data-path="support" href="#">Support</a></nav></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-md pl-space-md"><div class="hidden sm:flex flex-col items-end text-right"><span class="font-label-md text-label-md text-on-surface font-semibold">Rahul Sharma</span><span class="inline-flex items-center gap-space-xs font-label-sm text-label-sm text-tertiary"><span class="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>Protected • 24/7 AI Active</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ring-2 ring-primary/20 ring-offset-1"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-20 bg-background"><div class="flex flex-col w-full">
+<!-- Interactive Background & Ambient Vector Radiance -->
+<section class="relative w-full py-space-xl px-gutter-mobile sm:px-gutter lg:px-margin flex flex-col items-center justify-center overflow-hidden">
+<!-- Ambient glow decorative layers -->
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] h-[520px] bg-gradient-to-b from-primary-fixed-dim/35 via-surface-container-high/40 to-transparent rounded-full blur-3xl pointer-events-none -z-10 animate-pulse" style="animation-duration: 8s;"></div>
+<div class="absolute top-1/3 -right-40 w-96 h-96 bg-tertiary-fixed/30 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<!-- Centered Card Container (Max-W-4XL / 920px) -->
+<div class="w-full max-w-4xl bg-surface-container-lowest rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden reveal-card border border-surface-container-high/60">
+<!-- Top Micro-Telemetry Status Ribbon -->
+<div class="w-full bg-surface-container-low px-space-lg py-space-sm flex flex-wrap items-center justify-between gap-space-sm border-b border-surface-container-high/40">
+<div class="flex items-center gap-space-sm">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
+</span>
+<span class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold">Autonomous Flight Watch Protocol v4.2</span>
+</div>
+<div class="flex items-center gap-space-md text-on-surface-variant font-label-sm text-label-sm">
+<span class="inline-flex items-center gap-space-xs text-primary font-medium hover:text-primary-container transition-colors cursor-pointer" title="DGCA Rule CAR-140 &amp; IATA Resolution 724 Activated">
+<span class="material-symbols-outlined text-[15px] animate-bounce" style="animation-duration: 2.5s;">verified_user</span>
+            DGCA &amp; IATA Protection SLA
+          </span>
+<span class="hidden md:inline-block text-outline-variant">•</span>
+<span class="hidden md:inline-flex items-center gap-1 font-code-flight text-label-sm text-secondary">
+  AIRSPACE LATENCY: <span class="text-primary font-bold transition-all duration-300" id="telemetryLatency">12ms</span>
+</span>
+</div>
+</div>
+<!-- Main Form Header -->
+<div class="px-space-lg sm:px-space-xl pt-space-lg pb-space-md">
+<!-- Sub-pill Highlight Inspired by Image -->
+<div class="inline-flex items-center gap-space-sm bg-surface-container text-primary font-label-sm text-label-sm px-space-md py-space-xs rounded-full mb-space-md shadow-sm hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px] text-primary">flight_takeoff</span>
+<span class="font-medium tracking-tight">Zero-Friction Autorebook Active • Over 2,400+ Live Corridors Monitored</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight leading-tight">
+          Register Flight for Autonomous Disruption Protection
+        </h1>
+<p class="mt-space-xs font-body-md text-body-md text-on-surface-variant max-w-2xl leading-relaxed">
+          Enter your itinerary details below. Our AI concierge monitors delay vectors, gate changes, and cancellation notices in real-time, auto-securing replacement flights before airlines announce queues.
+        </p>
+</div>
+<!-- Flight Trajectory Radar Dynamic Graphic Banner -->
+<div class="mx-space-lg sm:mx-space-xl mb-space-lg p-space-md rounded-xl bg-inverse-surface text-inverse-on-surface relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md shadow-inner">
+<!-- High-craft Animated Radar SVG Background -->
+<div class="absolute right-0 top-0 bottom-0 w-80 md:w-96 overflow-hidden pointer-events-none opacity-85">
+<svg class="w-full h-full" fill="none" viewbox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<!-- Conical gradient simulation for sweeping radar ray -->
+<lineargradient id="radarSweepGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5"></stop>
+<stop offset="60%" stop-color="#0284c7" stop-opacity="0.12"></stop>
+<stop offset="100%" stop-color="#0050cb" stop-opacity="0"></stop>
+</lineargradient>
+<!-- Glow filter for trajectory & beacon dots -->
+<filter height="140%" id="glowEffect" width="140%" x="-20%" y="-20%">
+<fegaussianblur result="blur" stddeviation="2.5"></fegaussianblur>
+<femerge>
+<femergenode in="blur"></femergenode>
+<femergenode in="SourceGraphic"></femergenode>
+</femerge>
+</filter>
+</defs>
+<!-- Static radar concentric circles / range rings -->
+<ellipse cx="200" cy="60" opacity="0.3" rx="110" ry="50" stroke="#38bdf8" stroke-dasharray="3 3" stroke-width="0.8"></ellipse>
+<ellipse cx="200" cy="60" opacity="0.4" rx="72" ry="34" stroke="#38bdf8" stroke-dasharray="2 2" stroke-width="0.8"></ellipse>
+<ellipse cx="200" cy="60" opacity="0.5" rx="36" ry="18" stroke="#38bdf8" stroke-width="0.8"></ellipse>
+<!-- Radar Crosshairs -->
+<line opacity="0.25" stroke="#38bdf8" stroke-dasharray="2 2" stroke-width="0.5" x1="90" x2="240" y1="60" y2="60"></line>
+<line opacity="0.25" stroke="#38bdf8" stroke-dasharray="2 2" stroke-width="0.5" x1="200" x2="200" y1="10" y2="110"></line>
+<!-- Dynamic Pulsing Radar Rings expanding from radar origin -->
+<circle class="animate-radar-ring-1" cx="200" cy="60" fill="none" r="10" stroke="#38bdf8" stroke-width="1.5"></circle>
+<circle class="animate-radar-ring-2" cx="200" cy="60" fill="none" r="10" stroke="#0ea5e9" stroke-width="1"></circle>
+<!-- Rotating Radar Conical Scanner Ray -->
+<g class="animate-radar-sweep">
+<path d="M 200 60 L 95 10 A 110 50 0 0 1 170 12 Z" fill="url(#radarSweepGrad)"></path>
+<line filter="url(#glowEffect)" opacity="0.8" stroke="#7dd3fc" stroke-width="1.5" x1="200" x2="95" y1="60" y2="10"></line>
+</g>
+<!-- Flight Path Curved Arc (DEL -> BOM) -->
+<path d="M 15 105 Q 110 15 200 45" fill="none" opacity="0.5" stroke="#334155" stroke-width="2.5"></path>
+<!-- Glowing Animated dashed trajectory flow -->
+<path class="animate-flight-path" d="M 15 105 Q 110 15 200 45" fill="none" filter="url(#glowEffect)" stroke="#60a5fa" stroke-width="2.2"></path>
+<!-- Origin Waypoint Ping: DEL -->
+<circle cx="15" cy="105" fill="#f87171" filter="url(#glowEffect)" r="3.5">
+<animate attributename="r" dur="2s" repeatcount="indefinite" values="3;5;3"></animate>
+</circle>
+<text fill="#fca5a5" font-family="JetBrains Mono" font-size="7" font-weight="600" text-anchor="middle" x="14" y="117">DEL</text>
+<!-- Destination Waypoint Ping: BOM -->
+<circle cx="200" cy="45" fill="#38bdf8" filter="url(#glowEffect)" r="4.5">
+<animate attributename="r" dur="1.8s" repeatcount="indefinite" values="4;6;4"></animate>
+</circle>
+<text fill="#7dd3fc" font-family="JetBrains Mono" font-size="7" font-weight="600" text-anchor="middle" x="200" y="36">BOM</text>
+<!-- Miniature Cruising Aircraft Icon following path -->
+<g class="cruising-plane" transform="translate(-7, -7)">
+<path d="M7 1 L9 5 L13 6 L13 7.5 L9 7 L8 12 L9.5 13 L9.5 14 L6.5 13.5 L3.5 14 L3.5 13 L5 12 L4 7 L0 7.5 L0 6 L4 5 Z" fill="#ffffff" filter="url(#glowEffect)" transform="rotate(65 7 7) scale(0.9)"></path>
+</g>
+</svg>
+</div>
+<div class="relative z-10 flex items-center gap-space-md">
+<div class="w-11 h-11 rounded-xl bg-primary-container/25 border border-primary-fixed/30 flex items-center justify-center shrink-0 shadow-sm group cursor-pointer hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-primary-fixed text-[24px] animate-spin" style="animation-duration: 10s;">radar</span>
+</div>
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md font-semibold text-primary-fixed tracking-wide uppercase">Pre-Emptive Routing Guard</span>
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+  Active
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-inverse-on-surface/80 mt-0.5 max-w-md">
+  Instant automated compensation &amp; re-ticketing active across all Indian domestic and international routes.
+</p>
+</div>
+</div>
+<div class="relative z-10 shrink-0 self-end md:self-center flex items-center gap-space-xs font-code-flight text-label-sm bg-surface-container-highest/25 border border-white/10 px-space-sm py-space-xs rounded-lg text-primary-fixed-dim backdrop-blur-sm shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+<span>TOLERANCE: +15 MIN MAX</span>
+</div>
+</div>
+<!-- Main Interactive Flight Details Form -->
+<form class="px-space-lg sm:px-space-xl pb-space-xl space-y-space-lg" id="flightRegistrationForm" onsubmit="event.preventDefault(); submitFlightCheck();">
+<!-- 2-Column Responsive Form Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+<!-- Column 1: Traveler & Flight Identifiers -->
+<div class="space-y-space-md">
+<!-- Passenger Full Name -->
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-semibold text-on-surface" for="passengerName">
+                  Passenger Full Name
+                </label>
+<span class="font-body-sm text-body-sm text-secondary">Govt. ID Match</span>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors text-[20px]">person</span>
+<input class="w-full pl-10 pr-space-md py-2.5 rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/30 focus:border-primary border border-transparent outline-none transition-all shadow-sm" id="passengerName" name="passengerName" placeholder="As shown on Passport or Aadhaar" required="" type="text" value="Rahul Sharma"/>
+</div>
+</div>
+<!-- Booking Reference (PNR) -->
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-semibold text-on-surface" for="pnrCode">
+                  Booking Reference (PNR)
+                </label>
+<span class="font-label-sm text-label-sm text-tertiary">6-ALPHANUMERIC</span>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors text-[20px]">confirmation_number</span>
+<input class="w-full pl-10 pr-24 py-2.5 rounded-lg bg-surface-container-low font-code-flight text-body-md uppercase tracking-widest text-primary font-semibold placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/30 focus:border-primary border border-transparent outline-none transition-all shadow-sm" id="pnrCode" maxlength="6" name="pnrCode" placeholder="e.g. K9X2LP" required="" type="text" value="K9X2LP"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm bg-surface-container px-2 py-0.5 rounded shadow-sm border border-surface-container-high">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="font-semibold text-primary">GDS LINKED</span>
+</div>
+</div>
+</div>
+<!-- Flight Number -->
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-semibold text-on-surface" for="flightNumber">
+                  Flight Number
+                </label>
+<span class="font-body-sm text-body-sm text-secondary">Carrier Code + Digits</span>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors text-[20px]">airlines</span>
+<input class="w-full pl-10 pr-24 py-2.5 rounded-lg bg-surface-container-low font-code-flight text-body-md font-semibold text-on-surface uppercase placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/30 focus:border-primary border border-transparent outline-none transition-all shadow-sm" id="flightNumber" name="flightNumber" oninput="detectCarrier(this.value)" placeholder="e.g. AI 102 or 6E 204" required="" type="text" value="AI 102"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-md bg-secondary-container text-on-secondary-container font-medium transition-all shadow-sm" id="carrierBadge">Air India</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 2: Route & Date Selection with Interactive Custom Dropdowns and Route Swap -->
+<div class="space-y-space-md">
+<!-- Origin City / Airport Interactive Dropdown -->
+<div class="space-y-space-xs relative">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Origin City / Airport</label>
+<span class="font-body-sm text-body-sm text-secondary">Departure Hub</span>
+</div>
+<div class="relative">
+<button class="w-full pl-10 pr-10 py-2.5 rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface text-left flex items-center justify-between hover:bg-surface-container transition-all shadow-sm border border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20" id="originBtn" onclick="toggleDropdown('originMenu')" type="button">
+<div class="flex items-center gap-2 truncate">
+<span class="material-symbols-outlined text-secondary text-[20px]">flight_takeoff</span>
+<span class="truncate font-medium" id="originLabel">DEL — Indira Gandhi Intl, New Delhi (T3)</span>
+</div>
+<span class="material-symbols-outlined text-secondary transition-transform duration-200" id="originArrow">expand_more</span>
+</button>
+<input id="originAirport" name="originAirport" type="hidden" value="DEL"/>
+<!-- Custom Dropdown Menu -->
+<div class="hidden absolute left-0 right-0 top-full mt-1.5 z-40 bg-surface-container-lowest rounded-xl shadow-2xl border border-surface-container-high py-1.5 max-h-56 overflow-y-auto" id="originMenu">
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('origin', 'DEL', 'DEL — Indira Gandhi Intl, New Delhi (T3)')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">DEL</span><span>Indira Gandhi Intl, New Delhi (T3)</span></div>
+<span class="text-xs bg-surface-container px-1.5 py-0.5 rounded text-secondary font-code-flight">Hub 1</span>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('origin', 'BOM', 'BOM — Chhatrapati Shivaji Maharaj Intl, Mumbai')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">BOM</span><span>Chhatrapati Shivaji Intl, Mumbai (T2)</span></div>
+<span class="text-xs bg-surface-container px-1.5 py-0.5 rounded text-secondary font-code-flight">Hub 2</span>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('origin', 'BLR', 'BLR — Kempegowda Intl, Bengaluru')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">BLR</span><span>Kempegowda Intl, Bengaluru (T1/T2)</span></div>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('origin', 'HYD', 'HYD — Rajiv Gandhi Intl, Hyderabad')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">HYD</span><span>Rajiv Gandhi Intl, Hyderabad</span></div>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('origin', 'DXB', 'DXB — Dubai International Airport, UAE')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">DXB</span><span>Dubai International Airport, UAE</span></div>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('origin', 'LHR', 'LHR — London Heathrow, United Kingdom')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">LHR</span><span>London Heathrow, UK</span></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Route Quick Swap Floating Button -->
+<div class="flex justify-center -my-2.5 relative z-20">
+<button class="group flex items-center justify-center w-8 h-8 rounded-full bg-surface-container hover:bg-primary hover:text-on-primary text-secondary shadow-md border border-surface-container-highest transition-all duration-300 hover:scale-110 active:scale-95" onclick="swapRoute()" title="Swap Origin &amp; Destination" type="button">
+<span class="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-500">swap_vert</span>
+</button>
+</div>
+<!-- Destination City / Airport Interactive Dropdown -->
+<div class="space-y-space-xs relative">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Destination City / Airport</label>
+<span class="font-body-sm text-body-sm text-secondary">Arrival Hub</span>
+</div>
+<div class="relative">
+<button class="w-full pl-10 pr-10 py-2.5 rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface text-left flex items-center justify-between hover:bg-surface-container transition-all shadow-sm border border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20" id="destBtn" onclick="toggleDropdown('destMenu')" type="button">
+<div class="flex items-center gap-2 truncate">
+<span class="material-symbols-outlined text-secondary text-[20px]">flight_land</span>
+<span class="truncate font-medium" id="destLabel">BOM — Chhatrapati Shivaji Maharaj Intl, Mumbai (T2)</span>
+</div>
+<span class="material-symbols-outlined text-secondary transition-transform duration-200" id="destArrow">expand_more</span>
+</button>
+<input id="destAirport" name="destAirport" type="hidden" value="BOM"/>
+<!-- Custom Dropdown Menu -->
+<div class="hidden absolute left-0 right-0 top-full mt-1.5 z-40 bg-surface-container-lowest rounded-xl shadow-2xl border border-surface-container-high py-1.5 max-h-56 overflow-y-auto" id="destMenu">
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('dest', 'BOM', 'BOM — Chhatrapati Shivaji Maharaj Intl, Mumbai (T2)')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">BOM</span><span>Chhatrapati Shivaji Intl, Mumbai (T2)</span></div>
+<span class="text-xs bg-surface-container px-1.5 py-0.5 rounded text-secondary font-code-flight">Hub 2</span>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('dest', 'DEL', 'DEL — Indira Gandhi Intl, New Delhi (T3)')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">DEL</span><span>Indira Gandhi Intl, New Delhi (T3)</span></div>
+<span class="text-xs bg-surface-container px-1.5 py-0.5 rounded text-secondary font-code-flight">Hub 1</span>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('dest', 'BLR', 'BLR — Kempegowda Intl, Bengaluru')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">BLR</span><span>Kempegowda Intl, Bengaluru</span></div>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('dest', 'LHR', 'LHR — London Heathrow Airport, UK')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">LHR</span><span>London Heathrow Airport, UK</span></div>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('dest', 'JFK', 'JFK — John F. Kennedy Intl, New York')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">JFK</span><span>John F. Kennedy Intl, New York</span></div>
+</div>
+<div class="px-space-md py-2 hover:bg-surface-container-low cursor-pointer flex items-center justify-between text-body-md transition-colors" onclick="selectAirport('dest', 'SIN', 'SIN — Singapore Changi Airport')">
+<div class="flex items-center gap-2"><span class="font-code-flight font-bold text-primary">SIN</span><span>Singapore Changi Airport</span></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Travel Date with Quick Calendar micro-widget -->
+<div class="space-y-space-xs relative">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-semibold text-on-surface" for="travelDate">
+                  Travel Date
+                </label>
+<span class="font-label-sm text-label-sm text-secondary">DEPARTURE IST</span>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors text-[20px]">calendar_today</span>
+<input class="w-full pl-10 pr-space-md py-2.5 rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/30 focus:border-primary border border-transparent outline-none transition-all shadow-sm cursor-pointer" id="travelDate" name="travelDate" onclick="toggleCalendarPopover()" required="" type="text" value="Oct 24, 2025"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors" onclick="toggleCalendarPopover()" type="button">
+<span class="material-symbols-outlined text-[18px]">event_upcoming</span>
+</button>
+<!-- Calendar Mini Quick-Select Popover -->
+<div class="hidden absolute right-0 top-full mt-1.5 z-40 bg-surface-container-lowest rounded-xl shadow-2xl border border-surface-container-high p-3 w-64" id="calendarPopover">
+<div class="flex items-center justify-between text-label-md font-semibold mb-2">
+<span>October 2025</span>
+<span class="text-xs text-primary font-code-flight">AUTUMN</span>
+</div>
+<div class="grid grid-cols-3 gap-1 text-xs">
+<button class="p-1.5 rounded bg-primary-container text-on-primary-container font-semibold" onclick="setDate('Oct 24, 2025 (Today)')" type="button">Today</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface" onclick="setDate('Oct 25, 2025')" type="button">Tomorrow</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface" onclick="setDate('Oct 26, 2025')" type="button">+2 Days</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface" onclick="setDate('Oct 27, 2025')" type="button">Oct 27</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface" onclick="setDate('Oct 28, 2025')" type="button">Oct 28</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface" onclick="setDate('Nov 02, 2025')" type="button">Next Wk</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Full-Width Row: Autonomous Rebooking Budget Limit with Rich Micro-Interactions -->
+<div class="p-space-lg rounded-xl bg-surface-container-low/70 border border-surface-container-high/50 space-y-space-md transition-all hover:border-primary/30">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">currency_rupee</span>
+<span class="font-label-md text-label-md font-bold text-on-surface">Maximum Autonomous Rebooking Budget (₹ INR)</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+  ATC will immediately reserve the best alternate carrier without waking you if disruption thresholds trigger.
+</p>
+</div>
+<div class="flex items-center gap-space-xs self-start sm:self-auto bg-surface-container-lowest px-3 py-1.5 rounded-xl border border-surface-container-high/60 shadow-sm">
+<span class="font-label-sm text-label-sm uppercase text-secondary font-medium">Auto-Spend Ceiling:</span>
+<span class="font-headline-md text-headline-md font-bold text-primary transition-all duration-200" id="budgetValueDisplay">₹ 15,000</span>
+</div>
+</div>
+<!-- Slider / Quick Selector Row -->
+<div class="space-y-space-sm">
+<div class="relative flex items-center gap-space-md py-1">
+<input class="w-full h-2.5 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary focus:outline-none transition-all" id="budgetSlider" max="50000" min="5000" oninput="updateBudgetDisplay(this.value)" step="2500" type="range" value="15000"/>
+</div>
+<!-- Dynamic Budget Feedback Note -->
+<div class="flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-1.5 text-tertiary">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span class="font-medium text-xs" id="budgetTierFeedback">Optimal for direct IndiGo, Air India &amp; Vistara domestic replacement seats</span>
+</div>
+<span class="text-xs font-code-flight text-secondary hidden sm:inline">MAX CAP: ₹ 50,000</span>
+</div>
+<!-- Quick Chips for Budget Presets -->
+<div class="flex flex-wrap items-center gap-space-sm pt-1" id="quickLimitGroup">
+<span class="font-label-sm text-label-sm text-secondary">Quick limits:</span>
+<button class="budget-chip px-space-sm py-1 rounded-md bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high hover:text-primary transition-all duration-150 active:scale-95" onclick="setBudget(10000, this)" type="button">
+  + ₹10,000
+</button>
+<button class="budget-chip px-space-sm py-1 rounded-md bg-primary-container text-on-primary-container font-label-md text-label-md font-medium shadow-sm transition-all duration-150 active:scale-95 ring-2 ring-primary/20" onclick="setBudget(15000, this)" type="button">
+  ₹ 15,000 (Recommended)
+</button>
+<button class="budget-chip px-space-sm py-1 rounded-md bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high hover:text-primary transition-all duration-150 active:scale-95" onclick="setBudget(25000, this)" type="button">
+  + ₹25,000 (Biz Class Match)
+</button>
+<button class="budget-chip px-space-sm py-1 rounded-md bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high hover:text-primary transition-all duration-150 active:scale-95" onclick="setBudget(45000, this)" type="button">
+  Full Ticket Price Match
+</button>
+</div>
+</div>
+<div class="flex items-start gap-space-xs text-secondary font-body-sm text-body-sm pt-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">shield_with_heart</span>
+<span>Any unused buffer remains fully untouched. Rebooked tickets carry 100% airline invoice traceability with zero concierge surcharge.</span>
+</div>
+</div>
+<!-- Live Status Preview Simulation Box (Hidden initially, shown on click) -->
+<div class="hidden rounded-xl bg-surface-container p-space-md transition-all duration-300 border border-primary/20" id="flightCheckStatusBox">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="relative w-8 h-8 flex items-center justify-center" id="statusSpinnerContainer">
+<div class="animate-spin rounded-full h-7 w-7 border-2 border-primary border-t-transparent"></div>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface" id="statusHeading">Connecting to Live ADS-B Airspace Feed...</p>
+<p class="font-body-sm text-body-sm text-secondary" id="statusDetail">Querying flight AI 102 [DEL ➔ BOM] via IATA FlightStats API</p>
+</div>
+</div>
+<span class="font-code-flight text-label-sm text-primary animate-pulse font-semibold" id="statusSyncBadge">SYNCHRONIZING</span>
+</div>
+</div>
+<!-- Action Call to Action Section with Shimmer and Micro-Interactions -->
+<div class="pt-space-sm space-y-space-md">
+<button class="relative overflow-hidden w-full min-h-[52px] bg-primary-container hover:bg-primary active:scale-[0.99] text-on-primary font-headline-md text-headline-md font-semibold py-3 px-space-xl rounded-xl transition-all duration-200 shadow-md hover:shadow-xl flex items-center justify-center gap-space-sm group" id="submitBtn" type="submit">
+<!-- Glowing Luminous Shimmer bar -->
+<span class="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></span>
+<span class="material-symbols-outlined text-[22px] group-hover:rotate-12 transition-transform duration-300" id="btnIcon">travel_explore</span>
+<span id="btnText">Check Flight Status &amp; Activate Protection</span>
+<span class="material-symbols-outlined text-[20px] transition-transform duration-200 group-hover:translate-x-1.5" id="btnArrow">arrow_forward</span>
+</button>
+<!-- Security & Guarantee Badges Under Button -->
+<div class="flex flex-wrap items-center justify-center gap-x-space-lg gap-y-space-xs text-on-surface-variant font-body-sm text-body-sm text-center">
+<span class="inline-flex items-center gap-space-xs hover:text-on-surface transition-colors cursor-default">
+<span class="material-symbols-outlined text-[16px] text-tertiary">lock</span>
+  256-bit SSL encrypted
+</span>
+<span class="hidden sm:inline text-outline-variant">•</span>
+<span class="inline-flex items-center gap-space-xs hover:text-on-surface transition-colors cursor-default">
+<span class="material-symbols-outlined text-[16px] text-primary">chat</span>
+  Instant WhatsApp &amp; SMS Disruption Alerts
+</span>
+<span class="hidden sm:inline text-outline-variant">•</span>
+<span class="inline-flex items-center gap-space-xs hover:text-on-surface transition-colors cursor-default">
+<span class="material-symbols-outlined text-[16px] text-tertiary">autorenew</span>
+  Zero-Click PNR Re-issuance
+</span>
+</div>
+</div>
+</form>
+<!-- Trust & Carrier Grid Strip at Bottom of Card -->
+<div class="bg-surface-container px-space-lg py-space-md flex flex-col sm:flex-row items-center justify-between gap-space-sm text-on-surface-variant font-label-sm text-label-sm border-t border-surface-container-high/60">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[16px]">chevron_forward</span>
+<span class="font-medium">Direct Carrier Integrations:</span>
+</div>
+<div class="flex items-center gap-space-md font-code-flight text-secondary font-semibold">
+<span class="hover:text-primary transition-colors cursor-pointer hover:scale-105 transform">AIR INDIA</span>
+<span class="text-outline-variant">/</span>
+<span class="hover:text-primary transition-colors cursor-pointer hover:scale-105 transform">INDIGO</span>
+<span class="text-outline-variant">/</span>
+<span class="hover:text-primary transition-colors cursor-pointer hover:scale-105 transform">VISTARA</span>
+<span class="text-outline-variant">/</span>
+<span class="hover:text-primary transition-colors cursor-pointer hover:scale-105 transform">EMIRATES</span>
+<span class="text-outline-variant">/</span>
+<span class="hover:text-primary transition-colors cursor-pointer hover:scale-105 transform">BRITISH AIRWAYS</span>
+</div>
+</div>
+</div>
+<!-- Secondary Context Micro-Cards Beneath Registration Form with Interactive Hover Lift -->
+<div class="w-full max-w-4xl mt-space-lg grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Card 1 -->
+<div class="reveal-card reveal-delay-1 bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 border border-surface-container-high/40 group flex flex-col justify-between">
+<div class="flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-lg bg-surface-container group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary-container group-hover:scale-110 transition-all text-[20px]">notifications_active</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md font-semibold text-on-surface group-hover:text-primary transition-colors">50-Minute Lead Warning</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-relaxed">Disruption telemetry detects inbound aircraft delays before gate agents announce them.</p>
+</div>
+</div>
+<div class="mt-3 pt-2 border-t border-surface-container-low flex items-center justify-between text-xs text-secondary font-code-flight">
+<span>AI RADAR TELEMETRY</span>
+<span class="text-emerald-600 font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>LIVE</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="reveal-card reveal-delay-2 bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 border border-surface-container-high/40 group flex flex-col justify-between">
+<div class="flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-lg bg-surface-container group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary-container group-hover:scale-110 transition-all text-[20px]">flight_class</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md font-semibold text-on-surface group-hover:text-primary transition-colors">Seat &amp; Cabin Parity</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-relaxed">Rebooking preserves your selected window/aisle preference and extra legroom upgrades.</p>
+</div>
+</div>
+<div class="mt-3 pt-2 border-t border-surface-container-low flex items-center justify-between text-xs text-secondary font-code-flight">
+<span>SEAT 12A LOCKED</span>
+<span class="text-primary font-semibold">PARITY GUARANTEED</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="reveal-card reveal-delay-3 bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 border border-surface-container-high/40 group flex flex-col justify-between">
+<div class="flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-lg bg-surface-container group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary-container group-hover:scale-110 transition-all text-[20px]">account_balance_wallet</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md font-semibold text-on-surface group-hover:text-primary transition-colors">Autonomous Compensation</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-relaxed">Auto-files DGCA Rule CAR-140 claims instantly for delays exceeding statutory windows.</p>
+</div>
+</div>
+<div class="mt-3 pt-2 border-t border-surface-container-low flex items-center justify-between text-xs text-secondary font-code-flight">
+<span>DGCA CAR-140</span>
+<span class="text-emerald-600 font-semibold">CLAIM READY</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<script>
+  // Dynamic Latency simulation ticker
+  const latencies = ['11ms', '12ms', '14ms', '10ms', '13ms'];
+  let latIndex = 0;
+  setInterval(() => {
+    latIndex = (latIndex + 1) % latencies.length;
+    const el = document.getElementById('telemetryLatency');
+    if (el) el.innerText = latencies[latIndex];
+  }, 2600);
+
+  // Budget feedback tiers
+  const budgetNotes = {
+    5000: 'Sufficient for basic low-cost carrier rescue fares',
+    10000: 'Covers standard economy seats on IndiGo, SpiceJet & Akasa',
+    15000: 'Optimal for direct IndiGo, Air India & Vistara domestic replacement seats',
+    25000: 'Covers Premium Economy and last-minute peak corridor seats',
+    45000: 'Full Business Class parity & immediate next-available international carrier match'
+  };
+
+  function updateBudgetDisplay(val) {
+    const formatted = '₹ ' + parseInt(val, 10).toLocaleString('en-IN');
+    const display = document.getElementById('budgetValueDisplay');
+    if (display) {
+      display.innerText = formatted;
+      display.classList.add('scale-105', 'text-primary-container');
+      setTimeout(() => display.classList.remove('scale-105', 'text-primary-container'), 180);
+    }
+    
+    // Dynamic feedback note
+    const feedbackEl = document.getElementById('budgetTierFeedback');
+    if (feedbackEl) {
+      const num = parseInt(val, 10);
+      if (num <= 8000) feedbackEl.innerText = budgetNotes[5000];
+      else if (num <= 12000) feedbackEl.innerText = budgetNotes[10000];
+      else if (num <= 20000) feedbackEl.innerText = budgetNotes[15000];
+      else if (num <= 35000) feedbackEl.innerText = budgetNotes[25000];
+      else feedbackEl.innerText = budgetNotes[45000];
+    }
+  }
+
+  function setBudget(val, btnElement) {
+    const slider = document.getElementById('budgetSlider');
+    if (slider) {
+      slider.value = val;
+      updateBudgetDisplay(val);
+    }
+    // Update chip styling
+    const chips = document.querySelectorAll('#quickLimitGroup .budget-chip');
+    chips.forEach(c => {
+      c.classList.remove('bg-primary-container', 'text-on-primary-container', 'font-medium', 'shadow-sm', 'ring-2', 'ring-primary/20');
+      c.classList.add('bg-surface-container', 'text-on-surface');
+    });
+    if (btnElement) {
+      btnElement.classList.remove('bg-surface-container', 'text-on-surface');
+      btnElement.classList.add('bg-primary-container', 'text-on-primary-container', 'font-medium', 'shadow-sm', 'ring-2', 'ring-primary/20');
+    }
+  }
+
+  // Carrier auto-detection from flight number prefix
+  function detectCarrier(val) {
+    const badge = document.getElementById('carrierBadge');
+    if (!badge) return;
+    const v = val.trim().toUpperCase();
+    if (v.startsWith('AI') || v.startsWith('AIC')) {
+      badge.innerText = 'Air India';
+      badge.className = 'font-label-sm text-label-sm px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 font-medium transition-all shadow-sm';
+    } else if (v.startsWith('6E') || v.startsWith('IGO')) {
+      badge.innerText = 'IndiGo';
+      badge.className = 'font-label-sm text-label-sm px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-medium transition-all shadow-sm';
+    } else if (v.startsWith('UK') || v.startsWith('VTI')) {
+      badge.innerText = 'Vistara';
+      badge.className = 'font-label-sm text-label-sm px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 font-medium transition-all shadow-sm';
+    } else if (v.startsWith('EK') || v.startsWith('UAE')) {
+      badge.innerText = 'Emirates';
+      badge.className = 'font-label-sm text-label-sm px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-medium transition-all shadow-sm';
+    } else if (v.startsWith('BA') || v.startsWith('BAW')) {
+      badge.innerText = 'British Airways';
+      badge.className = 'font-label-sm text-label-sm px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 font-medium transition-all shadow-sm';
+    } else {
+      badge.innerText = 'GDS Carrier';
+      badge.className = 'font-label-sm text-label-sm px-2 py-0.5 rounded-md bg-secondary-container text-on-secondary-container font-medium transition-all shadow-sm';
+    }
+  }
+
+  // Interactive Dropdown Logic
+  function toggleDropdown(id) {
+    const el = document.getElementById(id);
+    const arrow = id === 'originMenu' ? document.getElementById('originArrow') : document.getElementById('destArrow');
+    const isHidden = el.classList.contains('hidden');
+    
+    // Close other dropdowns
+    document.getElementById('originMenu').classList.add('hidden');
+    document.getElementById('destMenu').classList.add('hidden');
+    document.getElementById('calendarPopover').classList.add('hidden');
+    document.getElementById('originArrow').classList.remove('rotate-180');
+    document.getElementById('destArrow').classList.remove('rotate-180');
+
+    if (isHidden) {
+      el.classList.remove('hidden');
+      if (arrow) arrow.classList.add('rotate-180');
+    }
+  }
+
+  function selectAirport(type, code, label) {
+    if (type === 'origin') {
+      document.getElementById('originAirport').value = code;
+      document.getElementById('originLabel').innerText = label;
+      document.getElementById('originMenu').classList.add('hidden');
+      document.getElementById('originArrow').classList.remove('rotate-180');
+    } else {
+      document.getElementById('destAirport').value = code;
+      document.getElementById('destLabel').innerText = label;
+      document.getElementById('destMenu').classList.add('hidden');
+      document.getElementById('destArrow').classList.remove('rotate-180');
+    }
+  }
+
+  // Swap Route feature
+  function swapRoute() {
+    const originCode = document.getElementById('originAirport').value;
+    const originLabel = document.getElementById('originLabel').innerText;
+    const destCode = document.getElementById('destAirport').value;
+    const destLabel = document.getElementById('destLabel').innerText;
+
+    document.getElementById('originAirport').value = destCode;
+    document.getElementById('originLabel').innerText = destLabel;
+    document.getElementById('destAirport').value = originCode;
+    document.getElementById('destLabel').innerText = originLabel;
+  }
+
+  // Calendar popover helpers
+  function toggleCalendarPopover() {
+    const pop = document.getElementById('calendarPopover');
+    document.getElementById('originMenu').classList.add('hidden');
+    document.getElementById('destMenu').classList.add('hidden');
+    pop.classList.toggle('hidden');
+  }
+
+  function setDate(dateStr) {
+    document.getElementById('travelDate').value = dateStr;
+    document.getElementById('calendarPopover').classList.add('hidden');
+  }
+
+  // Close menus when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#originBtn') && !e.target.closest('#originMenu')) {
+      document.getElementById('originMenu').classList.add('hidden');
+      document.getElementById('originArrow').classList.remove('rotate-180');
+    }
+    if (!e.target.closest('#destBtn') && !e.target.closest('#destMenu')) {
+      document.getElementById('destMenu').classList.add('hidden');
+      document.getElementById('destArrow').classList.remove('rotate-180');
+    }
+    if (!e.target.closest('#travelDate') && !e.target.closest('#calendarPopover') && !e.target.closest('button[onclick="toggleCalendarPopover()"]')) {
+      document.getElementById('calendarPopover').classList.add('hidden');
+    }
+  });
+
+  // Submission Micro-Interaction
+  function submitFlightCheck() {
+    const statusBox = document.getElementById('flightCheckStatusBox');
+    const btn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnArrow = document.getElementById('btnArrow');
+    const statusHeading = document.getElementById('statusHeading');
+    const statusDetail = document.getElementById('statusDetail');
+    const spinnerContainer = document.getElementById('statusSpinnerContainer');
+    const syncBadge = document.getElementById('statusSyncBadge');
+
+    const flightNum = document.getElementById('flightNumber').value || 'AI 102';
+    const origin = document.getElementById('originAirport').value || 'DEL';
+    const dest = document.getElementById('destAirport').value || 'BOM';
+
+    // Display progress state
+    statusBox.classList.remove('hidden');
+    btn.disabled = true;
+    btn.classList.add('opacity-90', 'cursor-not-allowed');
+    btnIcon.innerText = 'sync';
+    btnIcon.classList.add('animate-spin');
+    btnText.innerText = 'Scanning Airspace GDS Feeds...';
+    btnArrow.classList.add('opacity-0');
+
+    statusHeading.innerText = 'Connecting to Live ADS-B Airspace Feed...';
+    statusDetail.innerText = 'Querying flight ' + flightNum + ' [' + origin + ' ➔ ' + dest + '] via IATA FlightStats API';
+    syncBadge.innerText = 'SYNCHRONIZING';
+    syncBadge.className = 'font-code-flight text-label-sm text-primary animate-pulse font-semibold';
+
+    setTimeout(() => {
+      statusHeading.innerText = 'Aircraft Located • On Schedule';
+      statusDetail.innerText = flightNum + ' inbound from Frankfurt (FRA) on-time. Gate 32B assigned at ' + origin + ' T3.';
+      statusBox.classList.remove('bg-surface-container', 'border-primary/20');
+      statusBox.classList.add('bg-emerald-50', 'border-emerald-300');
+
+      spinnerContainer.innerHTML = '<span class="material-symbols-outlined text-emerald-600 text-[26px]">check_circle</span>';
+      syncBadge.innerText = 'PROTECTED';
+      syncBadge.className = 'font-code-flight text-label-sm text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded';
+
+      btnIcon.classList.remove('animate-spin');
+      btnIcon.innerText = 'verified';
+      btnText.innerText = 'Protection Active (Flight Monitored 24/7)';
+      btnArrow.classList.remove('opacity-0');
+      btnArrow.innerText = 'done_all';
+      btn.classList.remove('bg-primary-container', 'opacity-90', 'cursor-not-allowed');
+      btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+    }, 1800);
+  }
+</script></main><footer class="w-full bg-surface-container-lowest shadow-[0_1px_8px_rgba(10,37,64,0.04)] py-space-lg"><div class="w-full px-margin flex flex-col md:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant"><span>© 2025 Autonomous Travel-Disruption Concierge (ATC) Inc. Operational Airspace Resolution Systems.</span><div class="flex items-center gap-space-lg font-label-md text-label-md"><a class="hover:text-on-surface transition-colors" href="#">Flight Status Protocol</a><a class="hover:text-on-surface transition-colors" href="#">Carrier SLA Guarantees</a><a class="hover:text-on-surface transition-colors" href="#">Privacy &amp; Passenger Rights</a></div></div></footer></body></html>

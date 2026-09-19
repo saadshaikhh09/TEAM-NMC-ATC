@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ATC - Confirmation &amp; Trip Summary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            inter: ['"Inter"', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              DEFAULT: '#0066ff',
+              hover: '#0052cc',
+              deep: '#034199',
+              light: '#eff6ff',
+              border: '#bfdbfe'
+            },
+            surface: {
+              bg: '#f1f5f9',
+              card: '#ffffff',
+            },
+            success: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              border: '#86efac'
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Custom Animations & Keyframes */
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+    .animate-shimmer {
+      animation: shimmer 4s infinite linear;
+    }
+
+    @keyframes pulseBeam {
+      0% { transform: translateX(-100%); opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { transform: translateX(100%); opacity: 0.2; }
+    }
+    .animate-beam {
+      animation: pulseBeam 3s ease-in-out infinite;
+    }
+
+    @keyframes flightPath {
+      0% { transform: translateX(-14px) rotate(90deg); }
+      50% { transform: translateX(14px) rotate(90deg); }
+      100% { transform: translateX(-14px) rotate(90deg); }
+    }
+    .plane-glide {
+      animation: flightPath 3.2s ease-in-out infinite;
+    }
+
+    /* Modal Animation */
+    .modal-enter {
+      animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Ripple Effect on Button Click */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      transform: scale(0);
+      animation: rippleEffect 0.6s linear;
+      pointer-events: none;
+    }
+    @keyframes rippleEffect {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* Tooltip subtle pop */
+    .tooltip-pop {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      transform: translateY(6px);
+    }
+    .group:hover .tooltip-pop {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .plane-glide, .animate-shimmer, .animate-beam {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#f1f5f9] text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-800">
+<!-- Persistent Top Navigation Bar -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30 transition-all duration-300">
+<div class="max-w-[1440px] mx-auto px-8 h-20 flex items-center justify-between">
+<!-- Left: Brand / Logo -->
+<div class="flex items-center gap-3">
+<a class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0052cc] to-[#0066ff] flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20 hover:scale-105 active:scale-95 transition-transform" href="#">
+<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"></path>
+</svg>
+</a>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-2xl font-extrabold tracking-tight text-[#034199]">ATC</span>
+<span class="px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-blue-50 text-[#0066ff] border border-blue-200 rounded-full flex items-center gap-1 shadow-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping"></span>
+              Autonomous Concierge
+            </span>
+</div>
+<p class="text-xs text-slate-500 font-medium">Autonomous Travel-Disruption Concierge</p>
+</div>
+</div>
+<!-- Center status pill (Reassurance indicator) -->
+<div class="hidden md:flex items-center gap-2.5 px-3.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full shadow-xs hover:border-emerald-300 transition-colors cursor-default group" title="All autonomous operations successfully concluded without escalation">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+<span class="text-xs font-semibold text-emerald-800 tracking-tight">Autonomous Concierge Task Completed</span>
+<span class="text-[10px] font-bold text-emerald-600 bg-emerald-100/70 px-1.5 py-0.2 rounded group-hover:bg-emerald-200 transition-colors">100% Auto</span>
+</div>
+<!-- Right: Traveler Profile -->
+<div class="flex items-center gap-4">
+<div class="text-right">
+<p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Traveler</p>
+<p class="text-sm font-bold text-slate-800">Aarav Sharma</p>
+</div>
+<div class="relative group cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-blue-200 flex items-center justify-center text-[#0052cc] font-bold text-sm shadow-sm group-hover:ring-2 group-hover:ring-blue-300 transition-all">
+            AS
+          </div>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Container (1440px desktop standard) -->
+<main class="flex-1 max-w-[1440px] w-full mx-auto px-8 py-8 flex flex-col gap-6">
+<!-- Full-Width Green Success Banner with Shimmer effect & Copyable Booking Ref -->
+<section class="w-full bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 text-white rounded-2xl shadow-lg shadow-emerald-700/10 px-8 py-6 relative overflow-hidden flex items-center justify-between border border-emerald-500/30">
+<!-- Animated Shimmer Sweep -->
+<div class="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 animate-shimmer pointer-events-none"></div>
+<!-- Decorative radial pattern -->
+<div class="absolute -right-12 -top-12 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="absolute right-48 -bottom-10 w-48 h-48 bg-emerald-400/20 rounded-full blur-xl pointer-events-none"></div>
+<div class="flex items-center gap-5 relative z-10">
+<!-- Interactive Checkmark Pulse -->
+<div class="relative group">
+<div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-200">
+<svg class="w-8 h-8 text-white transition-transform group-hover:rotate-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-white border border-emerald-600"></span>
+</span>
+</div>
+<div>
+<div class="flex items-center gap-3">
+<h1 class="text-2xl lg:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+              You're all set
+            </h1>
+<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-white text-emerald-800 shadow-sm inline-flex items-center gap-1">
+<svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path></svg>
+              Autonomous Resolution 100%
+            </span>
+</div>
+<p class="text-emerald-100 text-sm mt-1 max-w-2xl leading-relaxed">
+            Your cancelled flight has been seamlessly re-routed and hotel accommodation updated. No manual intervention required. Updated itinerary sent to <span class="font-semibold text-white underline decoration-white/40 underline-offset-2 hover:decoration-white transition-all cursor-pointer" onclick="showNotification('Itinerary email resent to aarav.sharma@example.com')">aarav.sharma@example.com</span>.
+          </p>
+</div>
+</div>
+<!-- Resolution Timer & Copyable Booking Ref -->
+<div class="hidden xl:flex flex-col items-end text-right shrink-0 relative z-10 pl-6 border-l border-white/20">
+<span class="text-xs uppercase tracking-wider text-emerald-200 font-semibold flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-emerald-300 animate-spin" fill="none" stroke="currentColor" stroke-width="2" style="animation-duration: 8s;" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Total Disruption Resolution Time
+        </span>
+<span class="text-2xl font-black text-white tracking-tight cursor-default" id="resolution-timer" title="Resolved autonomously in 252 seconds">4 mins 12 secs</span>
+<div class="text-xs text-emerald-100 flex items-center gap-1 mt-0.5">
+<span>Booking Ref:</span>
+<button class="group/copy flex items-center gap-1 font-mono font-bold text-white bg-white/15 hover:bg-white/25 px-2 py-0.5 rounded transition-all focus:outline-none focus:ring-1 focus:ring-white" onclick="copyToClipboard('ATC-984FL', 'ref-copied-badge')">
+<span id="booking-ref-text">ATC-984FL</span>
+<svg class="w-3 h-3 text-white/80 group-hover/copy:text-white" fill="none" id="ref-copy-icon" stroke="currentColor" viewbox="0 0 24 24"><rect height="14" rx="2" ry="2" width="14" x="8" y="8"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+<span class="hidden text-[10px] bg-emerald-900/80 text-emerald-200 px-1 rounded font-normal" id="ref-copied-badge">Copied!</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Two Side-by-Side Summary Cards: Flight & Hotel with Lift & Interactive Trajectory -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+<!-- Card 1: New Flight Summary -->
+<div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 p-7 flex flex-col justify-between group">
+<div>
+<!-- Header of Card -->
+<div class="flex items-center justify-between pb-5 border-b border-slate-100">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0066ff] group-hover:scale-105 group-hover:bg-blue-100 transition-all">
+<svg class="w-5 h-5 transition-transform duration-300 group-hover:-rotate-12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"></path>
+</svg>
+</div>
+<div>
+<span class="text-xs font-bold uppercase tracking-wider text-blue-600">Rebooked Flight</span>
+<h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  IndiGo 6E-2415
+                  <span class="text-[11px] font-normal px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md font-mono border border-blue-200">A321neo</span>
+</h2>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Confirmed &amp; Ticketed
+              </span>
+</div>
+</div>
+<!-- Flight Route Visual & Animated Trajectory Times -->
+<div class="my-6 bg-slate-50/80 rounded-xl p-5 border border-slate-100 hover:border-blue-200 transition-colors">
+<div class="flex items-center justify-between mb-4">
+<div>
+<p class="text-xs font-semibold text-slate-400 uppercase">Departure</p>
+<p class="text-2xl font-extrabold text-slate-900 tracking-tight">18:45</p>
+<p class="text-sm font-bold text-slate-700">DEL <span class="text-xs font-normal text-slate-500">Terminal 3</span></p>
+<p class="text-xs text-slate-500 mt-0.5">New Delhi, India</p>
+</div>
+<!-- Flight duration track with Animated Plane Glide -->
+<div class="flex-1 max-w-[210px] px-4 flex flex-col items-center">
+<span class="text-[11px] font-semibold text-slate-500 mb-1">2h 15m • Non-stop</span>
+<div class="w-full flex items-center relative py-2">
+<div class="w-2.5 h-2.5 rounded-full border-2 border-[#0066ff] bg-white ring-2 ring-blue-100"></div>
+<div class="flex-1 h-1 bg-slate-200 relative overflow-visible rounded-full mx-1">
+<!-- Dynamic Progress Line -->
+<div class="absolute top-0 left-0 right-0 h-full bg-gradient-to-r from-blue-400 via-[#0066ff] to-blue-500"></div>
+<!-- Moving Plane -->
+<div class="absolute -top-2 left-1/2 -translate-x-1/2 plane-glide pointer-events-none">
+<svg class="w-5 h-5 text-[#0066ff] drop-shadow" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 2L2 22h20L12 2z"></path>
+</svg>
+</div>
+</div>
+<div class="w-2.5 h-2.5 rounded-full bg-[#0066ff] ring-2 ring-blue-300"></div>
+</div>
+<span class="text-[10px] font-semibold text-emerald-600 mt-1 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> +15 mins from original
+                </span>
+</div>
+<div class="text-right">
+<p class="text-xs font-semibold text-slate-400 uppercase">Arrival</p>
+<p class="text-2xl font-extrabold text-slate-900 tracking-tight">21:00</p>
+<p class="text-sm font-bold text-slate-700">BOM <span class="text-xs font-normal text-slate-500">Terminal 2</span></p>
+<p class="text-xs text-slate-500 mt-0.5">Mumbai, India</p>
+</div>
+</div>
+<!-- Key metadata metrics row -->
+<div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200/60 text-xs">
+<div>
+<span class="text-slate-400 font-medium">Original Flight:</span>
+<p class="font-bold text-slate-700 line-through decoration-rose-400">AI-805 (17:30)</p>
+</div>
+<div>
+<span class="text-slate-400 font-medium">Seat Assigned:</span>
+<p class="font-bold text-slate-700 flex items-center gap-1">
+                  12F <span class="text-[10px] text-blue-600 bg-blue-50 px-1 py-0.2 rounded font-medium">(Aisle Preferred)</span>
+</p>
+</div>
+<div class="text-right">
+<span class="text-slate-400 font-medium">Fare Covered:</span>
+<p class="font-extrabold text-[#0066ff] text-sm">₹6,420 <span class="text-[10px] font-semibold text-emerald-600">(Within ₹8,000 Budget)</span></p>
+</div>
+</div>
+</div>
+</div>
+<!-- Flight Action and E-boarding pass modal trigger -->
+<div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs text-slate-500">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+<span class="truncate">Digital boarding pass synced with Apple Wallet &amp; Google Wallet</span>
+</div>
+<button class="font-bold text-[#0066ff] hover:text-[#0052cc] hover:underline flex items-center gap-1 shrink-0 p-1 rounded transition-colors group/btn" onclick="openBoardingPassModal()">
+<span>Download Pass</span>
+<svg class="w-3.5 h-3.5 transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+</button>
+</div>
+</div>
+<!-- Card 2: Hotel Outcome Summary with Modal Trigger -->
+<div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 p-7 flex flex-col justify-between group">
+<div>
+<!-- Header of Card -->
+<div class="flex items-center justify-between pb-5 border-b border-slate-100">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:scale-105 group-hover:bg-amber-100 transition-all">
+<svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3 21h18M3 7v14M21 7v14M6 11h4M6 15h4M14 11h4M14 15h4M9 3h6a2 2 0 0 1 2 2v2H7V5a2 2 0 0 1 2-2z"></path>
+</svg>
+</div>
+<div>
+<span class="text-xs font-bold uppercase tracking-wider text-amber-700">Hotel Modification</span>
+<h2 class="text-lg font-bold text-slate-900">The Grand Hyatt, Mumbai</h2>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-[#0066ff] border border-blue-200 shadow-xs">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Policy Applied &amp; Rebooked
+              </span>
+</div>
+</div>
+<!-- Hotel Details & Policy Outcome Content -->
+<div class="my-6 bg-slate-50/80 rounded-xl p-5 border border-slate-100 hover:border-amber-200 transition-colors">
+<div class="flex items-start justify-between mb-4">
+<div>
+<p class="text-xs font-semibold text-slate-400 uppercase">Check-in / Check-out</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-base font-extrabold text-slate-900">Oct 24, 2024</span>
+<span class="text-slate-400">→</span>
+<span class="text-base font-extrabold text-slate-900">Oct 27, 2024</span>
+<span class="text-xs font-medium text-slate-500">(3 Nights)</span>
+</div>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+<span>Deluxe King Room • Booking ID:</span>
+<button class="font-mono font-semibold text-slate-700 hover:text-blue-600 bg-white px-1.5 py-0.5 rounded border border-slate-200 inline-flex items-center gap-1 text-[11px] group/hcopy" onclick="copyToClipboard('HYT-88219', 'hotel-copied-badge')">
+<span>HYT-88219</span>
+<svg class="w-2.5 h-2.5 opacity-60 group-hover/hcopy:opacity-100" fill="none" stroke="currentColor" viewbox="0 0 24 24"><rect height="14" rx="2" ry="2" width="14" x="8" y="8"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+<span class="hidden text-[9px] bg-emerald-600 text-white px-1 rounded" id="hotel-copied-badge">Copied!</span>
+</button>
+</p>
+</div>
+<div class="text-right">
+<span class="px-2.5 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 rounded-lg inline-block shadow-xs">
+                  Free Late Check-in Guaranteed
+                </span>
+</div>
+</div>
+<!-- Resolution Outcome Box -->
+<div class="p-3.5 rounded-lg bg-emerald-50/90 border border-emerald-200/80 hover:bg-emerald-50 transition-colors">
+<div class="flex items-start gap-2.5">
+<svg class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+<polyline points="9 12 11 14 15 10"></polyline>
+</svg>
+<div>
+<h4 class="text-xs font-bold text-emerald-900">Disruption Waiver Successfully Processed</h4>
+<p class="text-xs text-emerald-800 mt-0.5 leading-relaxed">
+                    ATC contacted the property under the Airline Delay Waiver policy. Your reservation has been shifted to accommodate the 21:00 PM arrival with <strong>₹0 penalty or late cancellation fees</strong>.
+                  </p>
+</div>
+</div>
+</div>
+<!-- Financials row -->
+<div class="grid grid-cols-2 gap-2 pt-3 mt-3 border-t border-slate-200/60 text-xs">
+<div>
+<span class="text-slate-400 font-medium">Penalty Amount:</span>
+<p class="font-extrabold text-emerald-700 text-sm">₹0 <span class="text-[10px] font-normal text-slate-500">(Waiver Applied)</span></p>
+</div>
+<div class="text-right">
+<span class="text-slate-400 font-medium">Direct Contact:</span>
+<p class="font-bold text-slate-700">
+<a class="hover:text-blue-600 transition-colors" href="tel:+912266761234">+91 22 6676 1234</a>
+<span class="text-slate-400 font-normal block text-[11px]">(Front Desk Notified)</span>
+</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Hotel Action footer -->
+<div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs text-slate-500">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+<span class="truncate">Concierge bot sent arrival confirmation note directly to front desk</span>
+</div>
+<button class="font-bold text-[#0066ff] hover:text-[#0052cc] hover:underline flex items-center gap-1 shrink-0 p-1 rounded transition-colors group/btn" onclick="openHotelVoucherModal()">
+<span>View Hotel Voucher</span>
+<svg class="w-3.5 h-3.5 transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+</button>
+</div>
+</div>
+</div>
+<!-- Horizontal Timeline: 4 Steps with Checkmark Icons, Hover Micro-logs & Glowing Beam -->
+<section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-7 overflow-hidden relative">
+<div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+<div>
+<span class="text-xs font-bold uppercase tracking-wider text-blue-600">Automated Audit Trail</span>
+<h3 class="text-lg font-extrabold text-slate-900 tracking-tight">Autonomous Concierge Execution Timeline</h3>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 font-mono border border-slate-200 shadow-xs">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+            Logs Synced: Oct 24, 14:34 IST
+          </span>
+</div>
+</div>
+<!-- Timeline Bar Container spanning full width -->
+<div class="relative px-4 py-3">
+<!-- Connecting Line through steps with continuous glowing beam -->
+<div class="absolute top-9 left-16 right-16 h-1 bg-emerald-100 rounded -z-0 overflow-hidden">
+<div class="w-full h-full bg-emerald-500"></div>
+<div class="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white to-transparent animate-beam"></div>
+</div>
+<!-- 4 Steps Grid -->
+<div class="grid grid-cols-4 gap-4 relative z-10">
+<!-- Step 1: Detected Cancellation -->
+<div class="flex flex-col items-center text-center group cursor-pointer relative" onclick="showNotification('Audit Log: DGCA webhook payload AI-805 verified in 140ms.')">
+<!-- Node with Pulse Ring -->
+<div class="relative mb-3">
+<div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-white shadow-md shadow-emerald-500/20 group-hover:scale-110 group-hover:bg-emerald-600 transition-all duration-200">
+<svg class="w-5 h-5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<span class="absolute inset-0 rounded-full bg-emerald-400 opacity-0 group-hover:opacity-30 group-hover:scale-125 transition-all"></span>
+</div>
+<!-- Popover / Tooltip on hover -->
+<div class="tooltip-pop absolute -top-12 z-20 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-mono rounded-lg shadow-xl pointer-events-none whitespace-nowrap">
+              HTTP 200 • DGCA-PUSH-AI805 (140ms)
+            </div>
+<span class="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full mb-1 group-hover:bg-emerald-100 transition-colors">
+              14:28:10 IST
+            </span>
+<h4 class="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Detected Cancellation</h4>
+<p class="text-xs text-slate-500 mt-1 max-w-[210px] leading-relaxed">
+              AI radar caught flight AI-805 cancellation notice via DGCA API feed.
+            </p>
+</div>
+<!-- Step 2: Found Alternatives -->
+<div class="flex flex-col items-center text-center group cursor-pointer relative" onclick="showNotification('Audit Log: GDS scanned 14 airlines, filtered 2 under ₹8,000 threshold.')">
+<div class="relative mb-3">
+<div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-white shadow-md shadow-emerald-500/20 group-hover:scale-110 group-hover:bg-emerald-600 transition-all duration-200">
+<svg class="w-5 h-5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<span class="absolute inset-0 rounded-full bg-emerald-400 opacity-0 group-hover:opacity-30 group-hover:scale-125 transition-all"></span>
+</div>
+<!-- Popover / Tooltip on hover -->
+<div class="tooltip-pop absolute -top-12 z-20 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-mono rounded-lg shadow-xl pointer-events-none whitespace-nowrap">
+              Optimized 7 routes • Matched Seat 12F Aisle
+            </div>
+<span class="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full mb-1 group-hover:bg-emerald-100 transition-colors">
+              14:29:42 IST
+            </span>
+<h4 class="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Found Alternatives</h4>
+<p class="text-xs text-slate-500 mt-1 max-w-[210px] leading-relaxed">
+              Filtered 7 routes down to 2 top within-budget direct flight options.
+            </p>
+</div>
+<!-- Step 3: Rebooked Flight -->
+<div class="flex flex-col items-center text-center group cursor-pointer relative" onclick="showNotification('Audit Log: Auto-settled ₹6,420 via Corporate Card. PNR: 6E-2415-GEN.')">
+<div class="relative mb-3">
+<div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-white shadow-md shadow-emerald-500/20 group-hover:scale-110 group-hover:bg-emerald-600 transition-all duration-200">
+<svg class="w-5 h-5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<span class="absolute inset-0 rounded-full bg-emerald-400 opacity-0 group-hover:opacity-30 group-hover:scale-125 transition-all"></span>
+</div>
+<!-- Popover / Tooltip on hover -->
+<div class="tooltip-pop absolute -top-12 z-20 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-mono rounded-lg shadow-xl pointer-events-none whitespace-nowrap">
+              PNR 6E-2415-GEN • Instant E-Ticket Issued
+            </div>
+<span class="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full mb-1 group-hover:bg-emerald-100 transition-colors">
+              14:31:05 IST
+            </span>
+<h4 class="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Rebooked Flight</h4>
+<p class="text-xs text-slate-500 mt-1 max-w-[210px] leading-relaxed">
+              Secured seat 12F on IndiGo 6E-2415 using automated corporate wallet.
+            </p>
+</div>
+<!-- Step 4: Hotel Resolved -->
+<div class="flex flex-col items-center text-center group cursor-pointer relative" onclick="showNotification('Audit Log: Grand Hyatt API acknowledged Late Arrival Protocol with ₹0 waiver.')">
+<div class="relative mb-3">
+<div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-white shadow-md shadow-emerald-500/20 group-hover:scale-110 group-hover:bg-emerald-600 transition-all duration-200">
+<svg class="w-5 h-5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<span class="absolute inset-0 rounded-full bg-emerald-400 opacity-0 group-hover:opacity-30 group-hover:scale-125 transition-all"></span>
+</div>
+<!-- Popover / Tooltip on hover -->
+<div class="tooltip-pop absolute -top-12 z-20 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-mono rounded-lg shadow-xl pointer-events-none whitespace-nowrap">
+              Waiver: DISR-WAIV-2024 • Penalty: ₹0
+            </div>
+<span class="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full mb-1 group-hover:bg-emerald-100 transition-colors">
+              14:32:22 IST
+            </span>
+<h4 class="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Hotel Resolved</h4>
+<p class="text-xs text-slate-500 mt-1 max-w-[210px] leading-relaxed">
+              The Grand Hyatt acknowledged disruption policy &amp; locked late check-in with ₹0 penalty.
+            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Actions: Centered Solid Blue "Start new trip" Button with Ripple & Feedback -->
+<div class="pt-4 pb-12 flex flex-col items-center justify-center gap-3">
+<button class="relative overflow-hidden inline-flex items-center justify-center gap-2.5 px-10 py-4 rounded-xl bg-[#0066ff] hover:bg-[#0052cc] text-white font-bold text-base shadow-lg shadow-blue-600/25 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-blue-300 active:scale-[0.98]" id="start-trip-btn" onclick="triggerStartNewTrip(event)">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
+<line x1="12" x2="12" y1="5" y2="19"></line>
+<line x1="5" x2="19" y1="12" y2="12"></line>
+</svg>
+<span>Start new trip</span>
+</button>
+<p class="text-xs text-slate-400 font-medium flex items-center gap-1.5 cursor-default hover:text-slate-600 transition-colors">
+<svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        Protected by ATC 24/7 Autonomous Airline Shield • Trip ID: IND-BOM-8820
+      </p>
+</div>
+</main>
+<!-- Global Footer -->
+<footer class="bg-white border-t border-slate-200 mt-auto py-4">
+<div class="max-w-[1440px] mx-auto px-8 flex items-center justify-between text-xs text-slate-400">
+<div>
+        © 2024 ATC (Autonomous Travel-Disruption Concierge). All rights reserved.
+      </div>
+<div class="flex gap-6 font-medium text-slate-500">
+<a class="hover:text-blue-600 transition-colors" href="javascript:void(0)" onclick="showNotification('Privacy Policy: All PII and flight feeds are encrypted with AES-256.')">Privacy Policy</a>
+<a class="hover:text-blue-600 transition-colors" href="javascript:void(0)" onclick="showNotification('Airline Terms: Fully compliant with DGCA Passenger Charter.')">Airline Terms</a>
+<a class="hover:text-blue-600 transition-colors" href="javascript:void(0)" onclick="showNotification('Support Desk: ATC Concierge Bot is active 24/7.')">Support Center</a>
+</div>
+</div>
+</footer>
+<!-- ==================== MODALS & DRAWERS ==================== -->
+<!-- Modal 1: Digital Boarding Pass -->
+<div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 transition-opacity" id="boarding-pass-modal">
+<div class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden modal-enter border border-slate-200">
+<!-- Top Card Header -->
+<div class="bg-gradient-to-r from-blue-700 to-[#0066ff] p-6 text-white relative">
+<button class="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors" onclick="closeBoardingPassModal()">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+</button>
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-black tracking-widest uppercase bg-white/20 px-2.5 py-0.5 rounded-full">IndiGo Boarding Pass</span>
+<span class="text-xs text-blue-100 font-mono">Flight 6E-2415</span>
+</div>
+<h3 class="text-xl font-extrabold">Aarav Sharma</h3>
+<p class="text-xs text-blue-100 font-mono">Booking Ref: ATC-984FL • Class: Economy</p>
+</div>
+<!-- Pass Content -->
+<div class="p-6 space-y-5">
+<div class="flex items-center justify-between border-b border-slate-100 pb-4">
+<div>
+<p class="text-[11px] font-bold text-slate-400 uppercase">DELHI</p>
+<p class="text-2xl font-black text-slate-900">DEL</p>
+<p class="text-xs font-semibold text-slate-600">Terminal 3</p>
+<p class="text-xs text-blue-600 font-bold mt-1">Dep: 18:45</p>
+</div>
+<div class="flex flex-col items-center">
+<svg class="w-6 h-6 text-[#0066ff] rotate-90" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"></path></svg>
+<span class="text-[10px] text-slate-400 font-semibold mt-1">2h 15m</span>
+</div>
+<div class="text-right">
+<p class="text-[11px] font-bold text-slate-400 uppercase">MUMBAI</p>
+<p class="text-2xl font-black text-slate-900">BOM</p>
+<p class="text-xs font-semibold text-slate-600">Terminal 2</p>
+<p class="text-xs text-emerald-600 font-bold mt-1">Arr: 21:00</p>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl text-center border border-slate-100">
+<div>
+<span class="text-[10px] uppercase font-bold text-slate-400">Boarding Gate</span>
+<p class="text-lg font-black text-slate-900">Gate 34B</p>
+</div>
+<div>
+<span class="text-[10px] uppercase font-bold text-slate-400">Assigned Seat</span>
+<p class="text-lg font-black text-blue-600">12F</p>
+</div>
+<div>
+<span class="text-[10px] uppercase font-bold text-slate-400">Group Zone</span>
+<p class="text-lg font-black text-slate-900">Zone 2</p>
+</div>
+</div>
+<!-- Simulated Barcode & QR Code -->
+<div class="pt-2 flex flex-col items-center">
+<!-- Stylized Barcode -->
+<div class="w-full flex justify-between h-12 px-2 items-center bg-slate-100 rounded-lg p-2 overflow-hidden mb-2">
+<div class="flex gap-1 items-stretch h-full w-full justify-center">
+<span class="w-1 bg-slate-900"></span><span class="w-2 bg-slate-900"></span><span class="w-0.5 bg-slate-900"></span><span class="w-1.5 bg-slate-900"></span>
+<span class="w-3 bg-slate-900"></span><span class="w-1 bg-slate-900"></span><span class="w-0.5 bg-slate-900"></span><span class="w-2 bg-slate-900"></span>
+<span class="w-1 bg-slate-900"></span><span class="w-1.5 bg-slate-900"></span><span class="w-0.5 bg-slate-900"></span><span class="w-3 bg-slate-900"></span>
+<span class="w-2 bg-slate-900"></span><span class="w-0.5 bg-slate-900"></span><span class="w-1 bg-slate-900"></span><span class="w-2.5 bg-slate-900"></span>
+<span class="w-1 bg-slate-900"></span><span class="w-0.5 bg-slate-900"></span><span class="w-2 bg-slate-900"></span><span class="w-1.5 bg-slate-900"></span>
+<span class="w-3 bg-slate-900"></span><span class="w-0.5 bg-slate-900"></span><span class="w-2 bg-slate-900"></span><span class="w-1 bg-slate-900"></span>
+</div>
+</div>
+<p class="text-[11px] font-mono text-slate-400 tracking-wider">6E2415DELBOM20241024-12F</p>
+</div>
+<!-- Action Buttons inside modal -->
+<div class="flex gap-3 pt-2">
+<button class="flex-1 py-3 px-4 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors" onclick="showNotification('Added to Apple &amp; Google Wallet successfully!')">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.93-2.85-.9.04-1.99.6-2.63 1.35-.57.65-1.06 1.71-.93 2.73 1 .08 2.02-.48 2.63-1.23z"></path></svg>
+            Save to Apple Wallet
+          </button>
+<button class="py-3 px-4 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs border border-blue-200 transition-colors flex items-center justify-center gap-1.5" onclick="downloadMockPDF()">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            Download PDF
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal 2: Hotel Voucher Modal -->
+<div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 transition-opacity" id="hotel-voucher-modal">
+<div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden modal-enter border border-slate-200">
+<!-- Header -->
+<div class="bg-gradient-to-r from-amber-600 to-amber-700 p-6 text-white relative">
+<button class="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors" onclick="closeHotelVoucherModal()">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+</button>
+<span class="text-xs font-black tracking-widest uppercase bg-white/20 px-2.5 py-0.5 rounded-full inline-block mb-2">Disruption Certificate</span>
+<h3 class="text-xl font-extrabold">The Grand Hyatt Mumbai</h3>
+<p class="text-xs text-amber-100">Official Disruption Accommodation Voucher</p>
+</div>
+<!-- Content -->
+<div class="p-6 space-y-4">
+<div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-start gap-3">
+<svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="currentColor" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+<div class="text-xs text-amber-900 leading-relaxed">
+<p class="font-bold">Late Check-in Protocol Active</p>
+<p class="mt-0.5">Guest Aarav Sharma is delayed due to airline schedule disruption. The property has locked the room for arrival past 21:00 PM without cancellation or forfeit.</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-xl border border-slate-100">
+<div>
+<span class="text-slate-400 font-semibold uppercase text-[10px]">Confirmation No.</span>
+<p class="font-mono font-bold text-slate-800 text-sm">HYT-88219</p>
+</div>
+<div>
+<span class="text-slate-400 font-semibold uppercase text-[10px]">Room Type</span>
+<p class="font-bold text-slate-800 text-sm">Deluxe King Room</p>
+</div>
+<div>
+<span class="text-slate-400 font-semibold uppercase text-[10px]">Dates</span>
+<p class="font-bold text-slate-800">Oct 24 - 27 (3 Nights)</p>
+</div>
+<div>
+<span class="text-slate-400 font-semibold uppercase text-[10px]">Waiver Status</span>
+<p class="font-bold text-emerald-600">₹0 Penalty Guaranteed</p>
+</div>
+</div>
+<div class="p-3 border border-dashed border-slate-200 rounded-xl text-center">
+<span class="text-[10px] text-slate-400 uppercase font-semibold">Concierge Authentication Signature</span>
+<p class="font-mono text-xs font-semibold text-slate-600 mt-1">ATC-SIGN-SHA256-7fa918b824190c</p>
+</div>
+<div class="flex gap-3 pt-2">
+<button class="flex-1 py-3 px-4 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs transition-colors" onclick="closeHotelVoucherModal(); showNotification('Voucher forwarded to hotel front desk &amp; your email.')">
+            Confirm &amp; Send to Front Desk
+          </button>
+<button class="py-3 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors" onclick="closeHotelVoucherModal()">
+            Done
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Toast Notification -->
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none" id="toast">
+<div class="bg-slate-900/95 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-slate-800 flex items-center gap-3 backdrop-blur-md">
+<div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+</div>
+<p class="text-xs font-medium text-slate-100 tracking-wide" id="toast-message"></p>
+</div>
+</div>
+<!-- JavaScript Interactions -->
+<script>
+    // Copy to clipboard helper
+    function copyToClipboard(text, badgeId) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          showBadge(badgeId);
+          showNotification(`Copied "${text}" to clipboard.`);
+        });
+      } else {
+        showBadge(badgeId);
+        showNotification(`Copied "${text}" to clipboard.`);
+      }
+    }
+
+    function showBadge(badgeId) {
+      const badge = document.getElementById(badgeId);
+      if (badge) {
+        badge.classList.remove('hidden');
+        setTimeout(() => {
+          badge.classList.add('hidden');
+        }, 1800);
+      }
+    }
+
+    // Interactive Toast Notification
+    let toastTimeout;
+    function showNotification(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      if (!toast || !toastMsg) return;
+
+      toastMsg.textContent = message;
+      clearTimeout(toastTimeout);
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3400);
+    }
+
+    // Boarding Pass Modal Control
+    function openBoardingPassModal() {
+      const modal = document.getElementById('boarding-pass-modal');
+      modal.classList.remove('hidden');
+    }
+    function closeBoardingPassModal() {
+      const modal = document.getElementById('boarding-pass-modal');
+      modal.classList.add('hidden');
+    }
+
+    // Hotel Voucher Modal Control
+    function openHotelVoucherModal() {
+      const modal = document.getElementById('hotel-voucher-modal');
+      modal.classList.remove('hidden');
+    }
+    function closeHotelVoucherModal() {
+      const modal = document.getElementById('hotel-voucher-modal');
+      modal.classList.add('hidden');
+    }
+
+    function downloadMockPDF() {
+      showNotification('Generating PDF boarding pass for IndiGo 6E-2415...');
+      setTimeout(() => {
+        closeBoardingPassModal();
+        showNotification('IndiGo-6E2415-BoardingPass.pdf downloaded.');
+      }, 1200);
+    }
+
+    // Magnetic Ripple Feedback for Start New Trip Button
+    function triggerStartNewTrip(e) {
+      const btn = document.getElementById('start-trip-btn');
+      
+      // Ripple creation
+      const circle = document.createElement('span');
+      const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+      const radius = diameter / 2;
+
+      const rect = btn.getBoundingClientRect();
+      circle.style.width = circle.style.height = `${diameter}px`;
+      circle.style.left = `${e.clientX - rect.left - radius}px`;
+      circle.style.top = `${e.clientY - rect.top - radius}px`;
+      circle.classList.add('ripple');
+
+      const existingRipple = btn.getElementsByClassName('ripple')[0];
+      if (existingRipple) {
+        existingRipple.remove();
+      }
+
+      btn.appendChild(circle);
+
+      // Prompt interaction
+      showNotification('Initializing Autonomous Travel Concierge for new itinerary...');
+    }
+
+    // Close modals on clicking outside or ESC
+    window.addEventListener('click', (e) => {
+      const bpModal = document.getElementById('boarding-pass-modal');
+      const hvModal = document.getElementById('hotel-voucher-modal');
+      if (e.target === bpModal) closeBoardingPassModal();
+      if (e.target === hvModal) closeHotelVoucherModal();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeBoardingPassModal();
+        closeHotelVoucherModal();
+      }
+    });
+  </script>
+</body></html>

@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=1440, initial-scale=1.0" name="viewport"/>
+<title>ATC - Hotel Policy Concierge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#0066ff',
+              600: '#0052cc',
+              700: '#003d99',
+              900: '#0b2545',
+            }
+          }
+        }
+      }
+    }
+</script>
+<style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f0f4f8;
+      color: #0f172a;
+    }
+
+    /* Shimmer progress effect */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .shimmer-badge {
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.8s infinite;
+    }
+
+    /* Pulse wave for active map pin beacon */
+    @keyframes pinRipple {
+      0% {
+        transform: scale(0.9);
+        opacity: 0.85;
+      }
+      100% {
+        transform: scale(2.6);
+        opacity: 0;
+      }
+    }
+    .pin-radar-ring {
+      animation: pinRipple 2.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    }
+
+    /* Smooth outcome switcher animation */
+    .outcome-panel {
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .outcome-panel.panel-entering {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    .outcome-panel.panel-entered {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Hotel Card Active Glow */
+    .hotel-card {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hotel-card:hover {
+      transform: translateY(-2px);
+    }
+    .hotel-card.is-active-card {
+      border-color: #0066ff !important;
+      background-color: rgba(239, 246, 255, 0.7) !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 102, 255, 0.15), 0 0 0 1px #0066ff !important;
+    }
+    .hotel-card.card-targeted {
+      animation: cardPulseGlow 1.8s ease-out;
+    }
+    @keyframes cardPulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.5); }
+      70% { box-shadow: 0 0 0 10px rgba(0, 102, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0); }
+    }
+
+    /* Google Maps Marker Animations & Hover Styles */
+    .gmap-marker {
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, z-index 0s;
+    }
+    .gmap-marker:hover {
+      transform: translate(-50%, -50%) scale(1.08);
+      z-index: 50 !important;
+    }
+    .gmap-marker.is-active-marker {
+      z-index: 45 !important;
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    /* Primary CTA shine glide */
+    .btn-shine-effect {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-shine-effect::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.25) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(25deg);
+      transition: all 0.75s ease-out;
+    }
+    .btn-shine-effect:hover::after {
+      left: 140%;
+    }
+
+    /* Toast Slide & Fade */
+    #switchToast {
+      transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Accessibility: Reduced motion check */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .pin-radar-ring, .shimmer-badge {
+        animation: none !important;
+      }
+    }
+</style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-700 relative">
+<!-- Floating Switch Toast Notification -->
+<div class="fixed top-5 right-6 z-50 pointer-events-none opacity-0 translate-y-[-16px] flex items-center gap-3 bg-slate-900/95 text-white border border-blue-500/40 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md max-w-md" id="switchToast">
+<div class="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-400/50 flex items-center justify-center text-blue-400 flex-shrink-0">
+<svg class="w-4 h-4 animate-spin" fill="none" viewbox="0 0 24 24">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8v8H4z" fill="currentColor"></path>
+</svg>
+</div>
+<div>
+<div class="text-xs font-bold tracking-wide text-blue-300 flex items-center gap-1.5">
+<span>RESERVATION SYNC QUEUED</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+</div>
+<p class="text-xs text-slate-200 mt-0.5" id="toastMessage">Hotel reservation switch queued - syncing with LHR Terminal 5 re-accommodation.</p>
+</div>
+</div>
+<!-- Persistent Top Navigation Bar -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 backdrop-blur-sm bg-white/95">
+<div class="max-w-[1440px] mx-auto px-8 h-18 py-4 flex items-center justify-between">
+<!-- Left: Logo & Wordmark -->
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-xl tracking-tight transition-transform hover:scale-105">
+<svg class="w-6 h-6 transform -rotate-45" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="text-2xl font-black text-blue-900 tracking-tight">ATC</span>
+<span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold uppercase tracking-wider border border-blue-200 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Concierge Active
+          </span>
+</div>
+<p class="text-[11px] text-slate-500 font-medium -mt-1 tracking-tight">Autonomous Travel-Disruption Concierge</p>
+</div>
+</div>
+<!-- Center: Stepper / Breadcrumbs -->
+<nav class="hidden md:flex items-center space-x-2 text-sm font-medium">
+<span class="text-slate-400 flex items-center">
+<svg class="w-4 h-4 mr-1 text-emerald-500" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+        Flight Disruption
+      </span>
+<svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="text-slate-400 flex items-center">
+<svg class="w-4 h-4 mr-1 text-emerald-500" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+        Flight Rebooked (BA 249)
+      </span>
+<svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="text-blue-600 font-bold bg-blue-50 px-3 py-1 rounded-full border border-blue-200 shadow-sm flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-blue-600"></span>
+        Step 3: Hotel Policy Review
+      </span>
+</nav>
+<!-- Right: Traveler Profile -->
+<div class="flex items-center space-x-3">
+<div class="text-right">
+<div class="text-sm font-bold text-slate-900 leading-tight">Rohit Sharma</div>
+<div class="text-xs text-slate-500">Booking Ref: <span class="font-mono text-blue-700 font-semibold">ATC-9821K</span></div>
+</div>
+<div class="w-10 h-10 rounded-full bg-blue-100 border-2 border-blue-200 text-blue-700 font-bold flex items-center justify-center text-sm shadow-sm transition hover:ring-2 hover:ring-blue-400">
+        RS
+      </div>
+</div>
+</div>
+</header>
+<!-- Notification Banner: Live Telemetry & Flight locked -->
+<div class="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-950 text-white py-3 px-8 border-b border-blue-800 shadow-inner">
+<div class="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
+<div class="flex items-center space-x-3">
+<span class="flex h-2.5 w-2.5 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-400"></span>
+</span>
+<p class="text-sm font-medium">
+<span class="font-bold text-teal-300">Replacement Flight Confirmed:</span> BA 249 departing at 19:40 today (within INR budget). Now synchronizing your hotel reservation.
+      </p>
+</div>
+<div class="flex items-center space-x-3">
+<span class="text-[11px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+<span>Synchronizing hotel reservation - <strong class="font-bold" id="latencyDisplay">18ms</strong> latency</span>
+</span>
+<span class="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-3 py-1 rounded-md border border-white/20 font-mono font-medium">
+        Ticket Issued #6729104
+      </span>
+</div>
+</div>
+</div>
+<!-- Main Content Viewport Area -->
+<main class="flex-1 max-w-[1440px] w-full mx-auto px-8 py-10 flex flex-col items-center justify-center">
+<!-- Header info over card -->
+<div class="text-center max-w-2xl mb-8">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm mb-3">
+<svg class="w-4 h-4 text-blue-600 animate-pulse" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-xs font-bold text-slate-700 tracking-wide uppercase">Hotel Reservation Protection</span>
+</div>
+<h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Review Hotel Cancellation &amp; Adjustment Policy</h1>
+<p class="text-slate-600 mt-2 text-sm">
+      Due to the revised schedule, your destination arrival is now moved. Check your hotel policy below to auto-apply adjustments, waivers, or refund claims.
+    </p>
+</div>
+<!-- Centered Wide Card -->
+<div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl shadow-slate-200/70 border border-slate-200 overflow-hidden">
+<!-- Card Sub-header: Hotel Identity -->
+<div class="bg-gradient-to-b from-slate-50 to-white px-8 py-6 border-b border-slate-100">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex items-center space-x-4">
+<div class="w-14 h-14 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0 shadow-sm">
+<svg class="w-8 h-8" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 21h18M3 7v14M21 7v14M6 11h2m-2 4h2m4-4h2m-2 4h2m4-4h2m-2 4h2M9 3h6a2 2 0 012 2v2H7V5a2 2 0 012-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<h2 class="text-xl font-bold text-slate-900 transition-colors" id="currentHotelHeadline">The Grand Promenade Hotel &amp; Suites</h2>
+<span class="flex items-center text-amber-400 text-sm">
+                ★ ★ ★ ★ ★
+              </span>
+</div>
+<p class="text-sm text-slate-500 flex items-center mt-0.5" id="currentHotelSub">
+<svg class="w-4 h-4 mr-1 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+              Heathrow Terminal 5 Skyline Boulevard, London • Reservation #HTL-88421
+            </p>
+</div>
+</div>
+<div class="text-right self-start sm:self-auto bg-slate-50 px-4 py-2 rounded-xl border border-slate-200/80">
+<span class="text-xs text-slate-500 font-semibold block uppercase">Room Type</span>
+<span class="text-sm font-bold text-slate-800">Executive King Bay View</span>
+</div>
+</div>
+</div>
+<!-- Card Body Content -->
+<div class="p-8 space-y-8">
+<!-- Side-by-Side Dates Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Check-in Box -->
+<div class="bg-slate-50/80 hover:bg-slate-50 transition border border-slate-200 rounded-xl p-5 flex items-center justify-between group">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-105 transition-transform">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Check-in Date</span>
+<p class="text-lg font-extrabold text-slate-900 mt-0.5">Thu, 24 Oct 2024</p>
+<p class="text-xs text-slate-500">Guaranteed standard check-in from 15:00</p>
+</div>
+</div>
+<span class="px-2.5 py-1 text-xs font-semibold rounded-md bg-blue-100 text-blue-800 border border-blue-200">
+            Arrival
+          </span>
+</div>
+<!-- Check-out Box -->
+<div class="bg-slate-50/80 hover:bg-slate-50 transition border border-slate-200 rounded-xl p-5 flex items-center justify-between group">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-105 transition-transform">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Check-out Date</span>
+<p class="text-lg font-extrabold text-slate-900 mt-0.5">Sun, 27 Oct 2024</p>
+<p class="text-xs text-slate-500">Standard checkout until 11:00 AM (3 Nights)</p>
+</div>
+</div>
+<span class="px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-200 text-slate-700">
+            Departure
+          </span>
+</div>
+</div>
+<!-- Action Row: "Check policy" Trigger & Live Diagnostics -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-blue-50/60 rounded-xl border border-blue-100">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+<svg class="w-5 h-5" fill="none" id="queryIcon" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900" id="queryStatusHeading">Query Booking Engine for Real-Time Cancellation Terms</p>
+<p class="text-xs text-slate-600" id="queryStatusSub">Cross-referencing verified airline flight disruption code <span class="font-mono font-bold text-blue-700">#DISR-992</span> with hotel contract rules.</p>
+</div>
+</div>
+<button class="px-6 py-2.5 bg-white hover:bg-slate-50 active:bg-slate-100 text-blue-700 font-bold text-sm rounded-lg border border-blue-300 shadow-sm transition flex items-center space-x-2 whitespace-nowrap active:scale-95 transition-all" id="checkPolicyBtn">
+<svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Check policy</span>
+</button>
+</div>
+<!-- Interactive Policy Outcome Results Panel Displaying 3 Possible States -->
+<div class="space-y-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<label class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center space-x-2">
+<span>Hotel Policy Assessment Result</span>
+<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" id="assessmentDot"></span>
+</label>
+<div class="flex items-center space-x-1.5 text-xs text-slate-500">
+<span class="font-medium mr-1 text-[11px]">Preview demo scenarios:</span>
+<button class="px-2.5 py-1 rounded bg-emerald-600 text-white font-semibold hover:bg-emerald-700 shadow-sm transition active:scale-95" id="scenarioBtnGreen" onclick="switchOutcome('green')">1. Free Cancel</button>
+<button class="px-2.5 py-1 rounded bg-amber-100 text-amber-800 font-semibold hover:bg-amber-200 transition active:scale-95" id="scenarioBtnAmber" onclick="switchOutcome('amber')">2. Non-Refundable</button>
+<button class="px-2.5 py-1 rounded bg-blue-100 text-blue-800 font-semibold hover:bg-blue-200 transition active:scale-95" id="scenarioBtnBlue" onclick="switchOutcome('blue')">3. Full Refund</button>
+</div>
+</div>
+<!-- Outcome 1: Green message for Free Cancellation with Live Decrementing Countdown (DEFAULT ACTIVE) -->
+<div class="outcome-panel p-5 rounded-xl border border-emerald-300 bg-emerald-50/80 shadow-sm panel-entered" id="outcome-green">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-start space-x-4">
+<div class="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-0.5">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<div class="space-y-1">
+<div class="flex items-center space-x-2">
+<span class="relative overflow-hidden text-xs font-extrabold uppercase px-2.5 py-0.5 rounded bg-emerald-200 text-emerald-900 tracking-wide inline-flex items-center">
+<span>Free Cancellation Eligible</span>
+<span class="absolute inset-0 shimmer-badge pointer-events-none"></span>
+</span>
+<span class="text-xs text-emerald-700 font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    100% Waiver Confirmed
+                  </span>
+</div>
+<h3 class="text-base font-bold text-emerald-950 mt-1">
+                  Complimentary cancellation active until today, 18:00 BST (24 Oct 2024)
+                </h3>
+<p class="text-sm text-emerald-800 leading-relaxed">
+                  You can cancel this hotel reservation with zero penalty fees before <strong>6:00 PM today</strong>. No charge will be placed on your stored card, or an existing hold will release immediately.
+                </p>
+<div class="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold text-emerald-900 pt-1">
+<!-- Live countdown ticker -->
+<div class="flex items-center space-x-1.5 bg-emerald-100/90 border border-emerald-300/80 px-2.5 py-1 rounded-md text-emerald-900 font-mono shadow-xs">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+</span>
+<span class="font-sans font-medium text-[11px] text-emerald-800">Deadline:</span>
+<span class="font-bold tracking-wider text-emerald-950" id="countdownTimer">03:14:22</span>
+<span class="text-[10px] text-emerald-700 font-sans font-normal">(remaining)</span>
+</div>
+<span class="text-emerald-400">•</span>
+<span class="flex items-center gap-1">
+                    Direct API Cancellation Key: 
+                    <code class="font-mono bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-950 border border-emerald-200">CAN-OK-4402</code>
+</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 hidden sm:block">
+<span class="text-2xl font-black text-emerald-700">₹0 Fee</span>
+<span class="block text-xs text-emerald-600 font-semibold">Full Zero-Risk</span>
+</div>
+</div>
+</div>
+<!-- Outcome 2: Amber message for Non-refundable booking with paid extension option (Hidden by default) -->
+<div class="outcome-panel hidden p-5 rounded-xl border border-amber-300 bg-amber-50/80 shadow-sm" id="outcome-amber">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-start space-x-4">
+<div class="w-10 h-10 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-600 flex-shrink-0 mt-0.5">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<div class="space-y-1">
+<div class="flex items-center space-x-2">
+<span class="text-xs font-extrabold uppercase px-2.5 py-0.5 rounded bg-amber-200 text-amber-900 tracking-wide">
+                    Non-Refundable Policy Detected
+                  </span>
+<span class="text-xs text-amber-700 font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    Standard Rate Restrictive
+                  </span>
+</div>
+<h3 class="text-base font-bold text-amber-950 mt-1">
+                  Re-routing Waiver Applied via Disruption Code #DISR-992
+                </h3>
+<p class="text-sm text-amber-800 leading-relaxed">
+                  This reservation does not allow a direct cash refund under standard rate rules. However, ATC has unlocked a negotiated <strong>Instant Auto-Credit &amp; Flexible Shift</strong> to match your new flight BA 249 timing with zero re-accommodation penalty.
+                </p>
+<div class="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold text-amber-900 pt-1">
+<span class="flex items-center bg-amber-100/90 border border-amber-300 px-2.5 py-1 rounded-md font-mono">
+<svg class="w-4 h-4 mr-1 text-amber-600 font-sans" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a1 1 0 100-2 1 1 0 000 2z" fill-rule="evenodd"></path>
+</svg>
+                    IATA Exception: <strong class="ml-1 text-amber-950">WAIVE-DISR-992</strong>
+</span>
+<span class="text-amber-400">•</span>
+<a class="underline hover:text-amber-950 flex items-center gap-1" href="#alternativesGrid">
+                    Apply credit towards adjacent LHR hotels ↓
+                  </a>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 hidden sm:block">
+<span class="text-2xl font-black text-amber-700">₹0 Penalty</span>
+<span class="block text-xs text-amber-600 font-semibold">Protected via IATA</span>
+</div>
+</div>
+</div>
+<!-- Outcome 3: Blue message for Full Refund (Hidden by default) -->
+<div class="outcome-panel hidden p-5 rounded-xl border border-blue-300 bg-blue-50/80 shadow-sm" id="outcome-blue">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-start space-x-4">
+<div class="w-10 h-10 rounded-full bg-blue-100 border border-blue-300 flex items-center justify-center text-blue-600 flex-shrink-0 mt-0.5">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<div class="space-y-1">
+<div class="flex items-center space-x-2">
+<span class="text-xs font-extrabold uppercase px-2.5 py-0.5 rounded bg-blue-200 text-blue-900 tracking-wide">
+                    Automatic Refund Authorized
+                  </span>
+<span class="text-xs text-blue-700 font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+                    100% Cash / GDS Reversal
+                  </span>
+</div>
+<h3 class="text-base font-bold text-blue-950 mt-1">
+                  100% Cash/GDS Reversal Initiated - ₹22,500 returning to original payment method
+                </h3>
+<p class="text-sm text-blue-800 leading-relaxed">
+                  Because your initial inbound flight was cancelled, the hotel's carrier agreement guarantees an automatic direct reversal of <strong>₹22,500</strong> to your HDFC Visa card ending in 4019 without processing deductions.
+                </p>
+<div class="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold text-blue-900 pt-1">
+<span class="flex items-center bg-blue-100/90 border border-blue-300 px-2.5 py-1 rounded-md font-mono">
+<svg class="w-4 h-4 mr-1 text-blue-600 font-sans" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+                    Ref: <strong class="ml-1 text-blue-950">GDS-REF-99382</strong>
+</span>
+<span class="text-blue-400">•</span>
+<span>Estimated turnaround: 2-3 business days</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 hidden sm:block">
+<span class="text-2xl font-black text-blue-700">₹22,500</span>
+<span class="block text-xs text-blue-600 font-semibold">100% Refund</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Summary & Reassurance row -->
+<div class="border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+<div class="flex items-center space-x-2">
+<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Changes will be synced instantly with your updated flight itinerary.</span>
+</div>
+<div class="flex items-center space-x-1">
+<span class="font-medium text-slate-600">Assistance:</span>
+<span class="text-blue-600 font-semibold cursor-pointer hover:underline flex items-center gap-1" onclick="alert('Connecting Rohit Sharma to Senior ATC Concierge Desk...')">
+            Chat with ATC Concierge Agent
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</span>
+</div>
+</div>
+<!-- Card Section: Nearby Alternative Hotels & Interactive Map -->
+<div class="border-t border-slate-200/80 pt-6 space-y-5">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div>
+<div class="flex items-center space-x-2">
+<span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wide">Contingency Options</span>
+<h3 class="text-lg font-extrabold text-slate-900 tracking-tight">Nearby Alternative Hotels &amp; Map (LHR Corridor)</h3>
+</div>
+<p class="text-xs text-slate-500 mt-1">Explore pre-negotiated accommodations near London Heathrow (LHR) Terminal 5 eligible for seamless reservation sync.</p>
+</div>
+<div class="flex items-center space-x-2 text-xs">
+<span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold flex items-center gap-1.5 shadow-xs">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              All 5 Hotels Synchronized
+            </span>
+</div>
+</div>
+<!-- Realistic Google Maps Interface Container -->
+<div class="relative rounded-2xl border border-slate-300/80 bg-slate-100 overflow-hidden shadow-xl" id="googleMapContainer">
+<div class="h-[360px] relative overflow-hidden select-none">
+<!-- Photorealistic Map Aerial / Satellite Base Tile Background -->
+<img alt="High-detail Google Maps view of London Heathrow Airport Terminal 5" class="absolute inset-0 w-full h-full object-cover object-center filter brightness-[1.02] contrast-[1.03]" id="gmapBaseImg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwxWXQuerlVgzIQDIBXWWAPwB-d6_rGyPWXVhH9pqDy44Ab39kKWo9HO5Ws0kkAZN5Vt66fC8XOWD-li5pQZnitm-YRne1eI1QAf7o9wzzbCZlep84xolgjjO6PTITMQdGdauwTmGkBuhcYYh9Wv2r-7h3z_k14FV4G3c0C5KksIbgUNyYjregQKEl-rvPGcykoNuPAOLTxEZU8oVs45mfgRukIzAHA2Q5tsB1npFX1C9EtZBX4DAS"/>
+<!-- Subtle Map Roads / Lighting Vignette -->
+<div class="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/25 pointer-events-none"></div>
+<!-- Top-Left Search Bar Overlay inside Map -->
+<div class="absolute top-3 left-3 z-30 flex items-center shadow-lg rounded-lg overflow-hidden border border-slate-300/80 bg-white max-w-xs md:max-w-sm w-full">
+<div class="pl-3 pr-2 py-2 text-slate-400 flex items-center justify-center">
+<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<input class="w-full text-xs font-medium text-slate-800 placeholder-slate-400 py-2 pr-2 border-0 focus:ring-0 focus:outline-none bg-transparent" placeholder="Search nearby amenities, EV charging, terminals..." readonly="" type="text" value="London Heathrow (LHR) Terminal 5"/>
+<button class="px-2.5 py-2 text-slate-400 hover:text-blue-600 transition flex items-center justify-center border-l border-slate-200" title="Nearby Filters">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<!-- Top-Right: Map / Satellite Mode Toggle Pills -->
+<div class="absolute top-3 right-3 z-30 flex items-center bg-white rounded-lg shadow-md border border-slate-300/80 overflow-hidden text-xs font-semibold">
+<button class="px-3 py-1.5 bg-white text-slate-800 hover:bg-slate-50 border-r border-slate-200 transition active:bg-slate-100" id="gmapModeMap" onclick="toggleMapMode('map')">
+Map
+</button>
+<button class="px-3 py-1.5 bg-blue-600 text-white font-bold transition shadow-inner" id="gmapModeSat" onclick="toggleMapMode('satellite')">
+Satellite
+</button>
+</div>
+<!-- LHR Landmark Label: Airport Terminal 5 Marker -->
+<div class="absolute top-[48%] left-[58%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 flex items-center gap-1.5 bg-slate-900/85 backdrop-blur-xs text-white px-2.5 py-1 rounded-full shadow-md border border-slate-600/70">
+<div class="w-4 h-4 rounded-full bg-sky-500 flex items-center justify-center text-white">
+<svg class="w-2.5 h-2.5 transform -rotate-45" fill="currentColor" viewbox="0 0 20 20">
+<path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+</svg>
+</div>
+<span class="text-[10.5px] font-bold tracking-tight">London Heathrow Airport (T5)</span>
+</div>
+<!-- HOTEL MARKER PINS: Clean Modern Google Maps Marker Bubbles -->
+<!-- Pin 1: The Grand Promenade Hotel (Selected / Active Stay) -->
+<div class="gmap-marker is-active-marker absolute top-[43%] left-[45%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-40" id="pin-grand" onclick="focusAndSelectHotel('grand')">
+<div class="relative flex flex-col items-center group">
+<!-- Active Pulsing Beacon Ring -->
+<div class="pin-radar-glow absolute -inset-2.5 rounded-full bg-blue-500/35 pin-radar-ring pointer-events-none"></div>
+<div class="pin-badge flex items-center gap-1.5 bg-blue-600 text-white px-3 py-1.5 rounded-full shadow-xl border-2 border-white ring-2 ring-blue-500/60 text-xs font-bold whitespace-nowrap transition-transform">
+<svg class="w-3.5 h-3.5 text-amber-300 flex-shrink-0" fill="currentColor" viewbox="0 0 20 20">
+<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+</svg>
+<span class="pin-status-tag font-extrabold tracking-tight">₹22,500</span>
+<span class="text-[9px] uppercase tracking-wider bg-blue-800 text-blue-100 font-bold px-1.5 py-0.5 rounded-sm">Active</span>
+</div>
+<!-- Stem Pointer -->
+<div class="pin-pointer w-2.5 h-2.5 bg-blue-600 rotate-45 -mt-1 shadow-sm border-r border-b border-white"></div>
+<!-- Tooltip Popup -->
+<div class="absolute bottom-full mb-1.5 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+<div class="bg-slate-900 text-slate-100 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-xl border border-slate-700 whitespace-nowrap">
+The Grand Promenade Hotel &amp; Suites (Active Stay)
+</div>
+</div>
+</div>
+</div>
+<!-- Pin 2: Sofitel London Heathrow (Directly connected to T5) -->
+<div class="gmap-marker absolute top-[52%] left-[49%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30" id="pin-sofitel" onclick="focusAndSelectHotel('sofitel')">
+<div class="relative flex flex-col items-center group">
+<div class="pin-radar-glow hidden absolute -inset-2 rounded-full bg-blue-500/30 pin-radar-ring pointer-events-none"></div>
+<div class="pin-badge flex items-center gap-1.5 bg-white text-slate-900 hover:bg-slate-50 px-2.5 py-1 rounded-full shadow-lg border border-slate-300 text-xs font-bold whitespace-nowrap transition-transform hover:shadow-xl">
+<span class="text-amber-500 text-[11px]">★ 5.0</span>
+<span class="text-slate-400 font-light">•</span>
+<span class="font-extrabold text-slate-900">₹24,800</span>
+<span class="pin-status-tag text-[9.5px] text-emerald-700 font-semibold bg-emerald-50 px-1 rounded">(0.1 mi)</span>
+</div>
+<div class="pin-pointer w-2 h-2 bg-white rotate-45 -mt-1 shadow-sm border-r border-b border-slate-300"></div>
+<div class="absolute bottom-full mb-1.5 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+<div class="bg-slate-900 text-slate-100 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-xl border border-slate-700 whitespace-nowrap">
+Sofitel London Heathrow (T5 Walkway) • Click to select
+</div>
+</div>
+</div>
+</div>
+<!-- Pin 3: Radisson Hotel Bath Road (North along A4 Bath Road) -->
+<div class="gmap-marker absolute top-[18%] left-[62%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-25" id="pin-radisson" onclick="focusAndSelectHotel('radisson')">
+<div class="relative flex flex-col items-center group">
+<div class="pin-radar-glow hidden absolute -inset-2 rounded-full bg-blue-500/30 pin-radar-ring pointer-events-none"></div>
+<div class="pin-badge flex items-center gap-1.5 bg-white text-slate-900 hover:bg-slate-50 px-2.5 py-1 rounded-full shadow-lg border border-slate-300 text-xs font-bold whitespace-nowrap transition-transform hover:shadow-xl">
+<span class="text-amber-500 text-[11px]">★ 4.0</span>
+<span class="text-slate-400 font-light">•</span>
+<span class="font-extrabold text-slate-900">₹14,500</span>
+<span class="pin-status-tag text-[9.5px] text-slate-500 font-medium">(1.2 mi)</span>
+</div>
+<div class="pin-pointer w-2 h-2 bg-white rotate-45 -mt-1 shadow-sm border-r border-b border-slate-300"></div>
+<div class="absolute bottom-full mb-1.5 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+<div class="bg-slate-900 text-slate-100 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-xl border border-slate-700 whitespace-nowrap">
+Radisson Hotel Bath Road • Click to select
+</div>
+</div>
+</div>
+</div>
+<!-- Pin 4: Sheraton Skyline Hotel London Heathrow -->
+<div class="gmap-marker absolute top-[16%] left-[82%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-25" id="pin-sheraton" onclick="focusAndSelectHotel('sheraton')">
+<div class="relative flex flex-col items-center group">
+<div class="pin-radar-glow hidden absolute -inset-2 rounded-full bg-blue-500/30 pin-radar-ring pointer-events-none"></div>
+<div class="pin-badge flex items-center gap-1.5 bg-white text-slate-900 hover:bg-slate-50 px-2.5 py-1 rounded-full shadow-lg border border-slate-300 text-xs font-bold whitespace-nowrap transition-transform hover:shadow-xl">
+<span class="text-amber-500 text-[11px]">★ 4.0</span>
+<span class="text-slate-400 font-light">•</span>
+<span class="font-extrabold text-slate-900">₹15,800</span>
+<span class="pin-status-tag text-[9.5px] text-slate-500 font-medium">(1.5 mi)</span>
+</div>
+<div class="pin-pointer w-2 h-2 bg-white rotate-45 -mt-1 shadow-sm border-r border-b border-slate-300"></div>
+<div class="absolute bottom-full mb-1.5 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+<div class="bg-slate-900 text-slate-100 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-xl border border-slate-700 whitespace-nowrap">
+Sheraton Skyline Hotel • Click to select
+</div>
+</div>
+</div>
+</div>
+<!-- Pin 5: Hilton London Heathrow Terminal 4 -->
+<div class="gmap-marker absolute top-[78%] left-[72%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-25" id="pin-hilton" onclick="focusAndSelectHotel('hilton')">
+<div class="relative flex flex-col items-center group">
+<div class="pin-radar-glow hidden absolute -inset-2 rounded-full bg-blue-500/30 pin-radar-ring pointer-events-none"></div>
+<div class="pin-badge flex items-center gap-1.5 bg-white text-slate-900 hover:bg-slate-50 px-2.5 py-1 rounded-full shadow-lg border border-slate-300 text-xs font-bold whitespace-nowrap transition-transform hover:shadow-xl">
+<span class="text-amber-500 text-[11px]">★ 4.0</span>
+<span class="text-slate-400 font-light">•</span>
+<span class="font-extrabold text-slate-900">₹16,200</span>
+<span class="pin-status-tag text-[9.5px] text-slate-500 font-medium">(1.8 mi)</span>
+</div>
+<div class="pin-pointer w-2 h-2 bg-white rotate-45 -mt-1 shadow-sm border-r border-b border-slate-300"></div>
+<div class="absolute bottom-full mb-1.5 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+<div class="bg-slate-900 text-slate-100 text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-xl border border-slate-700 whitespace-nowrap">
+Hilton Terminal 4 • Click to select
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom-Right: Standard Google Maps Navigation Controls -->
+<div class="absolute bottom-5 right-3 z-30 flex flex-col items-center space-y-2">
+<!-- Tilt / 3D Compass button -->
+<button class="w-8 h-8 bg-white hover:bg-slate-50 text-slate-700 rounded-md shadow-md border border-slate-300/80 flex items-center justify-center transition active:scale-95" title="Tilt Map">
+<svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"></circle>
+<path d="M12 4v4m0 8v4M4 12h4m8 0h4" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"></path>
+<path d="M12 8l2 4h-4l2-4z" fill="#ef4444"></path>
+</svg>
+</button>
+<!-- Street View / Pegman Button -->
+<button class="w-8 h-8 bg-white hover:bg-slate-50 text-amber-500 rounded-md shadow-md border border-slate-300/80 flex items-center justify-center transition active:scale-95" title="Street View Pegman">
+<svg class="w-5 h-5 text-amber-500" fill="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="5" r="2.2"></circle>
+<path d="M12 8c-2 0-3.5 1-3.5 3v5h2v6h3v-6h2v-5c0-2-1.5-3-3.5-3z"></path>
+</svg>
+</button>
+<!-- Zoom Controls (+) and (-) -->
+<div class="bg-white rounded-md shadow-md border border-slate-300/80 overflow-hidden flex flex-col">
+<button class="w-8 h-8 flex items-center justify-center text-slate-700 hover:bg-slate-100 border-b border-slate-200 transition font-bold text-base active:bg-slate-200" title="Zoom in">+</button>
+<button class="w-8 h-8 flex items-center justify-center text-slate-700 hover:bg-slate-100 transition font-bold text-base active:bg-slate-200" title="Zoom out">−</button>
+</div>
+</div>
+<!-- Bottom-Left: Authentic Google Logo & Legal Watermarks -->
+<div class="absolute bottom-2 left-3 z-30 flex items-center space-x-2 pointer-events-none">
+<!-- Google Wordmark -->
+<div class="flex items-center space-x-0.5 bg-white/90 backdrop-blur-xs px-1.5 py-0.5 rounded shadow-xs text-[11px] font-bold tracking-tight">
+<span class="text-[#4285F4]">G</span>
+<span class="text-[#EA4335]">o</span>
+<span class="text-[#FBBC05]">o</span>
+<span class="text-[#4285F4]">g</span>
+<span class="text-[#34A853]">l</span>
+<span class="text-[#EA4335]">e</span>
+</div>
+<!-- Micro Attribution Text -->
+<div class="hidden sm:flex items-center space-x-1.5 text-[9.5px] text-white/90 drop-shadow-sm font-sans bg-black/40 backdrop-blur-xs px-2 py-0.5 rounded">
+<span>Keyboard shortcuts</span>
+<span>•</span>
+<span>Map data ©2025 Google</span>
+<span>•</span>
+<span>Imagery ©2025 CNES / Airbus, Maxar</span>
+<span>•</span>
+<span>Terms of Use</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Selectable Alternative Hotel Cards -->
+<div class="space-y-3 pt-1" id="alternativesGrid">
+<!-- Card 1: The Grand Promenade Hotel (Initial Active Stay) -->
+<div class="hotel-card is-active-card p-4 rounded-xl border border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer" id="card-grand" onclick="focusAndSelectHotel('grand')">
+<div class="flex items-start space-x-3.5">
+<div class="card-star-box w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0 mt-0.5">
+                ★ 5
+              </div>
+<div>
+<div class="flex flex-wrap items-center gap-2">
+<h4 class="text-sm font-bold text-slate-900">The Grand Promenade Hotel &amp; Suites</h4>
+<span class="text-amber-400 text-xs font-bold">★★★★★</span>
+<span class="card-status-badge px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-600 text-white tracking-wide">Active Stay</span>
+<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-emerald-100 text-emerald-800">100% Policy Covered</span>
+</div>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+<span>0.4 mi from Terminal 5</span>
+<span>•</span>
+<span class="text-blue-700 font-medium">Complimentary Hoppa Shuttle (Every 10 min)</span>
+<span>•</span>
+<span>Executive King Bay View</span>
+</p>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end space-x-4">
+<div class="text-right">
+<span class="text-base font-extrabold text-slate-900">₹22,500</span>
+<span class="block text-[11px] text-slate-500">/ night (£210)</span>
+</div>
+<button class="hotel-action-btn px-4 py-1.5 rounded-lg border border-blue-500 text-blue-700 bg-blue-50 font-bold text-xs shadow-xs transition" onclick="event.stopPropagation(); focusAndSelectHotel('grand');">
+                ✓ Active Stay
+              </button>
+</div>
+</div>
+<!-- Card 2: Sofitel London Heathrow -->
+<div class="hotel-card p-4 rounded-xl border border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer" id="card-sofitel" onclick="focusAndSelectHotel('sofitel')">
+<div class="flex items-start space-x-3.5">
+<div class="card-star-box w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5">
+                ★ 5
+              </div>
+<div>
+<div class="flex flex-wrap items-center gap-2">
+<h4 class="text-sm font-bold text-slate-900">Sofitel London Heathrow</h4>
+<span class="text-amber-400 text-xs font-bold">★★★★★</span>
+<span class="text-xs text-slate-500 font-medium">4.8 / 5 (3,420 reviews)</span>
+<span class="card-status-badge hidden px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-600 text-white tracking-wide">Active Stay</span>
+<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-emerald-100 text-emerald-800">Rebooking Sync Ready</span>
+</div>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+<span class="font-semibold text-emerald-700">0.1 mi directly connected to T5</span>
+<span>•</span>
+<span class="text-slate-600">Direct Covered Walkway (5 min walk to gates)</span>
+</p>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end space-x-4">
+<div class="text-right">
+<span class="text-base font-extrabold text-slate-900">₹24,800</span>
+<span class="block text-[11px] text-slate-500">/ night (+₹2,300)</span>
+</div>
+<button class="hotel-action-btn px-3.5 py-1.5 rounded-lg border border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white font-bold text-xs transition shadow-sm" onclick="event.stopPropagation(); focusAndSelectHotel('sofitel');">
+                Switch Hotel
+              </button>
+</div>
+</div>
+<!-- Card 3: Hilton London Heathrow Airport Terminal 4 -->
+<div class="hotel-card p-4 rounded-xl border border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer" id="card-hilton" onclick="focusAndSelectHotel('hilton')">
+<div class="flex items-start space-x-3.5">
+<div class="card-star-box w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5">
+                ★ 4
+              </div>
+<div>
+<div class="flex flex-wrap items-center gap-2">
+<h4 class="text-sm font-bold text-slate-900">Hilton London Heathrow Airport Terminal 4</h4>
+<span class="text-amber-400 text-xs font-bold">★★★★☆</span>
+<span class="text-xs text-slate-500 font-medium">4.4 / 5 (2,890 reviews)</span>
+<span class="card-status-badge hidden px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-600 text-white tracking-wide">Active Stay</span>
+<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-blue-100 text-blue-800">ATC Policy Covered</span>
+</div>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+<span>1.8 mi from Terminal 5</span>
+<span>•</span>
+<span class="text-slate-600">Free Heathrow Express Shuttle Transfer (6 mins)</span>
+</p>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end space-x-4">
+<div class="text-right">
+<span class="text-base font-extrabold text-slate-900">₹16,200</span>
+<span class="block text-[11px] text-emerald-600 font-semibold">Save ₹6,300</span>
+</div>
+<button class="hotel-action-btn px-3.5 py-1.5 rounded-lg border border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white font-bold text-xs transition shadow-sm" onclick="event.stopPropagation(); focusAndSelectHotel('hilton');">
+                Switch Hotel
+              </button>
+</div>
+</div>
+<!-- Card 4: Radisson Hotel & Conference Centre Bath Road -->
+<div class="hotel-card p-4 rounded-xl border border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer" id="card-radisson" onclick="focusAndSelectHotel('radisson')">
+<div class="flex items-start space-x-3.5">
+<div class="card-star-box w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5">
+                ★ 4
+              </div>
+<div>
+<div class="flex flex-wrap items-center gap-2">
+<h4 class="text-sm font-bold text-slate-900">Radisson Hotel &amp; Conference Centre London Heathrow</h4>
+<span class="text-amber-400 text-xs font-bold">★★★★☆</span>
+<span class="text-xs text-slate-500 font-medium">4.2 / 5 (1,940 reviews)</span>
+<span class="card-status-badge hidden px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-600 text-white tracking-wide">Active Stay</span>
+<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-emerald-100 text-emerald-800">Instant GDS Confirmation</span>
+</div>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+<span>1.2 mi on Bath Road</span>
+<span>•</span>
+<span class="text-slate-600">Dedicated LHR Hotel Hoppa Route H2B</span>
+</p>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end space-x-4">
+<div class="text-right">
+<span class="text-base font-extrabold text-slate-900">₹14,500</span>
+<span class="block text-[11px] text-emerald-600 font-semibold">Save ₹8,000</span>
+</div>
+<button class="hotel-action-btn px-3.5 py-1.5 rounded-lg border border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white font-bold text-xs transition shadow-sm" onclick="event.stopPropagation(); focusAndSelectHotel('radisson');">
+                Switch Hotel
+              </button>
+</div>
+</div>
+<!-- Card 5: Sheraton Skyline Hotel London Heathrow -->
+<div class="hotel-card p-4 rounded-xl border border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer" id="card-sheraton" onclick="focusAndSelectHotel('sheraton')">
+<div class="flex items-start space-x-3.5">
+<div class="card-star-box w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5">
+                ★ 4
+              </div>
+<div>
+<div class="flex flex-wrap items-center gap-2">
+<h4 class="text-sm font-bold text-slate-900">Sheraton Skyline Hotel London Heathrow</h4>
+<span class="text-amber-400 text-xs font-bold">★★★★☆</span>
+<span class="text-xs text-slate-500 font-medium">4.3 / 5 (2,150 reviews)</span>
+<span class="card-status-badge hidden px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-600 text-white tracking-wide">Active Stay</span>
+<span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-blue-100 text-blue-800">100% Policy Covered</span>
+</div>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+<span>1.5 mi from Terminal 5</span>
+<span>•</span>
+<span class="text-slate-600">Free Airport Shuttle Connection</span>
+</p>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end space-x-4">
+<div class="text-right">
+<span class="text-base font-extrabold text-slate-900">₹15,800</span>
+<span class="block text-[11px] text-emerald-600 font-semibold">Save ₹6,700</span>
+</div>
+<button class="hotel-action-btn px-3.5 py-1.5 rounded-lg border border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white font-bold text-xs transition shadow-sm" onclick="event.stopPropagation(); focusAndSelectHotel('sheraton');">
+                Switch Hotel
+              </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Primary CTA Action Button -->
+<div class="pt-2">
+<button class="btn-shine-effect group w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-extrabold text-base rounded-xl shadow-lg shadow-blue-500/25 transition-all transform active:scale-[0.99] flex items-center justify-center space-x-2" id="finalCtaBtn">
+<span id="finalCtaText">Continue to Final Itinerary</span>
+<svg class="w-5 h-5 transform group-hover:translate-x-1.5 transition-transform duration-200" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<p class="text-center text-[11px] text-slate-400 mt-2.5 transition-colors" id="finalSyncNote">
+          By clicking continue, ATC will dispatch automated re-synchronization instructions to The Grand Promenade Hotel.
+        </p>
+</div>
+</div>
+</div>
+<!-- Quick Footer / Context reassurance -->
+<div class="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500">
+<span class="flex items-center">
+<svg class="w-3.5 h-3.5 text-emerald-500 mr-1.5" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+      IATA Certified Disruption Protocol
+    </span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+      Instant GDS Hotel Sync
+    </span>
+<span>•</span>
+<span>24/7 Priority Concierge Support</span>
+</div>
+</main>
+<!-- Interactive Logic -->
+<script>
+  // 1. Dynamic Countdown Timer (decrementing second by second)
+  let totalSeconds = (3 * 3600) + (14 * 60) + 22;
+  const timerElement = document.getElementById('countdownTimer');
+
+  function updateCountdown() {
+    if (totalSeconds <= 0) {
+      if (timerElement) timerElement.textContent = "00:00:00 - Expired";
+      return;
+    }
+    totalSeconds--;
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    const formatted = 
+      String(hrs).padStart(2, '0') + ':' +
+      String(mins).padStart(2, '0') + ':' +
+      String(secs).padStart(2, '0');
+    if (timerElement) {
+      timerElement.textContent = formatted;
+    }
+  }
+  setInterval(updateCountdown, 1000);
+
+  // Random minor latency jitter for live telemetry realism
+  const latencyDisplay = document.getElementById('latencyDisplay');
+  if (latencyDisplay) {
+    setInterval(() => {
+      const ping = Math.floor(Math.random() * 8) + 14;
+      latencyDisplay.textContent = ping + 'ms';
+    }, 3800);
+  }
+
+  // 2. Interactive Policy Scenario Switcher
+  function switchOutcome(type) {
+    const panels = ['green', 'amber', 'blue'];
+    
+    // Update scenario buttons styling
+    const btnGreen = document.getElementById('scenarioBtnGreen');
+    const btnAmber = document.getElementById('scenarioBtnAmber');
+    const btnBlue = document.getElementById('scenarioBtnBlue');
+    const dot = document.getElementById('assessmentDot');
+
+    if (btnGreen && btnAmber && btnBlue) {
+      btnGreen.className = 'px-2.5 py-1 rounded font-semibold transition active:scale-95 ' + 
+        (type === 'green' ? 'bg-emerald-600 text-white shadow-sm hover:bg-emerald-700' : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200');
+      btnAmber.className = 'px-2.5 py-1 rounded font-semibold transition active:scale-95 ' + 
+        (type === 'amber' ? 'bg-amber-600 text-white shadow-sm hover:bg-amber-700' : 'bg-amber-100 text-amber-800 hover:bg-amber-200');
+      btnBlue.className = 'px-2.5 py-1 rounded font-semibold transition active:scale-95 ' + 
+        (type === 'blue' ? 'bg-blue-600 text-white shadow-sm hover:bg-blue-700' : 'bg-blue-100 text-blue-800 hover:bg-blue-200');
+    }
+
+    if (dot) {
+      dot.className = 'w-2 h-2 rounded-full inline-block ' + 
+        (type === 'green' ? 'bg-emerald-500 animate-pulse' : (type === 'amber' ? 'bg-amber-500 animate-pulse' : 'bg-blue-500 animate-pulse'));
+    }
+
+    panels.forEach(p => {
+      const el = document.getElementById('outcome-' + p);
+      if (el) {
+        if (p === type) {
+          el.classList.remove('hidden');
+          el.classList.add('panel-entering');
+          setTimeout(() => {
+            el.classList.remove('panel-entering');
+            el.classList.add('panel-entered');
+          }, 20);
+        } else {
+          el.classList.add('hidden');
+          el.classList.remove('panel-entered', 'panel-entering');
+        }
+      }
+    });
+  }
+
+  // 3. Query Engine Check Policy Button Micro-Interaction
+  const checkBtn = document.getElementById('checkPolicyBtn');
+  const queryHeading = document.getElementById('queryStatusHeading');
+  const querySub = document.getElementById('queryStatusSub');
+
+  if (checkBtn) {
+    checkBtn.addEventListener('click', () => {
+      checkBtn.disabled = true;
+      checkBtn.innerHTML = `
+        <svg class="w-4 h-4 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span>Connecting GDS...</span>
+      `;
+      if (queryHeading) queryHeading.textContent = "Connecting to Amadeus & Sabre GDS Booking Engines...";
+      if (querySub) querySub.textContent = "Negotiating carrier exception waiver under IATA Reso 735d...";
+
+      setTimeout(() => {
+        checkBtn.innerHTML = `
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span class="text-emerald-700">Verified: Zero Penalty</span>
+        `;
+        checkBtn.classList.remove('text-blue-700', 'border-blue-300');
+        checkBtn.classList.add('bg-emerald-50', 'border-emerald-300');
+        if (queryHeading) queryHeading.textContent = "GDS Contract Assessment Confirmed (Zero Penalty Applied)";
+        if (querySub) querySub.innerHTML = `Direct airline flight disruption code <span class="font-mono font-bold text-emerald-700">#DISR-992</span> synchronized with hotel reservation rules.`;
+        
+        showToast("Policy terms updated in real-time. Zero penalty fee confirmed via Amadeus.");
+        
+        setTimeout(() => {
+          checkBtn.disabled = false;
+        }, 1200);
+      }, 950);
+    });
+  }
+
+  // 4. Google Maps Layer Switcher (Map vs. Satellite)
+  function toggleMapMode(mode) {
+    const btnMap = document.getElementById('gmapModeMap');
+    const btnSat = document.getElementById('gmapModeSat');
+    const baseImg = document.getElementById('gmapBaseImg');
+
+    if (mode === 'map') {
+      btnMap.className = 'px-3 py-1.5 bg-blue-600 text-white font-bold transition shadow-inner border-r border-blue-700';
+      btnSat.className = 'px-3 py-1.5 bg-white text-slate-800 hover:bg-slate-50 font-semibold transition';
+      if (baseImg) {
+        baseImg.style.filter = 'saturate(0.85) contrast(0.95) brightness(1.08)';
+      }
+    } else {
+      btnSat.className = 'px-3 py-1.5 bg-blue-600 text-white font-bold transition shadow-inner';
+      btnMap.className = 'px-3 py-1.5 bg-white text-slate-800 hover:bg-slate-50 border-r border-slate-200 font-semibold transition';
+      if (baseImg) {
+        baseImg.style.filter = 'brightness(1.02) contrast(1.03)';
+      }
+    }
+  }
+
+  // 5. Hotel Directory Data Store & Interactive Switcher
+  const hotelData = {
+    grand: {
+      name: "The Grand Promenade Hotel & Suites",
+      sub: "Heathrow Terminal 5 Skyline Boulevard, London • Reservation #HTL-88421",
+      price: "₹22,500",
+      cta: "Continue with The Grand Promenade Hotel",
+      note: "By clicking continue, ATC will dispatch automated re-synchronization instructions to The Grand Promenade Hotel."
+    },
+    sofitel: {
+      name: "Sofitel London Heathrow",
+      sub: "Terminal 5 London Heathrow Airport, TW6 2GD • Covered Direct Walkway",
+      price: "₹24,800",
+      cta: "Continue with Sofitel London Heathrow",
+      note: "By clicking continue, ATC will release The Grand Promenade room hold and confirm Sofitel LHR T5 reservation."
+    },
+    hilton: {
+      name: "Hilton London Heathrow Airport Terminal 4",
+      sub: "Sheffield Road, Terminal 4 Heathrow Airport • Free Express Shuttle Included",
+      price: "₹16,200",
+      cta: "Continue with Hilton LHR Terminal 4",
+      note: "By clicking continue, ATC will issue ₹6,300 fare-difference refund and switch accommodation to Hilton LHR."
+    },
+    radisson: {
+      name: "Radisson Hotel & Conference Centre London Heathrow",
+      sub: "Bath Road, Hayes, Middlesex • Dedicated LHR Hotel Hoppa Route H2B",
+      price: "₹14,500",
+      cta: "Continue with Radisson Hotel London Heathrow",
+      note: "By clicking continue, ATC will issue ₹8,000 fare-difference refund and sync stay to Radisson Hotel Bath Road."
+    },
+    sheraton: {
+      name: "Sheraton Skyline Hotel London Heathrow",
+      sub: "Bath Road, Hayes UB3 5BP • Free Airport Shuttle Connection (1.5 mi)",
+      price: "₹15,800",
+      cta: "Continue with Sheraton Skyline Hotel",
+      note: "By clicking continue, ATC will issue ₹6,700 fare-difference refund and transfer reservation to Sheraton Skyline."
+    }
+  };
+
+  let activeHotelKey = 'grand';
+
+  function focusAndSelectHotel(hotelKey) {
+    if (!hotelData[hotelKey]) return;
+    activeHotelKey = hotelKey;
+    const info = hotelData[hotelKey];
+
+    // Update Header Hotel Name & Sub
+    const headline = document.getElementById('currentHotelHeadline');
+    const sub = document.getElementById('currentHotelSub');
+    if (headline) headline.textContent = info.name;
+    if (sub) {
+      sub.innerHTML = `
+        <svg class="w-4 h-4 mr-1 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+        ${info.sub}
+      `;
+    }
+
+    // Update Primary CTA text
+    const ctaText = document.getElementById('finalCtaText');
+    const syncNote = document.getElementById('finalSyncNote');
+    if (ctaText) ctaText.textContent = info.cta;
+    if (syncNote) syncNote.textContent = info.note;
+
+    // Update Hotel Cards State
+    const allKeys = ['grand', 'sofitel', 'hilton', 'radisson', 'sheraton'];
+    allKeys.forEach(k => {
+      const card = document.getElementById('card-' + k);
+      if (!card) return;
+
+      const starBox = card.querySelector('.card-star-box');
+      const statusBadge = card.querySelector('.card-status-badge');
+      const btn = card.querySelector('.hotel-action-btn');
+
+      if (k === hotelKey) {
+        card.classList.add('is-active-card', 'card-targeted');
+        card.classList.remove('bg-white');
+        if (starBox) {
+          starBox.className = 'card-star-box w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0 mt-0.5';
+        }
+        if (statusBadge) {
+          statusBadge.classList.remove('hidden');
+        }
+        if (btn) {
+          btn.className = 'hotel-action-btn px-4 py-1.5 rounded-lg border border-blue-500 text-blue-700 bg-blue-50 font-bold text-xs shadow-xs transition';
+          btn.textContent = '✓ Active Stay';
+        }
+        // remove pulse glow after animation completes
+        setTimeout(() => card.classList.remove('card-targeted'), 1800);
+      } else {
+        card.classList.remove('is-active-card');
+        card.classList.add('bg-white');
+        if (starBox) {
+          starBox.className = 'card-star-box w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5';
+        }
+        if (statusBadge) {
+          statusBadge.classList.add('hidden');
+        }
+        if (btn) {
+          btn.className = 'hotel-action-btn px-3.5 py-1.5 rounded-lg border border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white font-bold text-xs transition shadow-sm';
+          btn.textContent = 'Switch Hotel';
+        }
+      }
+    });
+
+    // Update Google Maps Marker Pins
+    allKeys.forEach(k => {
+      const pin = document.getElementById('pin-' + k);
+      if (!pin) return;
+
+      const badge = pin.querySelector('.pin-badge');
+      const pointer = pin.querySelector('.pin-pointer');
+      const radar = pin.querySelector('.pin-radar-glow');
+      const statusTag = pin.querySelector('.pin-status-tag');
+
+      if (k === hotelKey) {
+        pin.classList.add('is-active-marker');
+        if (badge) {
+          badge.className = 'pin-badge flex items-center gap-1.5 bg-blue-600 text-white px-3 py-1.5 rounded-full shadow-xl border-2 border-white ring-2 ring-blue-500/60 text-xs font-bold whitespace-nowrap transition-transform';
+        }
+        if (pointer) {
+          pointer.className = 'pin-pointer w-2.5 h-2.5 bg-blue-600 rotate-45 -mt-1 shadow-sm border-r border-b border-white';
+        }
+        if (radar) radar.classList.remove('hidden');
+        if (statusTag) {
+          statusTag.className = 'pin-status-tag text-[9px] uppercase tracking-wider bg-blue-800 text-blue-100 font-bold px-1.5 py-0.5 rounded-sm';
+          statusTag.textContent = 'Active';
+        }
+      } else {
+        pin.classList.remove('is-active-marker');
+        if (badge) {
+          badge.className = 'pin-badge flex items-center gap-1.5 bg-white text-slate-900 hover:bg-slate-50 px-2.5 py-1 rounded-full shadow-lg border border-slate-300 text-xs font-bold whitespace-nowrap transition-transform hover:shadow-xl';
+        }
+        if (pointer) {
+          pointer.className = 'pin-pointer w-2 h-2 bg-white rotate-45 -mt-1 shadow-sm border-r border-b border-slate-300';
+        }
+        if (radar) radar.classList.add('hidden');
+        if (statusTag) {
+          statusTag.className = 'pin-status-tag text-[9.5px] font-medium ' + (k === 'sofitel' ? 'text-emerald-700 bg-emerald-50 px-1 rounded font-semibold' : 'text-slate-500');
+          if (k === 'sofitel') statusTag.textContent = '(0.1 mi)';
+          if (k === 'radisson') statusTag.textContent = '(1.2 mi)';
+          if (k === 'sheraton') statusTag.textContent = '(1.5 mi)';
+          if (k === 'hilton') statusTag.textContent = '(1.8 mi)';
+          if (k === 'grand') statusTag.textContent = '(0.4 mi)';
+        }
+      }
+    });
+
+    // Toast alert confirmation
+    showToast(`Switched active stay to ${info.name}. LHR Terminal 5 re-accommodation synchronized.`);
+  }
+
+  // Toast Notification Controller
+  let toastTimeout;
+  function showToast(msg) {
+    const toast = document.getElementById('switchToast');
+    const toastMsg = document.getElementById('toastMessage');
+    if (!toast || !toastMsg) return;
+
+    toastMsg.textContent = msg;
+    clearTimeout(toastTimeout);
+
+    toast.classList.remove('opacity-0', 'translate-y-[-16px]', 'pointer-events-none');
+    toast.classList.add('opacity-100', 'translate-y-0');
+
+    toastTimeout = setTimeout(() => {
+      toast.classList.add('opacity-0', 'translate-y-[-16px]', 'pointer-events-none');
+      toast.classList.remove('opacity-100', 'translate-y-0');
+    }, 3600);
+  }
+
+  // CTA Click Interaction
+  const finalBtn = document.getElementById('finalCtaBtn');
+  if (finalBtn) {
+    finalBtn.addEventListener('click', () => {
+      const activeName = hotelData[activeHotelKey]?.name || 'the selected accommodation';
+      finalBtn.innerHTML = `
+        <svg class="w-5 h-5 animate-spin mr-2" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span>Locking Final Itinerary...</span>
+      `;
+      setTimeout(() => {
+        alert(`Success! Reservation instructions dispatched for ${activeName}. Your flight BA 249 and hotel check-in are synchronized.`);
+        finalBtn.innerHTML = `
+          <span>Continue to Final Itinerary</span>
+          <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+          </svg>
+        `;
+      }, 700);
+    });
+  }
+</script>
+</body></html>
