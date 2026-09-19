@@ -274,7 +274,65 @@ than the number.
 
 ---
 
-## 7. Constraints — what they are and why they win
+## 7. The LLM chain
+
+Three keys, tried in order, with the templated fallback underneath:
+
+```
+LLM_CHAIN=gemini,openrouter,xkiro   ->  llm/fallback.py
+```
+
+**This is a quota and latency win, not a reliability one.** The LLM is already
+off the critical path — a rebooking completes whether or not a model answers.
+Do not spend more than an hour here.
+
+What the chain actually buys:
+
+- **Rehearsal headroom.** Thirty rehearsals × several calls each will trip a
+  free-tier rate limit. Three keys is three budgets.
+- **Latency.** A rate-limited provider that hangs for its full timeout on every
+  call is worse than no provider. The circuit breaker skips it for 60 seconds
+  after a failure.
+
+Three properties the router must have:
+
+1. **Never raises.** `complete()` returns `str | None`.
+2. **Hard budget.** Per-provider timeout (4s) plus a total budget (8s). A live
+   call over about six seconds kills a demo.
+3. **Circuit breaker.** Without it, a throttled Gemini costs you its full
+   timeout on every call for the rest of the hackathon.
+
+An unset key is skipped at registration, so a blank `XKIRO_API_KEY` never costs
+a timeout.
+
+### The cache matters more than the chain
+
+`llm/cache.py` keys responses on plan content — chosen option, rejections,
+hotel delta. Thirty rehearsals of the same seeded plan become **one** API call.
+
+Beyond quota, this makes the demo deterministic: the same explanation, worded
+identically, every run. That is the same reason `providers/mock.py` has no
+randomness — you cannot rehearse a pitch against text that changes each time.
+The cache persists in Postgres and survives `make reset`.
+
+### On xkiro
+
+Verify at hour 0 whether it speaks the OpenAI chat API (`POST
+{base}/chat/completions`, Bearer token). If it does,
+`llm/providers/openai_compatible.py` works untouched and you only fill in three
+env vars. If it does not, write a sibling adapter — **timeboxed to 20 minutes.**
+Two working providers plus the fallback is already more resilience than this
+demo needs.
+
+### The test that proves it
+
+`tests/test_fallback.py` runs with every LLM key blank and asserts the system
+still produces usable member-facing text. If that passes, no model outage can
+break the demo. Write `llm/fallback.py` **before** any adapter.
+
+---
+
+## 8. Constraints — what they are and why they win
 
 A constraint is a rule the **traveller declared**, which the planner uses to
 eliminate flights before ranking. Not airline policy — we never claim to know
@@ -310,7 +368,7 @@ cannot defend in one sentence is a rule that collapses the demo it anchors.
 
 ---
 
-## 8. Known gaps — say these before a judge finds them
+## 9. Known gaps — say these before a judge finds them
 
 - **Missed connections.** The brief names cancellations *and* missed
   connections. The schema carries multi-leg itineraries; the planner is
