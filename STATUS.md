@@ -31,9 +31,9 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 
 | ID | Deliverable | Owner | Depends on | State | Verify with |
 |---|---|---|---|---|---|
-| A1 | `db/schema.sql` applies clean | A | — | Done | `make reset` |
-| A2 | `core/models.py` | A | A1 | TODO | `python -c "import core.models"` |
-| A3 | `core/audit.py` record() | A | A2 | TODO | `pytest tests/test_audit.py` |
+| A1 | `db/schema.sql` applies clean | A | — | DONE | `make reset` |
+| A2 | `core/models.py` | A | A1 | DONE | `python -c "import core.models"` |
+| A3 | `core/audit.py` record() | A | A2 | DONE | `pytest tests/test_audit.py` |
 | A4 | `core/state_machine.py` | A | A2 | TODO | `pytest tests/test_state.py` |
 | A5 | `db/seed.sql` — 3 travellers | A | A1 | TODO | `make reset` then GET /trips |
 | B1 | `providers/base.py` signatures | B | — | TODO | `python -c "import providers.base"` |
