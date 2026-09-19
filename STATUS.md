@@ -36,7 +36,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | A3 | `core/audit.py` record() | A | A2 | DONE | `pytest tests/test_audit.py` |
 | A4 | `core/state_machine.py` | A | A2 | DONE | `pytest tests/test_state.py` |
 | A5 | `db/seed.sql` — 3 travellers | A | A1 | DONE | `make reset` then GET /trips |
-| B1 | `providers/base.py` signatures | B | — | TODO | `python -c "import providers.base"` |
+| B1 | `providers/base.py` signatures | B | — | DONE | `python -c "import providers.base"` |
 | B2 | `providers/mock.py` all 4 methods | B | B1 | TODO | `pytest tests/test_mock.py` |
 | B3 | `routes/simulate.py` | B | A2,A3 | TODO | `curl -XPOST :8000/simulate/cancellation` |
 | B4 | `routes/ws.py` broadcast | B | A3 | TODO | browser console shows event |

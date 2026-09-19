@@ -44,6 +44,7 @@ class BookingConfirmation:
 @dataclass
 class HotelOption:
     id: str
+    rate_id: str
     name: str
     city: str
     nightly_rate_inr: int
