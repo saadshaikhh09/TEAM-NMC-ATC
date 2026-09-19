@@ -57,7 +57,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | D5 | Demo script written | D | — | DONE | read aloud in 90s |
 | D6 | Backup video recorded | D | all | DONE | `docs/BACKUP_VIDEO.md` |
 | D7 | Submission writeup | D | — | DONE | `docs/SUBMISSION.md` |
-| D8 | *(optional, h18+)* Duffel webhook receiver | D | D1 | TODO | real POST arrives |
+| D8 | *(optional, h18+)* Duffel webhook receiver | D | D1 | DONE | `pytest tests/test_webhooks.py` |
 | A6 | `planner/constraints.py` filter + rejections | A | B1,A2 | DONE | `pytest tests/test_filter.py` |
 | A7 | `planner/rank.py` | A | A6 | DONE | `pytest tests/test_rank.py` |
 | A8 | `planner/hotel_impact.py` | A | A2 | DONE | `pytest tests/test_hotel.py` |

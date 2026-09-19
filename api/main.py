@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from monitor.runner import start_monitor, stop_monitor
 from providers.mock import MockFlightProvider, MockHotelProvider
-from routes import approvals, simulate, trips, ws
+from routes import approvals, simulate, trips, webhooks, ws
 
 app = FastAPI(title="Travel Disruption Concierge", version="0.1.0")
 
@@ -30,6 +30,7 @@ app.include_router(trips.router)
 app.include_router(approvals.router)
 app.include_router(simulate.router)
 app.include_router(ws.router)
+app.include_router(webhooks.router)
 approvals.configure(MockFlightProvider(), MockHotelProvider())
 app.add_event_handler("startup", start_monitor)
 app.add_event_handler("shutdown", stop_monitor)

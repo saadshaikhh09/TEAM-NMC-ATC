@@ -215,3 +215,44 @@ class DuffelFlightProvider(FlightProvider):
             provider="duffel",
             fare_inr=int(total_amount),
         )
+
+
+def parse_webhook_event(payload: dict[str, Any]) -> dict[str, Any]:
+    """Parse a Duffel webhook event payload for airline-initiated changes."""
+    data = payload.get("data", payload)
+    event_id = str(data.get("id") or payload.get("id") or "")
+    event_type = str(data.get("type") or payload.get("type") or "order.airline_initiated_change_detected")
+
+    order = data.get("object") or data
+    booking_reference = str(order.get("booking_reference") or order.get("reference") or "")
+    slices = order.get("slices", [])
+    flight_number = ""
+    if slices and isinstance(slices, list):
+        segments = slices[0].get("segments", [])
+        if segments and isinstance(segments, list):
+            seg = segments[0]
+            carrier = (
+                seg.get("operating_carrier", {}).get("iata_code")
+                or seg.get("marketing_carrier", {}).get("iata_code")
+                or ""
+            ).upper()
+            fn = str(
+                seg.get("operating_carrier_flight_number")
+                or seg.get("marketing_carrier_flight_number")
+                or seg.get("flight_number")
+                or ""
+            )
+            flight_number = fn if fn.startswith(carrier) else f"{carrier}{fn}"
+
+    kind = "CANCELLATION"
+    if "delay" in event_type.lower() or "schedule" in event_type.lower():
+        kind = "DELAY"
+
+    return {
+        "event_id": event_id,
+        "event_type": event_type,
+        "booking_reference": booking_reference,
+        "flight_number": flight_number,
+        "kind": kind,
+    }
+
