@@ -6,6 +6,8 @@ Do not add business logic to this file.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from routes import trips
+
 app = FastAPI(title="Travel Disruption Concierge", version="0.1.0")
 
 app.add_middleware(
@@ -22,5 +24,5 @@ def health():
     return {"ok": True}
 
 
-# TODO(A):  from routes import trips, approvals;  app.include_router(...)
+app.include_router(trips.router)
 # TODO(B):  from routes import simulate, ws;      app.include_router(...)
