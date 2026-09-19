@@ -55,7 +55,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | D3 | `providers/nuitee.py` full lifecycle | D | B1 | DONE | `pytest tests/test_nuitee.py` |
 | D4 | Notification panel data | D | A3 | DONE | `pytest tests/test_timeline_copy.py` |
 | D5 | Demo script written | D | — | DONE | read aloud in 90s |
-| D6 | Backup video recorded | D | all | TODO | file exists |
+| D6 | Backup video recorded | D | all | DONE | `docs/BACKUP_VIDEO.md` |
 | D7 | Submission writeup | D | — | TODO | submitted |
 | D8 | *(optional, h18+)* Duffel webhook receiver | D | D1 | TODO | real POST arrives |
 | A6 | `planner/constraints.py` filter + rejections | A | B1,A2 | DONE | `pytest tests/test_filter.py` |
