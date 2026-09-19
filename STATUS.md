@@ -37,13 +37,13 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | A4 | `core/state_machine.py` | A | A2 | DONE | `pytest tests/test_state.py` |
 | A5 | `db/seed.sql` — 3 travellers | A | A1 | DONE | `make reset` then GET /trips |
 | B1 | `providers/base.py` signatures | B | — | DONE | `python -c "import providers.base"` |
-| B2 | `providers/mock.py` all 4 methods | B | B1 | TODO | `pytest tests/test_mock.py` |
+| B2 | `providers/mock.py` all 4 methods | B | B1 | DONE | `pytest tests/test_mock.py` |
 | B3 | `routes/simulate.py` | B | A2,A3 | TODO | `curl -XPOST :8000/simulate/cancellation` |
 | B4 | `routes/ws.py` broadcast | B | A3 | TODO | browser console shows event |
 | B5 | `monitor/scheduler.py` tiered poll | B | A2 | TODO | `pytest tests/test_scheduler.py` |
 | B6 | `providers/aerodatabox.py` (primary) | B | B1,A12 | TODO | `pytest tests/test_status_map.py` |
 | B7 | `providers/aviationstack.py` (cross-check) | B | B1,A12 | TODO | one live call, once |
-| B8 | `providers/status_map.py` | B | — | TODO | `pytest tests/test_status_map.py` |
+| B8 | `providers/status_map.py` | B | — | DONE | `pytest tests/test_status_map.py` |
 | C1 | `web/` runs, calls GET /trips | C | — | TODO | `npm run dev` |
 | C2 | Trip card | C | C1 | TODO | visual |
 | C3 | **Agent timeline** | C | C1 | TODO | visual |
