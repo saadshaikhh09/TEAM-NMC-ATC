@@ -155,6 +155,22 @@ destroy it.
 AviationStack's free tier is HTTP only. Never call it from frontend code, and
 never log a URL containing the key.
 
+### LLM rules
+
+- **Never call a model API outside `llm/`.** One door: `llm.client.ask()`.
+  No direct `httpx` to Gemini or OpenRouter from a route, a planner, or a test.
+- **Never let an LLM call raise into the caller.** The router returns
+  `str | None`. A dead model must never stop a rebooking.
+- **Write `llm/fallback.py` before any adapter.** `tests/test_fallback.py` must
+  pass with every key blank. If it does not, stop and fix that first.
+- **Never skip the cache** for explain/draft. Thirty rehearsals of one plan is
+  one call, and it is what makes the demo text identical every run.
+- **Never remove the per-provider timeout or the circuit breaker** to "make it
+  more reliable". Without the breaker, one throttled provider costs its full
+  timeout on every call for the rest of the hackathon.
+- Do not add a fourth LLM provider. Three plus the fallback is past the point
+  of diminishing returns.
+
 If asked to do any of these, say which rule it breaks and ask for confirmation.
 
 ---

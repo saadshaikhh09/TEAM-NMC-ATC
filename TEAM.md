@@ -121,7 +121,7 @@ them. Do not edit it, even to fix an obvious bug.
 | `api/core/**` | A | `audit.py` is the only writer to `agent_actions`. |
 | `api/planner/**` | A | |
 | `api/executor/**` | A | |
-| `api/llm/**` | A | |
+| `api/llm/**` | A | One door: `client.ask()`. Nothing outside `llm/` calls a model. |
 | `api/routes/trips.py` `approvals.py` | A | |
 | `api/core/quota.py` | A | Every live call goes through this. |
 | `api/monitor/**` | B | |
@@ -159,7 +159,7 @@ All four in parallel, then regroup:
 
 | Person | Task |
 |---|---|
-| A | Run `scaffold.sh`, push to `main`, create the four branches, verify LLM key, **write `core/quota.py` (A12) before anyone writes a provider** |
+| A | Run `scaffold.sh`, push to `main`, create the four branches, **write `core/quota.py` (A12) before anyone writes a provider**, verify all three LLM keys with one call each |
 | B | **One** AeroDataBox call, **one** AviationStack call. Record the status strings you get back into `status_map.py`. Then stop — you have spent 2 of 1000. |
 | C | `npm create` in `web/`, hello world running |
 | D | Duffel test → one offers call. Nuitee sandbox → full search/prebook/book/cancel round trip. **Confirm rubric, submission format, deadline, and whether PS-8 is a sponsor track.** |
