@@ -4,6 +4,10 @@ One component owns state. If you need a trip to change status, call advance()
 here — do not UPDATE trips.status from your own module.
 """
 
+from datetime import datetime, timezone
+
+from core.models import Trip
+
 TRANSITIONS = {
     "CREATED":           {"MONITORING"},
     "MONITORING":        {"DISRUPTED", "RECOVERED"},
@@ -21,4 +25,14 @@ def can(current: str, nxt: str) -> bool:
 
 
 def advance(session, trip_id: str, nxt: str):
-    raise NotImplementedError("A4")
+    trip = session.get(Trip, trip_id)
+    if trip is None:
+        raise ValueError(f"trip {trip_id} not found")
+    if not can(trip.status, nxt):
+        raise ValueError(f"illegal transition {trip.status} -> {nxt}")
+
+    trip.status = nxt
+    trip.updated_at = datetime.now(timezone.utc)
+    session.commit()
+    session.refresh(trip)
+    return trip
