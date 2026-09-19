@@ -45,7 +45,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | B7 | `providers/aviationstack.py` (cross-check) | B | B1,A12 | DONE | one live call, once |
 | B8 | `providers/status_map.py` | B | — | DONE | `pytest tests/test_status_map.py` |
 | C1 | Independent mock-first `web/app` + `web/site` builds | C | — | DONE | `npm run dev` in each surface |
-| C2 | Trip card | C | C1 | TODO | visual |
+| C2 | Trip card | C | C1 | DONE | visual |
 | C3 | **Agent timeline** | C | C1 | TODO | visual |
 | C4 | Rejection panel | C | C1 | TODO | visual |
 | C5 | Approval modal | C | C1 | TODO | visual |
