@@ -110,6 +110,28 @@ def remaining(provider: str) -> int:
     return max(0, budget - (used or 0))
 
 
-def report() -> dict[str, int]:
+def report() -> dict[str, dict[str, int]]:
     """Print this at every three-hour sync. Owner A reads it aloud."""
-    return {provider: remaining(provider) for provider in PROVIDERS}
+    config = settings()
+    result = {}
+    for provider, setting_name in PROVIDERS.items():
+        monthly_cap = min(getattr(config, setting_name), HARD_MONTHLY_LIMIT)
+        dev_budget = _budget(provider)
+        dev_remaining = remaining(provider)
+        result[provider] = {
+            "dev_used": dev_budget - dev_remaining,
+            "dev_budget": dev_budget,
+            "dev_remaining": dev_remaining,
+            "demo_reserved": monthly_cap - dev_budget,
+            "monthly_cap": monthly_cap,
+        }
+    return result
+
+
+if __name__ == "__main__":
+    for provider, usage in report().items():
+        print(
+            f"{provider + ':':<15}{usage['dev_used']}/{usage['dev_budget']} dev used  "
+            f"({usage['demo_reserved']} reserved for demo, "
+            f"{usage['monthly_cap']} monthly cap)"
+        )

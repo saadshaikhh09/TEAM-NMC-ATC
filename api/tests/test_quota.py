@@ -53,7 +53,22 @@ def test_spend_increments(monkeypatch):
     quota.spend("aerodatabox", 2)
 
     assert quota.remaining("aerodatabox") == 498
-    assert quota.report() == {"aerodatabox": 498, "aviationstack": 500}
+    assert quota.report() == {
+        "aerodatabox": {
+            "dev_used": 2,
+            "dev_budget": 500,
+            "dev_remaining": 498,
+            "demo_reserved": 0,
+            "monthly_cap": 500,
+        },
+        "aviationstack": {
+            "dev_used": 0,
+            "dev_budget": 500,
+            "dev_remaining": 500,
+            "demo_reserved": 0,
+            "monthly_cap": 500,
+        },
+    }
 
 
 def test_spend_raises_when_budget_would_be_exceeded(monkeypatch):
