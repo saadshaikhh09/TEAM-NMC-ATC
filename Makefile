@@ -19,3 +19,8 @@ seed:
 
 test:
 	cd api && python -m pytest tests -q
+reset-local:
+	psql -U concierge -d concierge -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+	psql -U concierge -d concierge -f db/schema.sql
+	psql -U concierge -d concierge -f db/seed.sql
+	@echo "Database reset with schema + seed."
