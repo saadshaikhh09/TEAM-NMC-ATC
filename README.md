@@ -1,27 +1,31 @@
-# Travel Disruption Concierge
+# Autonomous Travel-Disruption Concierge
 
-## Problem Statement
+PS-8. An agent that detects flight disruptions, evaluates alternatives against
+traveller constraints and policy, rebooks, shifts the hotel, and explains itself.
 
-Flight delays and cancellations can leave passengers stranded, uncertain, and under pressure to make urgent travel decisions. Finding alternative travel options becomes especially difficult when passengers must balance limited availability, rebooking costs, and their intended destination.
+**Our boundary, stated up front:** simulated disruption feed, real decision
+logic, sandbox booking. We do not claim live airline write access.
 
-Travel information and rebooking options are often scattered across different services. Passengers must manually check their flight status, search for alternatives, and compare prices while dealing with the stress of an unexpected disruption.
+## Read these before writing any code
 
-## Objective
+1. `CONTEXT.md` — how to work in this repo, and the Codex session protocol
+2. `ARCHITECTURE.md` — what the structure is and why
+3. `CONTRACT.md` — the frozen data shapes. Do not change without a team call.
+4. `TEAM.md` — who owns which files and branches
+5. `STATUS.md` — what is actually done right now
 
-Provide a travel-disruption concierge that helps passengers understand disruptions to their journey and find suitable alternatives based on their travel details and rebooking budget.
+## Quick start
 
-## Key Challenges
+```bash
+cp .env.example .env     # fill in keys
+make db                  # postgres with schema + seed
+cd api && pip install -r requirements.txt
+make api                 # http://localhost:8000/docs
+cd web && npm install && npm run dev
+```
 
-- Uncertainty about flight delays and cancellations.
-- Difficulty finding suitable alternatives at short notice.
-- Unexpected rebooking expenses and limited budgets.
-- Time-consuming searches across multiple services.
-- Stress caused by unclear next steps.
+## Demo reset
 
-## Expected Outcome
-
-Passengers should receive clear information about their flight status and guidance toward alternative travel options when their flight is cancelled, helping them make informed decisions within their budget.
-
-## Demo Scope
-
-This hackathon demonstration uses simulated flight statuses to illustrate on-time, delayed, and cancelled journeys. It demonstrates the passenger experience without checking live airline availability or making actual bookings.
+```bash
+make reset
+```
