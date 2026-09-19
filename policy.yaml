@@ -21,6 +21,7 @@ rebooking:
 
 ranking:
   # Applied only to options that survived every hard filter above.
+  preferred_carriers: [AI]
   weights:
     arrival_delay_minutes: 0.45
     fare_delta_inr: 0.30
