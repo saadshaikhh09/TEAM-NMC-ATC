@@ -7,12 +7,15 @@ reset:
 	@if command -v docker >/dev/null 2>&1 && docker compose ps >/dev/null 2>&1; then \
 		docker compose down -v && docker compose up -d && sleep 6; \
 	else \
-		psql -U concierge -d concierge -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" && \
-		psql -U concierge -d concierge -f db/schema.sql && \
-		psql -U concierge -d concierge -f db/seed.sql; \
+		psql -q -U concierge -d concierge -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" && \
+		psql -q -U concierge -d concierge -f db/schema.sql && \
+		psql -q -U concierge -d concierge -f db/seed.sql; \
 	fi
-	@psql -U concierge -d concierge -c "select count(*) as travellers from travellers;" 2>/dev/null || true
-	@echo "Database reset with schema + seed."
+	@for f in db/migrations/*.sql; do \
+		[ -f "$$f" ] && echo "  applying $$f" && psql -q -U concierge -d concierge -f "$$f"; \
+	done
+	@psql -q -t -U concierge -d concierge -c "select count(*) from travellers;"
+	@echo "Database reset with schema + seed + migrations."
 
 api:
 	cd api && uvicorn main:app --reload --port 8000
