@@ -1,11 +1,14 @@
+import { AgentTimeline } from '../components/AgentTimeline'
 import { TripCard } from '../components/TripCard'
-import type { Trip } from '../types'
+import type { AgentAction, Trip } from '../types'
 
 interface DashboardProps {
   trip: Trip
+  actions: AgentAction[]
+  timelinePaceMs?: number
 }
 
-export function Dashboard({ trip }: DashboardProps) {
+export function Dashboard({ trip, actions, timelinePaceMs }: DashboardProps) {
   return (
     <section aria-labelledby="dashboard-title">
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -19,7 +22,10 @@ export function Dashboard({ trip }: DashboardProps) {
           Contract-shaped mock data keeps this dashboard available without the API or network.
         </p>
       </div>
-      <TripCard trip={trip} />
+      <div className="space-y-8">
+        <TripCard trip={trip} />
+        <AgentTimeline actions={actions} paceMs={timelinePaceMs} />
+      </div>
     </section>
   )
 }
