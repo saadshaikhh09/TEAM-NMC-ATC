@@ -49,7 +49,11 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | C3 | **Agent timeline** | C | C1 | DONE | visual |
 | C4 | Rejection panel | C | C1 | DONE | visual |
 | C5 | Approval modal | C | C1 | DONE | visual |
-| C6 | WS live updates | C | B4 | TODO | visual |
+| C6 | WS live updates | C | B4 | DONE | visual — all 8 types switched; only `disruption.detected` + `action.recorded` are emitted by the API today |
+| C7 | Flight alternatives + live status + hotel policy + confirmation cards | C | C1 | DONE | `npm run build && npm run lint` clean; all four verified in browser on the mock path |
+| C8 | Radar panel, profile menu, empty state, loading skeletons | C | C1 | DONE | visual — skeletons and empty state verified by forcing a stalled and a failed load |
+| C9 | Interaction layer: scroll reveal, hover lift, tooltips | C | C7,C8 | DONE | tooltip opens on hover and keyboard focus; no horizontal overflow at 390/768/1440 |
+| C11 | Operations bar (trip switcher + simulate) and booking import | C | C1,B3 | DONE | `npm run build && npm run lint` clean; `/simulate/*` and `/trips/extract` verified against the running API |
 | D1 | `providers/duffel.py` search + book | D | B1 | DONE | `pytest tests/test_duffel.py` |
 | D2 | `HotelProvider.change_dates()` cancel-then-rebook | D | D3 | DONE | `pytest tests/test_hotel_change.py` |
 | D3 | `providers/nuitee.py` full lifecycle | D | B1 | DONE | `pytest tests/test_nuitee.py` |
@@ -100,3 +104,12 @@ Append a line whenever you cut something or change a shape. One line, no prose.
 - (A12/B7) Confirmed AeroDataBox and AviationStack quotas are 500 requests/month each.
 - (A14) LLM cache added as `llm_cache.responses`, outside schema public so a psql `make reset` keeps rehearsal copy; `docker compose down -v` still wipes it.
 - (C0) App palette is Aero Concierge; landing retains its authored navy/sky palette.
+- (C7) TripCard no longer renders flight legs or the hotel; LiveFlightStatusCard and HotelPolicyCard own those, so live status is not duplicated in two places.
+- (C8) The 404 design ships as EmptyState, not a route. The app has no router, so a 404 page would be unreachable; the artwork covers "API and mocks both failed" instead.
+- (C8) HotelPolicyCard draws an abstract locator, not a map. No map SDK and no key budget, and a fake map on a trust-critical screen is worse than no map.
+- (C9) Motion is CSS-only, no animation dependency, and every animation is disabled under `prefers-reduced-motion`.
+- (C11) Mocks keep read surfaces alive; they do not fake new writes. `/simulate/*` and `/trips/extract` are disabled on the mock path with the reason on screen, because a simulate that changes nothing and an extraction that returns Priya would both misreport what happened.
+- (C11) `/trips/extract` renders as a preview that says nothing was saved. `llm/extract.py` validates and returns a Trip without touching the database, and storing one needs `POST /trips`, which is still `NotImplementedError`.
+- (C11) `GET /health` left unwired. It is not in CONTRACT.md and the WS status already drives the connection indicator, so a second liveness signal would only be able to disagree with the first.
+- (C11) **Blocked, not cut:** `GET /disruptions/{id}/plan` (CONTRACT line 48) is not registered on the server — `/openapi.json` has no such path, so `planFor()` returns null on every live load. Nothing calls `planner/` either: `detect()` stops at DETECTED, so no `recovery_plans` row is ever written. The plan banner, alternatives, rejection panel, approval modal and confirmation card therefore render on the mock path only. The frontend already calls the endpoint correctly and needs no change when A lands it.
+- (C10) `types/index.ts` now marks six fields nullable to match the API's Pydantic models: `Flight.next_poll_at`, `Hotel.confirmation_number`, `Hotel.nightly_rate_inr`, `Constraints.max_fare_inr`, `Constraints.hard_arrival_by_local`, `AgentAction.duration_ms`. The types previously said required; every one of them rendered wrong against a live API. Not a CONTRACT change — the frontend types were wrong about what the backend already sends.

@@ -23,27 +23,29 @@ export interface Flight {
   departure_local: string
   arrival_local: string
   status: FlightStatus
-  next_poll_at: string
+  /** Null once the flight is disrupted or terminal — the monitor stops scheduling polls. */
+  next_poll_at: string | null
 }
 
 export interface Hotel {
   id: string
   provider: string
-  confirmation_number: string
+  confirmation_number: string | null
   name: string
   city: string
   check_in: string
   check_out: string
-  nightly_rate_inr: number
+  nightly_rate_inr: number | null
   modifiable: boolean
   status: 'CONFIRMED'
 }
 
 export interface Constraints {
   hard_arrival_by: string
-  hard_arrival_by_local: string
+  hard_arrival_by_local: string | null
   hard_arrival_reason: string
-  max_fare_inr: number
+  /** Null means the traveller set no fare ceiling, not a ceiling of zero. */
+  max_fare_inr: number | null
   max_stops: number
   cabin: string
   avoid_carriers: string[]
@@ -142,7 +144,8 @@ export interface AgentAction {
   stage: AgentStage
   headline: string
   detail: Record<string, unknown>
-  duration_ms: number
+  /** Null when the stage did not record a timing — no `record()` call site sets it yet. */
+  duration_ms: number | null
 }
 
 export type WsEventType =

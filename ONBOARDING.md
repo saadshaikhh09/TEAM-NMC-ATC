@@ -173,6 +173,30 @@ Verify dependencies first. If anything is incomplete, tell me and stop.
 Shahid sends your full task prompt separately. Paste it whole — the ownership
 rules in it are what stop four agents editing the same file.
 
+### Asking the agent about the repo — `/graphify`
+
+`graphify` indexes this whole repo into a knowledge graph so an agent can answer
+"what calls this", "where does the plan state live", "trace the disruption path"
+without you first explaining the project. One-time install:
+
+```bash
+uv tool install graphifyy    # or: pipx install graphifyy
+graphify install             # registers the /graphify skill with your assistant
+graphify update .            # build the graph — no LLM key needed
+```
+
+That writes `graphify-out/` (gitignored, so build your own — do not commit it):
+`graph.json` for the agent, `GRAPH_REPORT.md` to read yourself, and `graph.html`
+to open in a browser. Then in a session:
+
+```
+/graphify query "how does a cancellation become a recovery plan?"
+/graphify explain "RecoveryPlan"
+/graphify path "simulate" "AgentTimeline"
+```
+
+Re-run `graphify update .` after a big merge — it re-extracts only changed files.
+
 ---
 
 ## 9. Committing and merging

@@ -25,3 +25,78 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+@layer components {
+  /* Scroll reveal. Fires once per card on first sight — a card that re-animates
+     every time it scrolls past reads as a glitch, not a flourish. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 480ms ease-out,
+      transform 480ms ease-out;
+  }
+
+  .reveal[data-visible='true'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Cards that respond to the pointer. Level 1 → Level 2 in the design system. */
+  .lift {
+    transition:
+      transform 200ms ease-out,
+      box-shadow 200ms ease-out,
+      border-color 200ms ease-out;
+  }
+
+  .lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(10, 37, 64, 0.1);
+  }
+
+  .radar-sweep {
+    transform-origin: center;
+    animation: radar-sweep 4s linear infinite;
+  }
+
+  /* Monitoring pulse for the live status dot. */
+  .ping-ring {
+    animation: ping-ring 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+}
+
+@keyframes radar-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ping-ring {
+  75%,
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Motion is decoration here: every animated element is legible without it. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal[data-visible='true'] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .lift,
+  .lift:hover {
+    transform: none;
+    transition: none;
+  }
+
+  .radar-sweep,
+  .ping-ring {
+    animation: none;
+  }
+}

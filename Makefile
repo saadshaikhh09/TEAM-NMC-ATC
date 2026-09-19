@@ -1,4 +1,4 @@
-.PHONY: db api web reset seed test
+.PHONY: db api web site reset seed test
 
 db:
 	docker compose up -d
@@ -20,8 +20,13 @@ reset:
 api:
 	cd api && uvicorn main:app --reload --port 8000
 
+# web/ is not a workspace: web/app and web/site are independent surfaces with
+# their own package.json. `cd web && npm run dev` has no package.json to find.
 web:
-	cd web && npm run dev
+	cd web/app && npm run dev
+
+site:
+	cd web/site && npm run dev
 
 seed:
 	docker compose exec -T db psql -U concierge -d concierge < db/seed.sql

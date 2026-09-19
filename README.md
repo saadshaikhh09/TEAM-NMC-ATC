@@ -48,7 +48,10 @@ versions of the same function.
 
 ---
 
-## Setup
+## Run it
+
+Five minutes from clone to a moving timeline: database, API, dashboard, then
+fire a disruption from the UI.
 
 ### 1. Clone and branch
 
@@ -86,7 +89,11 @@ psql -U concierge -d concierge -f db/seed.sql
 Ubuntu/WSL: `sudo apt install postgresql-16`, then `sudo -u postgres` for the
 `createuser`/`createdb` lines, rest identical.
 
-Your reset command is **`make reset-local`**.
+Then apply the migrations, which `db/schema.sql` does not include:
+
+```bash
+for f in db/migrations/*.sql; do psql -U concierge -d concierge -f "$f"; done
+```
 
 </details>
 
@@ -97,10 +104,13 @@ Your reset command is **`make reset-local`**.
 docker compose up -d
 ```
 
-Schema and seed apply automatically on first boot.
-Your reset command is **`make reset`**.
+Schema and seed apply automatically on first boot. Migrations do not — run
+`make reset` once afterwards to apply `db/migrations/`.
 
 </details>
+
+Either way, **`make reset` is your reset command.** It detects Docker, falls
+back to local postgres, and applies the migrations in both cases.
 
 ### 3. Verify
 
@@ -113,29 +123,79 @@ your database is correct. If not, stop and fix it before writing code.
 
 ### 4. Backend
 
-```bash
-cd api && pip install -r requirements.txt
-python -c "import sys; sys.path.insert(0,'.'); \
-  import core.quota, providers.status_map, providers.base, \
-  llm.router, llm.cache, llm.providers.gemini; \
-  from llm import fallback; print('OK')"
-```
-
-> Only those modules import cleanly. `nuitee`, `aerodatabox`, `duffel`,
-> `client`, `models`, `mock` and everything in `routes/` raise
-> `NotImplementedError` **at import, on purpose**. That exception is the
-> incompleteness signal the coding agent checks for. Seeing it means the
-> scaffold is intact, not broken.
+Use a virtualenv. `make api` and `make test` both call whichever `python` is on
+your PATH, so a conda base environment will run them without pytest installed
+and fail in a way that looks like a code error.
 
 ```bash
-make api          # http://localhost:8000/docs
+cd api
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cd .. && make api                    # http://localhost:8000/docs
 ```
 
-### 5. Frontend (Person C)
+Smoke test it in another shell — this hits no provider and costs no quota:
 
 ```bash
-cd web && npm install && npm run dev
+curl -s localhost:8000/health                        # {"ok":true}
+curl -s localhost:8000/trips | python3 -m json.tool  # three travellers
 ```
+
+### 5. Frontend
+
+`web/` is **not** an npm workspace. It holds two independent surfaces, each
+with its own `package.json`, and each runs on its own port. Install them
+separately.
+
+Both are long-running, so give each its own shell. From the repo root:
+
+```bash
+(cd web/app  && cp .env.example .env && npm install && npm run dev)   # :5174 — the dashboard
+(cd web/site && npm install && npm run dev)                           # :5173 — the landing page
+```
+
+Once installed, `make web` and `make site` are the shortcuts.
+
+The dashboard is the one judges look at. In dev it proxies `/trips`,
+`/approvals`, `/disruptions`, `/simulate`, `/health` and `/ws` to `:8000`, so
+it is same-origin and needs no CORS entry. Leave `VITE_API_URL` blank unless
+you are serving a built bundle from a different origin than the API.
+
+You do not need the API to open the dashboard. If `:8000` is unreachable it
+falls back to contract-shaped mocks and renders the same screen — that is
+deliberate, so a dead venue wifi cannot take the demo down. The header tells
+you which one you are looking at: **Live**, **Polling**, or **Mock data**.
+
+### 6. Run the demo
+
+With the API and the dashboard both up, at `http://localhost:5174`:
+
+1. **Reset first.** `make reset`. The tests and the demo both assume the
+   pristine seed, and a half-disrupted database is the most common reason a
+   rehearsal does not reproduce.
+2. **Pick a traveller** in the navy operations bar at the top. Each seeded trip
+   demonstrates a different gate path — Priya the hard-deadline refusal, Rohan
+   the fare-cap escalation, Ananya the clean auto-rebook.
+3. **Simulate a cancellation.** That button is `POST /simulate/cancellation`.
+   It writes the same `disruptions` row and fires the same `disruption.detected`
+   event as a real poll, which is why the pitch line "simulated feed, real
+   decision logic" is honest. Say it out loud; do not hide the endpoint.
+4. **Watch the timeline.** It is a dumb render of the `agent_actions` table, so
+   whatever the agent actually recorded is what you see — including where it
+   stopped if it broke.
+
+Firing the same kind twice on the same leg never moves the screen. `detect()`
+either hands back the disruption it already wrote, or answers `409 flight … is
+already CANCELLED` — and neither writes a timeline row or emits an event. The
+bar checks the leg's status first and tells you, rather than reporting a
+success that changed nothing. `make reset` is how you rehearse again.
+
+> **Known gap.** `GET /disruptions/{id}/plan` (CONTRACT line 48) is not
+> registered on the server yet, and nothing calls `planner/` — `detect()` stops
+> at `DETECTED`. So on the live API path the timeline moves but the plan banner,
+> alternatives, rejection panel, approval modal and confirmation card stay
+> empty. To demo those today, stop the API and reload: the mock path renders the
+> full recovery. See the decision log in `STATUS.md`.
 
 ---
 
@@ -143,15 +203,21 @@ cd web && npm install && npm run dev
 
 | Command | Does |
 |---|---|
-| `make reset-local` | Drop, reapply schema + seed. **Local postgres.** |
-| `make reset` | Same, via Docker. |
+| `make reset` | Drop, reapply schema + seed **+ `db/migrations/`**. Detects Docker, else local postgres. |
+| `make reset-local` | Local postgres only, and **skips migrations** — you will not get `quota` or `llm_cache`. Prefer `make reset`. |
 | `make api` | uvicorn on :8000 |
-| `make web` | Frontend dev server |
-| `make test` | pytest |
+| `make web` | Dashboard dev server on :5174 |
+| `make site` | Landing page dev server on :5173 |
+| `make test` | pytest — activate `api/.venv` first |
 
 You will run the reset command roughly thirty times during rehearsal. It must
 produce an identical database every time — which is also why
 `providers/mock.py` has no randomness.
+
+`make test` runs against the live database, so **reset before you run it.**
+Against a drifted database `tests/test_trips.py` fails on a `next_poll_at` that
+detection has already nulled and a timeline that is no longer empty. Those two
+failures mean the database moved, not that the code broke.
 
 ---
 
@@ -193,7 +259,7 @@ run the reset + `make test` before you merge — that is the only gate.
 
 ```bash
 git pull --rebase origin main
-make reset-local && make test
+make reset && make test
 git add -A && git commit -m "A6: constraints filter with rejections"
 git push origin feat/a-core
 ```

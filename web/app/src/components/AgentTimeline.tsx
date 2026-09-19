@@ -7,7 +7,9 @@ interface AgentTimelineProps {
   paceMs?: number
 }
 
-function formatDuration(durationMs: number) {
+/** Null renders as nothing: no `record()` call site sets a duration yet, and "null ms" is worse than silence. */
+function formatDuration(durationMs: number | null) {
+  if (durationMs == null) return ''
   return durationMs < 1000 ? `${durationMs} ms` : `${(durationMs / 1000).toFixed(1)} s`
 }
 

@@ -1,10 +1,14 @@
 import type { ReactNode } from 'react'
+import { ProfileMenu } from './ProfileMenu'
+import type { Trip } from '../types'
 
 interface AppShellProps {
   children: ReactNode
+  /** Absent until the first snapshot lands — the header renders without the menu. */
+  trip?: Trip
 }
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, trip }: AppShellProps) {
   const siteUrl = import.meta.env.VITE_SITE_URL
 
   return (
@@ -24,14 +28,21 @@ export function AppShell({ children }: AppShellProps) {
             <span className="hidden rounded-full border border-white/15 bg-white/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-white/80 sm:inline-flex">
               Simulated feed
             </span>
-            <span className="flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">
-              <span className="size-2 rounded-full bg-emerald-400" aria-hidden="true" />
+            <span className="hidden items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-200 sm:flex">
+              <span className="relative flex size-2" aria-hidden="true">
+                <span className="ping-ring absolute inline-flex size-2 rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+              </span>
               Monitoring
             </span>
+            {trip && <ProfileMenu constraints={trip.constraints} travellerName={trip.traveller_name} />}
           </div>
         </nav>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-8 sm:py-12">{children}</main>
+      {/* overflow-x-clip: a tooltip anchored near the right edge must not be able to
+          widen the page. `clip` leaves the vertical axis visible, so tooltips still
+          escape upwards out of their card. */}
+      <main className="mx-auto max-w-7xl overflow-x-clip px-4 py-8 sm:px-8 sm:py-12">{children}</main>
     </div>
   )
 }
