@@ -17,12 +17,12 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 |---|---|---|---|
 | AeroDataBox: one status call succeeds | B | TODO | 1 of 500 spent |
 | AviationStack: one status call succeeds | B | DONE | AI131 returned DEPARTED on 2026-09-19; 1 quota-guarded call. |
-| Duffel test: one offers call succeeds | D | TODO | 30/min |
-| Nuitee sandbox: search → prebook → book → cancel round trip | D | TODO | free sandbox |
+| Duffel test: one offers call succeeds | D | WIP | 30/min; key unconfigured in .env, schema documented |
+| Nuitee sandbox: search → prebook → book → cancel round trip | D | WIP | free sandbox; key unconfigured in .env, lifecycle documented |
 | LLM key returns a completion | A | TODO | |
 | Repo pushed, everyone cloned | A | TODO | |
 | CONTRACT.md read by all four | all | TODO | |
-| Hackathon rubric + submission format confirmed | D | TODO | |
+| Hackathon rubric + submission format confirmed | D | DONE | Sun 17:00 deadline; repo+video+writeup; docs/SUBMISSION.md |
 | **Everyone has read core/quota.py** | all | TODO | 500/month is the whole budget |
 
 ---
