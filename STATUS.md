@@ -93,3 +93,4 @@ Append a line whenever you cut something or change a shape. One line, no prose.
 - (hour 0) MCP layer cut from build; provider interface kept MCP-shaped.
 - (hour 0) Gmail ingestion cut; paste-booking extraction replaces it.
 - (hour 0) Hotel map cut.
+- (A16) Machine-readable timestamps are UTC; Flight and Constraints add airport-local display fields.

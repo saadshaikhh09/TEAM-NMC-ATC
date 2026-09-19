@@ -1,11 +1,17 @@
 """GET/POST trips, timeline. Owner: Person A."""
 
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
-from pydantic import AwareDatetime, BaseModel, ConfigDict
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    computed_field,
+    field_serializer,
+)
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload, selectinload
 
@@ -13,6 +19,7 @@ from core.db import SessionLocal
 from core.models import AgentAction as AgentActionRow
 from core.models import Trip as TripRow
 from core.models import Traveller
+from core.timezones import local_str
 
 
 router = APIRouter()
@@ -31,6 +38,20 @@ class Flight(BaseModel):
     scheduled_arrival: AwareDatetime
     status: Literal["SCHEDULED", "DELAYED", "CANCELLED", "DEPARTED", "LANDED"]
     next_poll_at: AwareDatetime | None
+
+    @computed_field
+    @property
+    def departure_local(self) -> str:
+        return local_str(self.scheduled_departure, self.origin)
+
+    @computed_field
+    @property
+    def arrival_local(self) -> str:
+        return local_str(self.scheduled_arrival, self.destination)
+
+    @field_serializer("scheduled_departure", "scheduled_arrival", "next_poll_at")
+    def serialize_timestamp(self, value: datetime | None) -> str | None:
+        return value.isoformat() if value else None
 
 
 class Hotel(BaseModel):
@@ -58,6 +79,11 @@ class Constraints(BaseModel):
     cabin: str | None
     avoid_carriers: list[str] | None
     auto_approve_under_inr: int | None
+    hard_arrival_by_local: str | None = None
+
+    @field_serializer("hard_arrival_by")
+    def serialize_timestamp(self, value: datetime | None) -> str | None:
+        return value.isoformat() if value else None
 
 
 class Trip(BaseModel):
@@ -111,7 +137,15 @@ def _response(trip: TripRow) -> Trip:
         destination=trip.destination,
         flights=sorted(trip.flights, key=lambda flight: flight.leg),
         hotels=sorted(trip.hotels, key=lambda hotel: hotel.check_in),
-        constraints=trip.traveller.constraints,
+        constraints=Constraints.model_validate(trip.traveller.constraints).model_copy(
+            update={
+                "hard_arrival_by_local": local_str(
+                    trip.traveller.constraints.hard_arrival_by, trip.destination
+                )
+                if trip.traveller.constraints.hard_arrival_by
+                else None
+            }
+        ),
     )
 
 

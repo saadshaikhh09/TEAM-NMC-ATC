@@ -75,6 +75,8 @@ Envelope:
 
 ## Core shapes
 
+All machine-readable timestamps are UTC; `*_local` fields are display-only airport-local strings.
+
 ### Trip
 ```json
 {
@@ -100,10 +102,12 @@ Envelope:
   "flight_number": "AI131",
   "origin": "BOM",
   "destination": "LHR",
-  "scheduled_departure": "2026-09-20T02:30:00+05:30",
-  "scheduled_arrival": "2026-09-20T07:15:00+01:00",
+  "scheduled_departure": "2026-09-19T21:00:00+00:00",
+  "scheduled_arrival": "2026-09-20T06:15:00+00:00",
+  "departure_local": "02:30, 20 Sep",
+  "arrival_local": "07:15, 20 Sep",
   "status": "SCHEDULED",
-  "next_poll_at": "2026-09-19T21:00:00+05:30"
+  "next_poll_at": "2026-09-19T15:30:00+00:00"
 }
 ```
 `leg` is `outbound` or `return`.
@@ -129,7 +133,8 @@ Envelope:
 Set by the traveller. The planner treats every field as a hard rule.
 ```json
 {
-  "hard_arrival_by": "2026-09-21T09:00:00+01:00",
+  "hard_arrival_by": "2026-09-21T08:00:00+00:00",
+  "hard_arrival_by_local": "09:00, 21 Sep",
   "hard_arrival_reason": "client presentation, cannot be missed",
   "max_fare_inr": 60000,
   "max_stops": 1,
@@ -147,7 +152,7 @@ Set by the traveller. The planner treats every field as a hard rule.
   "flight_id": "uuid",
   "kind": "CANCELLATION",
   "source": "simulated",
-  "detected_at": "2026-09-19T14:03:11+05:30",
+  "detected_at": "2026-09-19T08:33:11+00:00",
   "previous_status": "SCHEDULED",
   "new_status": "CANCELLED"
 }
@@ -162,8 +167,8 @@ What a provider returns from a search, normalised.
   "id": "opt_1",
   "carrier": "BA",
   "flight_number": "BA138",
-  "departure": "2026-09-20T13:40:00+05:30",
-  "arrival": "2026-09-20T19:05:00+01:00",
+  "departure": "2026-09-20T08:10:00+00:00",
+  "arrival": "2026-09-20T18:05:00+00:00",
   "stops": 0,
   "cabin": "economy",
   "fare_inr": 52400
@@ -211,7 +216,7 @@ Every stage writes one of these. The frontend renders this table and nothing els
 {
   "id": "uuid",
   "trip_id": "uuid",
-  "at": "2026-09-19T14:03:11+05:30",
+  "at": "2026-09-19T08:33:11+00:00",
   "stage": "EVALUATED",
   "headline": "Evaluated 14 options, rejected 3 on policy",
   "detail": { },
