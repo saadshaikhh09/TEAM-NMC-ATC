@@ -53,7 +53,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | D1 | `providers/duffel.py` search + book | D | B1 | DONE | `pytest tests/test_duffel.py` |
 | D2 | `HotelProvider.change_dates()` cancel-then-rebook | D | D3 | DONE | `pytest tests/test_hotel_change.py` |
 | D3 | `providers/nuitee.py` full lifecycle | D | B1 | DONE | `pytest tests/test_nuitee.py` |
-| D4 | Notification panel data | D | A3 | TODO | GET timeline |
+| D4 | Notification panel data | D | A3 | DONE | `pytest tests/test_timeline_copy.py` |
 | D5 | Demo script written | D | — | DONE | read aloud in 90s |
 | D6 | Backup video recorded | D | all | TODO | file exists |
 | D7 | Submission writeup | D | — | TODO | submitted |
