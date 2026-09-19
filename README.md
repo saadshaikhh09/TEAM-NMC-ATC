@@ -5,7 +5,33 @@ traveller constraints and policy, rebooks, shifts the hotel, and explains
 itself.
 
 **Our boundary, stated up front:** simulated disruption feed, real decision
-logic, sandbox booking. We do not claim live airline write access.
+logic, sandbox booking. We do not claim live airline write access. The demo
+drives simulated statuses — on-time, delayed, cancelled — so the passenger
+experience is reproducible without touching live airline availability.
+
+---
+
+## The problem
+
+Flight delays and cancellations leave passengers stranded, uncertain, and
+under pressure to make urgent decisions. Finding an alternative is hardest
+exactly when it matters most: limited availability, rebooking cost, and a
+destination they still have to reach.
+
+The information is scattered. Passengers check flight status in one place,
+search alternatives in another, and compare prices in a third — while dealing
+with the stress of a trip that has already gone wrong.
+
+- Uncertainty about delays and cancellations.
+- Difficulty finding suitable alternatives at short notice.
+- Unexpected rebooking expense against a limited budget.
+- Time-consuming searches across multiple services.
+- No clear next step.
+
+**What we build against:** a concierge that explains what happened to the
+journey and guides the passenger to alternatives that fit their travel details
+and their rebooking budget — enough information to make an informed decision,
+not a wall of options.
 
 ---
 
