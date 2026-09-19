@@ -62,7 +62,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | A7 | `planner/rank.py` | A | A6 | DONE | `pytest tests/test_rank.py` |
 | A8 | `planner/hotel_impact.py` | A | A2 | DONE | `pytest tests/test_hotel.py` |
 | A9 | `executor/gate.py` approval threshold | A | A7 | DONE | `pytest tests/test_gate.py` |
-| A10 | `executor/run.py` | A | A9,B1 | TODO | end-to-end passes |
+| A10 | `executor/run.py` | A | A9,B1 | DONE | `pytest tests/test_executor.py` |
 | A11 | `llm/fallback.py` templated strings | A | — | TODO | `pytest tests/test_fallback.py` |
 | A13 | `llm/router.py` chain + breaker | A | A11 | TODO | returns None with all keys blank |
 | A14 | `llm/cache.py` | A | A2 | TODO | second identical call makes no request |
