@@ -60,7 +60,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | D8 | *(optional, h18+)* Duffel webhook receiver | D | D1 | TODO | real POST arrives |
 | A6 | `planner/constraints.py` filter + rejections | A | B1,A2 | DONE | `pytest tests/test_filter.py` |
 | A7 | `planner/rank.py` | A | A6 | DONE | `pytest tests/test_rank.py` |
-| A8 | `planner/hotel_impact.py` | A | A2 | TODO | `pytest tests/test_hotel.py` |
+| A8 | `planner/hotel_impact.py` | A | A2 | DONE | `pytest tests/test_hotel.py` |
 | A9 | `executor/gate.py` approval threshold | A | A7 | TODO | `pytest tests/test_gate.py` |
 | A10 | `executor/run.py` | A | A9,B1 | TODO | end-to-end passes |
 | A11 | `llm/fallback.py` templated strings | A | — | TODO | `pytest tests/test_fallback.py` |
