@@ -12,3 +12,5 @@ def test_cancellation_variants_all_map():
 def test_unmapped_raises_loudly():
     with pytest.raises(ValueError):
         normalise("aerodatabox", "SomethingNew")
+    with pytest.raises(ValueError):
+        normalise("aerodatabox", "Unknown")

@@ -16,7 +16,7 @@ Four of the seven keys are in the build. Three are cut.
 | Provider | Role | Owner | Budget | Notes |
 |---|---|---|---|---|
 | **AeroDataBox** | flight status, PRIMARY | B | **500/month**, 5/sec | richest status vocabulary, HTTPS |
-| **AviationStack** | status cross-check only | B | **500/month** | HTTP only, key in plaintext, backend only |
+| **AviationStack** | status cross-check only | B | account cap to confirm | HTTPS verified; backend only; never log key-bearing URL |
 | **Duffel** (test) | flight search + book | D | 30/min, ~120 searches | webhooks only for orders we booked |
 | **Nuitee / LiteAPI** (sandbox) | hotel lifecycle | D | generous | no modify — cancel then rebook |
 | **Mock** | **demo default** | B | infinite | deterministic, survives venue wifi |
@@ -158,7 +158,7 @@ Set by the traveller. The planner treats every field as a hard rule.
 }
 ```
 `kind` is `CANCELLATION | DELAY | SCHEDULE_CHANGE`.
-`source` is `simulated | aviationstack | duffel`.
+`source` is `simulated | aerodatabox | aviationstack | duffel`.
 
 ### FlightOption
 What a provider returns from a search, normalised.

@@ -129,7 +129,7 @@ them. Do not edit it, even to fix an obvious bug.
 | `api/providers/mock.py` | B | Deterministic. No `random()`. |
 | `api/providers/status_map.py` | B | Unmapped values raise. No fallthrough. |
 | `api/providers/aerodatabox.py` | B | Primary status. 500/month. |
-| `api/providers/aviationstack.py` | B | Cross-check only. 500/month. HTTP only. |
+| `api/providers/aviationstack.py` | B | Cross-check only. HTTPS verified; confirm account cap. |
 | `api/routes/simulate.py` `ws.py` | B | |
 | `web/**` | C | Entirely. Nobody else opens this directory. |
 | `api/providers/duffel.py` | D | |

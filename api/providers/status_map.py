@@ -8,7 +8,6 @@ you miss a cancellation.
 """
 
 AERODATABOX = {
-    "Unknown": "SCHEDULED",
     "Expected": "SCHEDULED",
     "CheckIn": "SCHEDULED",
     "Boarding": "SCHEDULED",

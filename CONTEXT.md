@@ -152,8 +152,8 @@ destroy it.
 - `providers/status_map.py` must raise on an unmapped value. Do not add a
   default fallthrough — a silently mis-mapped status is a missed cancellation.
 
-AviationStack's free tier is HTTP only. Never call it from frontend code, and
-never log a URL containing the key.
+AviationStack HTTPS was verified with the configured key. Never call it from
+frontend code, and never log a URL containing the key.
 
 ### LLM rules
 

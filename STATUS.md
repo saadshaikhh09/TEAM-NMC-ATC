@@ -16,7 +16,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | Item | Owner | State | Note |
 |---|---|---|---|
 | AeroDataBox: one status call succeeds | B | TODO | 1 of 500 spent |
-| AviationStack: one status call succeeds | B | TODO | 1 of 500 spent. HTTP only. |
+| AviationStack: one status call succeeds | B | DONE | AI131 returned DEPARTED on 2026-09-19; 1 quota-guarded call. |
 | Duffel test: one offers call succeeds | D | TODO | 30/min |
 | Nuitee sandbox: search → prebook → book → cancel round trip | D | TODO | free sandbox |
 | LLM key returns a completion | A | TODO | |
@@ -38,11 +38,11 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | A5 | `db/seed.sql` — 3 travellers | A | A1 | DONE | `make reset` then GET /trips |
 | B1 | `providers/base.py` signatures | B | — | DONE | `python -c "import providers.base"` |
 | B2 | `providers/mock.py` all 4 methods | B | B1 | DONE | `pytest tests/test_mock.py` |
-| B3 | `routes/simulate.py` | B | A2,A3 | TODO | `curl -XPOST :8000/simulate/cancellation` |
-| B4 | `routes/ws.py` broadcast | B | A3 | TODO | browser console shows event |
-| B5 | `monitor/scheduler.py` tiered poll | B | A2 | TODO | `pytest tests/test_scheduler.py` |
-| B6 | `providers/aerodatabox.py` (primary) | B | B1,A12 | TODO | `pytest tests/test_status_map.py` |
-| B7 | `providers/aviationstack.py` (cross-check) | B | B1,A12 | TODO | one live call, once |
+| B3 | `routes/simulate.py` | B | A2,A3 | DONE | `curl -XPOST :8000/simulate/cancellation` |
+| B4 | `routes/ws.py` broadcast | B | A3 | DONE | browser console shows event |
+| B5 | `monitor/scheduler.py` tiered poll | B | A2 | DONE | `pytest tests/test_scheduler.py` |
+| B6 | `providers/aerodatabox.py` (primary) | B | B1,A12 | DONE | `pytest tests/test_status_map.py` |
+| B7 | `providers/aviationstack.py` (cross-check) | B | B1,A12 | DONE | one live call, once |
 | B8 | `providers/status_map.py` | B | — | DONE | `pytest tests/test_status_map.py` |
 | C1 | `web/` runs, calls GET /trips | C | — | TODO | `npm run dev` |
 | C2 | Trip card | C | C1 | TODO | visual |
@@ -94,3 +94,5 @@ Append a line whenever you cut something or change a shape. One line, no prose.
 - (hour 0) Gmail ingestion cut; paste-booking extraction replaces it.
 - (hour 0) Hotel map cut.
 - (A16) Machine-readable timestamps are UTC; Flight and Constraints add airport-local display fields.
+- (B3/B5) Added `aerodatabox` to `Disruption.source` for the primary live polling path.
+- (B7) AviationStack HTTPS worked with the configured key; public free pricing now lists 100 requests/month, so A should confirm the account cap before enabling routine live polling.

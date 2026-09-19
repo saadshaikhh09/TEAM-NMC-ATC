@@ -197,7 +197,7 @@ shows exactly where it stopped.
 | Provider | Role | Budget |
 |---|---|---|
 | **AeroDataBox** | flight status, primary | **500/month**, 5/sec, HTTPS |
-| **AviationStack** | status cross-check only | **500/month**, HTTP only |
+| **AviationStack** | status cross-check only | HTTPS verified; confirm account cap |
 | **Duffel** (test) | flight search + booking | 30/min, ~120 searches |
 | **Nuitee / LiteAPI** (sandbox) | hotel lifecycle | generous |
 | **Mock** | **demo default** | infinite |
@@ -241,8 +241,8 @@ providers into one live path costs hours and protects against an outage that
 will not happen in 90 seconds. AviationStack exists so we can say we
 cross-verified, and as a manual switch if AeroDataBox is down at hour 20.
 
-AviationStack's free tier is **HTTP only** — the key travels in plaintext.
-Backend only, never the browser, never logged in full.
+AviationStack HTTPS worked with the configured key. Its key remains in the
+query string: backend only, never the browser, never log the request URL.
 
 ### Duffel webhooks — optional, not the detection path
 Duffel fires `order.airline_initiated_change_detected`, but only for orders

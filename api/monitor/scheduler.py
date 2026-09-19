@@ -19,3 +19,14 @@ def next_poll_interval(hours_to_departure: float) -> timedelta:
     if hours_to_departure <= 168:
         return timedelta(hours=6)
     return timedelta(hours=12)
+
+
+def effective_poll_interval(
+    hours_to_departure: float, *, demo_mode: bool, demo_poll_seconds: int
+) -> timedelta:
+    """Use the fast demo cadence only when live status calls are disabled."""
+    if demo_mode:
+        if demo_poll_seconds < 1:
+            raise ValueError("DEMO_POLL_SECONDS must be positive")
+        return timedelta(seconds=demo_poll_seconds)
+    return next_poll_interval(hours_to_departure)
