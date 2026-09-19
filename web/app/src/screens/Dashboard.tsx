@@ -1,14 +1,16 @@
 import { AgentTimeline } from '../components/AgentTimeline'
+import { RejectionPanel } from '../components/RejectionPanel'
 import { TripCard } from '../components/TripCard'
-import type { AgentAction, Trip } from '../types'
+import type { AgentAction, Rejection, Trip } from '../types'
 
 interface DashboardProps {
   trip: Trip
   actions: AgentAction[]
+  rejections: Rejection[]
   timelinePaceMs?: number
 }
 
-export function Dashboard({ trip, actions, timelinePaceMs }: DashboardProps) {
+export function Dashboard({ trip, actions, rejections, timelinePaceMs }: DashboardProps) {
   return (
     <section aria-labelledby="dashboard-title">
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -24,6 +26,7 @@ export function Dashboard({ trip, actions, timelinePaceMs }: DashboardProps) {
       </div>
       <div className="space-y-8">
         <TripCard trip={trip} />
+        <RejectionPanel rejections={rejections} />
         <AgentTimeline actions={actions} paceMs={timelinePaceMs} />
       </div>
     </section>

@@ -47,7 +47,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | C1 | Independent mock-first `web/app` + `web/site` builds | C | — | DONE | `npm run dev` in each surface |
 | C2 | Trip card | C | C1 | DONE | visual |
 | C3 | **Agent timeline** | C | C1 | DONE | visual |
-| C4 | Rejection panel | C | C1 | TODO | visual |
+| C4 | Rejection panel | C | C1 | DONE | visual |
 | C5 | Approval modal | C | C1 | TODO | visual |
 | C6 | WS live updates | C | B4 | TODO | visual |
 | D1 | `providers/duffel.py` search + book | D | B1 | DONE | `pytest tests/test_duffel.py` |
