@@ -20,8 +20,12 @@ inside policy, shifts the hotel, and explains what it did.
 logic, sandbox booking. We do not claim live airline write access, and the
 agent must never generate copy that implies we do.
 
-**The clock:** started 09:00 Saturday, submission 17:00 Sunday. 32 hours
-wall-clock, roughly 24–26 usable after submission mechanics and sleep.
+**The clock:** started 09:00 Saturday; the submission window opens 17:00 and
+closes 18:00 Sunday. That is 33 hours wall-clock to close, with the hour-26
+hard freeze unchanged. Deliverables are the git repo, demo video, PPT deck,
+and an optional deployment that we intend to provide.
+
+**Contest:** PS-8 is not a sponsor track and is not sponsored by Amex.
 
 ---
 
@@ -209,6 +213,8 @@ before starting new work.
 | 16 | Autonomous path (A9) works | Ship manual only, say so in the pitch |
 | 24 | Backup video recorded | Stop coding and record it now |
 | 26 | **HARD FREEZE** | — |
+| 32 | Submission window opens at 17:00 Sunday; repo, video, PPT, and intended deployment are ready | D submits and verifies every deliverable |
+| 33 | Submission window closes at 18:00 Sunday | No recovery after this point |
 
 The hour-26 freeze is not advisory. Venue wifi will betray someone, and a
 recorded demo has saved more teams than any architecture decision.

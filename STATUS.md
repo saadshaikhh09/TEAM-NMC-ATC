@@ -63,10 +63,10 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | A8 | `planner/hotel_impact.py` | A | A2 | DONE | `pytest tests/test_hotel.py` |
 | A9 | `executor/gate.py` approval threshold | A | A7 | DONE | `pytest tests/test_gate.py` |
 | A10 | `executor/run.py` | A | A9,B1 | DONE | `pytest tests/test_executor.py` |
-| A11 | `llm/fallback.py` templated strings | A | — | TODO | `pytest tests/test_fallback.py` |
-| A13 | `llm/router.py` chain + breaker | A | A11 | TODO | returns None with all keys blank |
-| A14 | `llm/cache.py` | A | A2 | TODO | second identical call makes no request |
-| A15 | `llm/` explain + draft + extract | A | A13 | TODO | works with every key blank |
+| A11 | `llm/fallback.py` templated strings | A | — | DONE | `pytest tests/test_fallback.py` |
+| A13 | `llm/router.py` chain + breaker | A | A11 | DONE | returns None with all keys blank |
+| A14 | `llm/cache.py` | A | A2 | DONE | second identical call makes no request |
+| A15 | `llm/` explain + draft + extract | A | A13 | DONE | works with every key blank |
 | A12 | `core/quota.py` budget guard | A | A2 | DONE | `pytest tests/test_quota.py` |
 
 ---
@@ -97,3 +97,5 @@ Append a line whenever you cut something or change a shape. One line, no prose.
 - (B3/B5) Added `aerodatabox` to `Disruption.source` for the primary live polling path.
 - (B7) AviationStack HTTPS worked with the configured key; public free pricing now lists 100 requests/month, so A should confirm the account cap before enabling routine live polling.
 - (A7) ScoredOption is planner-internal; API still returns FlightOption[] in ranked order. Hotel cost per option is injected by the caller.
+- (A12/B7) Confirmed AeroDataBox and AviationStack quotas are 500 requests/month each.
+- (A14) LLM cache added as `llm_cache.responses`, outside schema public so a psql `make reset` keeps rehearsal copy; `docker compose down -v` still wipes it.

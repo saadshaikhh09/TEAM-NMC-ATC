@@ -2,6 +2,14 @@
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- Kept outside public so rehearsals can reset demo state without losing copy.
+CREATE SCHEMA IF NOT EXISTS llm_cache;
+CREATE TABLE IF NOT EXISTS llm_cache.responses (
+    cache_key  TEXT PRIMARY KEY,
+    response   TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE travellers (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            TEXT NOT NULL,

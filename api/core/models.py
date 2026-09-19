@@ -19,6 +19,17 @@ class Base(DeclarativeBase):
     pass
 
 
+class LlmCache(Base):
+    __tablename__ = "responses"
+    __table_args__ = {"schema": "llm_cache"}
+
+    cache_key: Mapped[str] = mapped_column(Text, primary_key=True)
+    response: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()")
+    )
+
+
 class Traveller(Base):
     __tablename__ = "travellers"
 

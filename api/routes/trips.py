@@ -4,7 +4,7 @@ from datetime import date, datetime
 from typing import Any, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Body, HTTPException
 from pydantic import (
     AwareDatetime,
     BaseModel,
@@ -198,6 +198,11 @@ def create_trip():
     raise NotImplementedError("A")
 
 
-@router.post("/trips/extract")
-def extract_trip():
-    raise NotImplementedError("A")
+@router.post("/trips/extract", response_model=Trip)
+def extract_trip(pasted_booking_text: str = Body(embed=True)):
+    from llm.extract import ExtractionError, extract
+
+    try:
+        return extract(pasted_booking_text)
+    except ExtractionError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
