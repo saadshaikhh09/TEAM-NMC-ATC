@@ -51,7 +51,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | C5 | Approval modal | C | C1 | TODO | visual |
 | C6 | WS live updates | C | B4 | TODO | visual |
 | D1 | `providers/duffel.py` search + book | D | B1 | TODO | returns confirmation |
-| D2 | `HotelProvider.change_dates()` cancel-then-rebook | D | D3 | TODO | `pytest tests/test_hotel_change.py` |
+| D2 | `HotelProvider.change_dates()` cancel-then-rebook | D | D3 | DONE | `pytest tests/test_hotel_change.py` |
 | D3 | `providers/nuitee.py` full lifecycle | D | B1 | DONE | `pytest tests/test_nuitee.py` |
 | D4 | Notification panel data | D | A3 | TODO | GET timeline |
 | D5 | Demo script written | D | — | DONE | read aloud in 90s |

@@ -208,8 +208,8 @@ class NuiteeHotelProvider(HotelProvider):
         if not cancelled:
             raise RuntimeError(f"Hotel cancellation failed for {booking_id}; existing reservation retained")
 
-        prebook_id = self.prebook(rate_id)
         try:
+            prebook_id = self.prebook(rate_id)
             confirmation = self.book(prebook_id, guest)
         except Exception as exc:
             raise RuntimeError(
@@ -223,3 +223,4 @@ class NuiteeHotelProvider(HotelProvider):
             check_out=new_check_out,
             cost_delta_inr=confirmation.cost_delta_inr,
         )
+
