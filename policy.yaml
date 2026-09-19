@@ -1,0 +1,47 @@
+# Rebooking policy. Written to be read by a judge, not only by a parser.
+# The engine loads this file. Nothing in the engine hardcodes a limit.
+
+version: 1
+
+rebooking:
+  # Fares at or below this are rebooked with no human involvement.
+  auto_approve_under_inr: 45000
+
+  # Absolute ceiling. Above this the agent will not book even with approval.
+  hard_fare_ceiling_inr: 90000
+
+  max_stops: 1
+
+  # An option arriving after the traveller's hard_arrival_by is rejected,
+  # regardless of price. This rule cannot be overridden by the ranker.
+  respect_hard_arrival: true
+
+  # Cabin may never be downgraded from the original booking.
+  allow_cabin_downgrade: false
+
+ranking:
+  # Applied only to options that survived every hard filter above.
+  weights:
+    arrival_delay_minutes: 0.45
+    fare_delta_inr: 0.30
+    hotel_cost_delta_inr: 0.15
+    carrier_preference: 0.10
+
+hotel:
+  # Shift check-in when the new arrival lands after this local time.
+  late_arrival_cutoff: "23:00"
+  auto_modify_under_inr: 15000
+  prefer_modify_over_rebook: true
+
+escalation:
+  # Conditions that stop the agent and ask a human, instead of acting.
+  require_approval_when:
+    - fare_above_auto_threshold
+    - hotel_not_modifiable
+    - no_option_satisfies_hard_constraints
+    - provider_returned_error
+
+audit:
+  # Every stage writes a row before it acts. Non-negotiable.
+  record_every_stage: true
+  record_rejections: true
