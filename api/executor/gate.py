@@ -27,6 +27,7 @@ def decide(plan, constraints, policy) -> tuple[str, str | None]:
         )
     if chosen is None:
         raise ValueError("plan has no chosen option")
+    chosen = _value(chosen, "option", chosen)
 
     fare = _value(chosen, "fare_inr")
     traveller_threshold = _value(constraints, "auto_approve_under_inr")

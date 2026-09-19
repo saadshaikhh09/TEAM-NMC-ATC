@@ -10,6 +10,8 @@ from core.db import SessionLocal
 from core.models import AgentAction, Approval, Disruption, Flight, RecoveryPlan, Trip
 from executor.gate import decide
 from main import app
+from planner.rank import ScoredOption
+from providers.base import FlightOption
 from routes import approvals
 
 
@@ -88,6 +90,24 @@ def test_missing_traveller_threshold_requires_approval():
         "APPROVAL",
         "Traveller auto-approve threshold is not set",
     )
+
+
+def test_gate_accepts_rankers_scored_option():
+    chosen = FlightOption(
+        id="opt_1",
+        carrier="BA",
+        flight_number="BA138",
+        departure=datetime(2026, 9, 20, 8, 10, tzinfo=timezone.utc),
+        arrival=datetime(2026, 9, 20, 18, 5, tzinfo=timezone.utc),
+        stops=0,
+        cabin="economy",
+        fare_inr=40_000,
+    )
+    ranked = ScoredOption(chosen, 0.0, 1, {}, {})
+    candidate_plan = plan()
+    candidate_plan.chosen_option = ranked
+
+    assert decide(candidate_plan, constraints(), POLICY) == ("AUTO", None)
 
 
 @pytest.fixture
