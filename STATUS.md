@@ -59,7 +59,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | D7 | Submission writeup | D | — | TODO | submitted |
 | D8 | *(optional, h18+)* Duffel webhook receiver | D | D1 | TODO | real POST arrives |
 | A6 | `planner/constraints.py` filter + rejections | A | B1,A2 | DONE | `pytest tests/test_filter.py` |
-| A7 | `planner/rank.py` | A | A6 | TODO | `pytest tests/test_rank.py` |
+| A7 | `planner/rank.py` | A | A6 | DONE | `pytest tests/test_rank.py` |
 | A8 | `planner/hotel_impact.py` | A | A2 | TODO | `pytest tests/test_hotel.py` |
 | A9 | `executor/gate.py` approval threshold | A | A7 | TODO | `pytest tests/test_gate.py` |
 | A10 | `executor/run.py` | A | A9,B1 | TODO | end-to-end passes |
@@ -96,3 +96,4 @@ Append a line whenever you cut something or change a shape. One line, no prose.
 - (A16) Machine-readable timestamps are UTC; Flight and Constraints add airport-local display fields.
 - (B3/B5) Added `aerodatabox` to `Disruption.source` for the primary live polling path.
 - (B7) AviationStack HTTPS worked with the configured key; public free pricing now lists 100 requests/month, so A should confirm the account cap before enabling routine live polling.
+- (A7) ScoredOption is planner-internal; API still returns FlightOption[] in ranked order. Hotel cost per option is injected by the caller.
