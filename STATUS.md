@@ -67,7 +67,7 @@ loop, do not retry in a shell history, do not let anyone "just check it again".*
 | A13 | `llm/router.py` chain + breaker | A | A11 | TODO | returns None with all keys blank |
 | A14 | `llm/cache.py` | A | A2 | TODO | second identical call makes no request |
 | A15 | `llm/` explain + draft + extract | A | A13 | TODO | works with every key blank |
-| A12 | `core/quota.py` budget guard | A | A2 | TODO | `pytest tests/test_quota.py` |
+| A12 | `core/quota.py` budget guard | A | A2 | DONE | `pytest tests/test_quota.py` |
 
 ---
 

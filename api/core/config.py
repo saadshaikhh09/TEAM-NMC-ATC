@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     aviationstack_api_key: str = ""
     duffel_api_key: str = ""
+    quota_aerodatabox_monthly: int = 500
+    quota_aviationstack_monthly: int = 500
+    quota_dev_budget_fraction: float = 0.4
 
     class Config:
         env_file = ".env"
