@@ -8,6 +8,7 @@ import type { AgentAction, Disruption, RecoveryPlan, Trip } from '../types'
 
 /** Empty in dev: vite proxies /trips, /approvals, /disruptions, /simulate and /ws to :8000. */
 export const apiBase = import.meta.env.VITE_API_URL ?? ''
+export const AUTH_EXPIRED_EVENT = 'atc:auth-expired'
 
 /**
  * Carries the API's own `detail` string, not just the status code.
@@ -39,15 +40,34 @@ async function reasonFor(response: Response, path: string): Promise<string> {
   return `${path} -> ${response.status}`
 }
 
-async function send<T>(path: string, method: 'GET' | 'POST', body?: unknown): Promise<T> {
+export async function send<T>(path: string, method: 'GET' | 'POST', body?: unknown): Promise<T> {
   const response = await fetch(`${apiBase}${path}`, {
     method,
+    credentials: 'include',
     ...(body === undefined
       ? {}
       : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   })
-  if (!response.ok) throw new ApiError(await reasonFor(response, path), response.status)
+  if (!response.ok) {
+    if (response.status === 401 && path !== '/auth/session') window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT))
+    throw new ApiError(await reasonFor(response, path), response.status)
+  }
+  if (response.status === 204) return undefined as T
   return (await response.json()) as T
+}
+
+export interface Account {
+  id: string
+  name: string
+  email: string
+}
+
+export const authApi = {
+  session: () => send<Account>('/auth/session', 'GET'),
+  login: (email: string, password: string) => send<Account>('/auth/login', 'POST', { email, password }),
+  register: (name: string, email: string, password: string) =>
+    send<Account>('/auth/register', 'POST', { name, email, password }),
+  logout: () => send<void>('/auth/logout', 'POST'),
 }
 
 /** The two disruption kinds routes/simulate.py exposes. */
@@ -58,6 +78,7 @@ export const apiTravelService = {
   getTrip: (tripId: string) => send<Trip>(`/trips/${tripId}`, 'GET'),
   getTimeline: (tripId: string) => send<AgentAction[]>(`/trips/${tripId}/timeline`, 'GET'),
   getPlan: (disruptionId: string) => send<RecoveryPlan>(`/disruptions/${disruptionId}/plan`, 'GET'),
+  createTrip: (payload: unknown) => send<Trip>('/trips', 'POST', payload),
   approvePlan: (planId: string) => send<RecoveryPlan>(`/approvals/${planId}/approve`, 'POST'),
   rejectPlan: (planId: string) => send<RecoveryPlan>(`/approvals/${planId}/reject`, 'POST'),
 
@@ -77,9 +98,8 @@ export const apiTravelService = {
     ),
 
   /**
-   * Paste-a-booking extraction. Returns a validated Trip; it does not store one —
-   * `llm/extract.py` never touches the database. 503 means the LLM chain is down
-   * or every key is blank, and its `detail` says so in words a traveller can use.
+   * Paste-a-booking extraction validates first, then stores through the same
+   * transaction as the manual form. A 503 carries an actionable fallback.
    */
   extractTrip: (pastedBookingText: string) =>
     send<Trip>('/trips/extract', 'POST', { pasted_booking_text: pastedBookingText }),

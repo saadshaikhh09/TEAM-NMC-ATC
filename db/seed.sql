@@ -2,9 +2,15 @@
 -- `make reset` reapplies this. You will run it ~30 times during rehearsal.
 
 -- 1. Priya — the hard deadline case. THIS IS THE DEMO.
+INSERT INTO users (id, email, name, password_hash)
+VALUES (
+  '00000000-0000-0000-0000-000000000001', 'demo@atc.local', 'ATC Demo',
+  'scrypt$16384$8$1$1408139bf1ed45fda9d245b116b0d042$5562d1ddc249f92dd6acc2b5cfbb50c30b8126f8925a1c045dff1385da5f4baa697d56462553616cee549bd84e5693e94f531fa083e71c00f134cdd35cb67cab'
+);
+
 WITH t AS (
-  INSERT INTO travellers (id, name, email)
-  VALUES ('11111111-1111-1111-1111-111111111111', 'Priya Sharma', 'priya@example.com')
+  INSERT INTO travellers (id, user_id, name, email)
+  VALUES ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000001', 'Priya Sharma', 'priya@example.com')
   RETURNING id
 )
 INSERT INTO traveller_constraints
@@ -34,8 +40,8 @@ VALUES ('aaaaaaaa-1111-1111-1111-111111111111', 'HTL-99213', 'Kensington Central
 
 -- 2. Rohan — the fare-cap escalation case.
 WITH t AS (
-  INSERT INTO travellers (id, name, email)
-  VALUES ('22222222-2222-2222-2222-222222222222', 'Rohan Mehta', 'rohan@example.com')
+  INSERT INTO travellers (id, user_id, name, email)
+  VALUES ('22222222-2222-2222-2222-222222222222', '00000000-0000-0000-0000-000000000001', 'Rohan Mehta', 'rohan@example.com')
   RETURNING id
 )
 INSERT INTO traveller_constraints
@@ -58,8 +64,8 @@ VALUES ('bbbbbbbb-2222-2222-2222-222222222222', 'HTL-44120', 'Bugis Riverside', 
 
 -- 3. Ananya — the clean auto-rebook case. Nothing exotic. Proves the happy path.
 WITH t AS (
-  INSERT INTO travellers (id, name, email)
-  VALUES ('33333333-3333-3333-3333-333333333333', 'Ananya Iyer', 'ananya@example.com')
+  INSERT INTO travellers (id, user_id, name, email)
+  VALUES ('33333333-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000001', 'Ananya Iyer', 'ananya@example.com')
   RETURNING id
 )
 INSERT INTO traveller_constraints

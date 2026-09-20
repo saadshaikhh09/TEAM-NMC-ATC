@@ -2,7 +2,8 @@
 
 
 def _value(item, name, default=None):
-    return item.get(name, default) if isinstance(item, dict) else getattr(item, name, default)
+    value = item.get(name, default) if isinstance(item, dict) else getattr(item, name, default)
+    return default if value is None else value
 
 
 def _money(value: int | None) -> str:
@@ -32,12 +33,12 @@ def _chosen(plan):
 def _option_name(plan) -> str:
     option = _chosen(plan)
     if option is None:
-        return str(_value(plan, "chosen_option_id", "the selected option"))
+        return str(_value(plan, "chosen_option_id", "a reviewed alternative"))
     return " ".join(
         part
         for part in (_value(option, "carrier"), _value(option, "flight_number"))
         if part
-    ) or str(_value(plan, "chosen_option_id"))
+    ) or str(_value(plan, "chosen_option_id", "a reviewed alternative"))
 
 
 def _hotel_change(plan):

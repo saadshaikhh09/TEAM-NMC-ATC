@@ -8,6 +8,7 @@ from core.db import SessionLocal
 from core.models import Disruption, Flight, Traveller, Trip
 from monitor.poller import poll_due
 from providers.base import FlightStatus
+from tests.helpers import DEMO_USER_ID
 
 
 NOW = datetime(2026, 9, 19, 20, tzinfo=timezone.utc)
@@ -19,7 +20,7 @@ ARRIVAL = datetime(2026, 9, 20, 6, 15, tzinfo=timezone.utc)
 def due_flight():
     traveller_id, trip_id, flight_id = uuid4(), uuid4(), uuid4()
     with SessionLocal.begin() as session:
-        traveller = Traveller(id=traveller_id, name="Poller Test")
+        traveller = Traveller(id=traveller_id, user_id=DEMO_USER_ID, name="Poller Test")
         trip = Trip(
             id=trip_id, traveller=traveller, status="MONITORING",
             origin="BOM", destination="LHR",

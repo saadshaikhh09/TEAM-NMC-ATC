@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+import hashlib
+from datetime import date, datetime, timedelta, timezone
 
 from providers.base import (
     BookingConfirmation,
@@ -58,12 +59,19 @@ _OPTIONS = {
 
 
 class MockFlightProvider(FlightProvider):
+    def __init__(self) -> None:
+        self._generated: dict[str, int] = {}
+
     def get_status(self, carrier: str, flight_number: str, on: date) -> FlightStatus:
         key = (carrier.upper(), flight_number.upper(), on)
         try:
             departure, arrival = _FLIGHTS[key]
-        except KeyError as exc:
-            raise ValueError(f"no mock status for {key}") from exc
+        except KeyError:
+            digest = int(hashlib.sha256("|".join(map(str, key)).encode()).hexdigest()[:8], 16)
+            departure = datetime.combine(on, datetime.min.time(), timezone.utc) + timedelta(
+                hours=6 + digest % 12
+            )
+            arrival = departure + timedelta(hours=3 + digest % 8)
         return FlightStatus(
             flight_number=flight_number.upper(),
             status="SCHEDULED",
@@ -79,13 +87,34 @@ class MockFlightProvider(FlightProvider):
             raise ValueError("depart_after must include a timezone")
         if cabin != "economy":
             return []
-        rows = _OPTIONS.get((origin.upper(), destination.upper()), ())
+        route = (origin.upper(), destination.upper())
+        rows = _OPTIONS.get(route) or self._generic_rows(route, depart_after)
         return [
-            FlightOption(option_id, carrier, number, _utc(departure), _utc(arrival),
-                         stops, cabin, fare)
+            self._remember(FlightOption(option_id, carrier, number, _utc(departure), _utc(arrival),
+                                        stops, cabin, fare))
             for option_id, carrier, number, departure, arrival, stops, fare in rows
             if _utc(departure) >= depart_after
         ]
+
+    @staticmethod
+    def _generic_rows(route: tuple[str, str], depart_after: datetime) -> tuple:
+        digest = hashlib.sha256("|".join(route).encode()).hexdigest()
+        base = depart_after.astimezone(timezone.utc).replace(minute=0, second=0, microsecond=0)
+        carriers = ("AT", "SK", "NX")
+        return tuple(
+            (
+                f"gen_{digest[:8]}_{index}", carriers[index],
+                f"{carriers[index]}{100 + int(digest[index:index + 2], 16) % 800}",
+                (base + timedelta(hours=2 + index * 3)).isoformat(),
+                (base + timedelta(hours=8 + index * 4)).isoformat(),
+                index % 2, 28000 + int(digest[index * 2:index * 2 + 4], 16) % 32000,
+            )
+            for index in range(3)
+        )
+
+    def _remember(self, option: FlightOption) -> FlightOption:
+        self._generated[option.id] = option.fare_inr
+        return option
 
     def book(self, option_id: str, passenger: str) -> BookingConfirmation:
         if not passenger.strip():
@@ -98,6 +127,11 @@ class MockFlightProvider(FlightProvider):
                         provider="mock",
                         fare_inr=fare,
                     )
+        if option_id in self._generated:
+            return BookingConfirmation(
+                reference=f"MOCK-{option_id.upper()}", provider="mock",
+                fare_inr=self._generated[option_id],
+            )
         raise ValueError(f"unknown mock flight option {option_id!r}")
 
 

@@ -1,6 +1,4 @@
-import { Icon } from './Icon'
-
-const appUrl = import.meta.env.VITE_APP_URL
+import { appLink } from '../lib/links'
 
 /**
  * Only destinations that exist. The usual product/company/legal columns would
@@ -11,16 +9,16 @@ const COLUMNS = [
   {
     heading: 'On this page',
     links: [
-      { label: 'How the agent runs', href: '#how-it-works' },
-      { label: 'What is built', href: '#features' },
-      { label: 'What is not built', href: '#faq' },
+      { label: 'How the agent runs', href: '/how-it-works' },
+      { label: 'Frequently asked questions', href: '/faq' },
+      { label: 'Home', href: '/' },
     ],
   },
   {
     heading: 'Try it',
     links: [
-      { label: 'Open the dashboard', href: appUrl },
-      { label: 'Simulate a cancellation', href: appUrl },
+      { label: 'Create an account', href: appLink('/signup') },
+      { label: 'Open the dashboard', href: appLink('/app') },
     ],
   },
 ]
@@ -32,9 +30,7 @@ export function SiteFooter() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-12">
           <div className="flex flex-col gap-4 pr-0 md:col-span-5 md:pr-12">
             <div className="flex items-center gap-3">
-              <span className="flex size-9 items-center justify-center rounded-xl bg-[#0284C7] text-white">
-                <Icon className="text-[20px]" name="connecting_airports" />
-              </span>
+              <img alt="" className="size-11 rounded-xl object-contain" src="/assets/atc-logo.png" />
               <span className="text-lg font-bold tracking-tight text-white">ATC</span>
             </div>
             <p className="max-w-md text-sm leading-relaxed text-slate-400">

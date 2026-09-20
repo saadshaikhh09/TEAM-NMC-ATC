@@ -18,7 +18,7 @@ reset:
 	@echo "Database reset with schema + seed + migrations."
 
 api:
-	cd api && uvicorn main:app --reload --port 8000
+	cd api && .venv/bin/uvicorn main:app --reload --port 8000
 
 # web/ is not a workspace: web/app and web/site are independent surfaces with
 # their own package.json. `cd web && npm run dev` has no package.json to find.
@@ -32,7 +32,12 @@ seed:
 	docker compose exec -T db psql -U concierge -d concierge < db/seed.sql
 
 test:
-	cd api && python -m pytest tests -q
+	@psql -q -U concierge -d postgres -tc "SELECT 1 FROM pg_database WHERE datname='concierge_test'" | grep -q 1 || createdb -U concierge concierge_test
+	@psql -q -U concierge -d concierge_test -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+	@psql -q -U concierge -d concierge_test -f db/schema.sql
+	@psql -q -U concierge -d concierge_test -f db/seed.sql
+	@for f in db/migrations/*.sql; do [ -f "$$f" ] && psql -q -U concierge -d concierge_test -f "$$f"; done
+	cd api && DATABASE_URL=postgresql://concierge:concierge@localhost:5432/concierge_test TESTING=true GEMINI_API_KEY= OPENAI_API_KEY= OPENROUTER_API_KEY= XKIRO_API_KEY= GROQ_API_KEY= GROQ_MODEL= .venv/bin/python -m pytest tests -q
 reset-local:
 	psql -U concierge -d concierge -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 	psql -U concierge -d concierge -f db/schema.sql

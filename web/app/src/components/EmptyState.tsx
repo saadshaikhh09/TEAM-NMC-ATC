@@ -2,13 +2,7 @@ interface EmptyStateProps {
   onRetry?: () => void
 }
 
-/**
- * Shown when neither the API nor the mocks produced a trip.
- *
- * Reuses the disrupted-flight-path artwork from the 404 design. The app has a single
- * screen and no router, so this is where that illustration earns its keep: a dead
- * end the user can actually reach, rather than an unroutable page.
- */
+/** Reuses the disrupted-flight-path artwork from the 404 design for an empty account. */
 export function EmptyState({ onRetry }: EmptyStateProps) {
   return (
     <section
@@ -45,8 +39,8 @@ export function EmptyState({ onRetry }: EmptyStateProps) {
         The concierge has nothing to watch.
       </h2>
       <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-on-surface-variant">
-        Our API returned no trips and the bundled mocks did not load either. Nothing has been
-        lost — no booking is changed by this screen.
+        Add an itinerary to begin monitoring. Nothing has been lost and no booking is changed by
+        this screen.
       </p>
 
       {onRetry && (

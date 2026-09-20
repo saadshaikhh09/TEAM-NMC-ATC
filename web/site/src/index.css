@@ -31,4 +31,9 @@
   a {
     -webkit-tap-highlight-color: transparent;
   }
+
+  :focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+  }
 }

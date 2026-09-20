@@ -13,5 +13,5 @@ def test_lhr_time_uses_london_daylight_saving():
 
 
 def test_unknown_iata_raises():
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError, match="timezone is required"):
         local_time(datetime.now(timezone.utc), "XXX")

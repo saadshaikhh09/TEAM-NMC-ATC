@@ -6,17 +6,18 @@ Do not add business logic to this file.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from core.config import settings
 from core.events import subscribe
 from monitor.runner import start_monitor, stop_monitor
 from planner import orchestrate
 from providers.mock import MockFlightProvider, MockHotelProvider
-from routes import approvals, simulate, trips, webhooks, ws
+from routes import approvals, auth, simulate, trips, webhooks, ws
 
 app = FastAPI(title="Travel Disruption Concierge", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=[origin.strip() for origin in settings().cors_origins.split(",") if origin.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,6 +30,7 @@ def health():
 
 
 app.include_router(trips.router)
+app.include_router(auth.router)
 app.include_router(approvals.router)
 app.include_router(simulate.router)
 app.include_router(ws.router)
@@ -42,5 +44,6 @@ orchestrate.configure(_flight_provider, _hotel_provider)
 # called from detection.py so the poller and /simulate reach it by one path.
 subscribe("disruption.detected", orchestrate.on_disruption_detected)
 
-app.add_event_handler("startup", start_monitor)
-app.add_event_handler("shutdown", stop_monitor)
+if not settings().testing:
+    app.add_event_handler("startup", start_monitor)
+    app.add_event_handler("shutdown", stop_monitor)

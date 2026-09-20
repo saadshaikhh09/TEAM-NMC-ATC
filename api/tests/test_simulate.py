@@ -9,13 +9,14 @@ from core.db import SessionLocal
 from core.events import subscribe
 from core.models import AgentAction, Disruption, Flight, RecoveryPlan, Traveller, Trip
 from main import app
+from tests.helpers import DEMO_USER_ID, login_demo
 
 
 @pytest.fixture
 def flight_ids():
     traveller_id, trip_id, flight_id = uuid4(), uuid4(), uuid4()
     with SessionLocal.begin() as session:
-        traveller = Traveller(id=traveller_id, name="Simulation Test")
+        traveller = Traveller(id=traveller_id, user_id=DEMO_USER_ID, name="Simulation Test")
         trip = Trip(
             id=trip_id, traveller=traveller, status="MONITORING",
             origin="BOM", destination="LHR",
@@ -38,7 +39,7 @@ def test_cancellation_writes_one_disruption_and_broadcasts(flight_ids):
     trip_id, flight_id = flight_ids
     events = []
     subscribe("disruption.detected", events.append)
-    client = TestClient(app)
+    client = login_demo(TestClient(app))
 
     response = client.post(f"/simulate/cancellation?flight_id={flight_id}")
     assert response.status_code == 200
@@ -84,7 +85,7 @@ def test_cancellation_writes_one_disruption_and_broadcasts(flight_ids):
 
 def test_delay_uses_same_detection_path(flight_ids):
     trip_id, flight_id = flight_ids
-    response = TestClient(app).post(f"/simulate/delay?flight_id={flight_id}")
+    response = login_demo(TestClient(app)).post(f"/simulate/delay?flight_id={flight_id}")
     assert response.status_code == 200
     assert response.json()["kind"] == "DELAY"
     assert response.json()["new_status"] == "DELAYED"

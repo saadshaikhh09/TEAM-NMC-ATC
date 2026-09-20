@@ -21,13 +21,15 @@ interface HotelPolicyCardProps {
  * explicitly an abstract mark, labelled as such.
  */
 function Locator({ city }: { city: string }) {
+  const london = city.toUpperCase() === 'LON' || city.toUpperCase() === 'LHR'
   return (
     <div
       className="relative h-40 shrink-0 overflow-hidden rounded-md border border-outline-variant/60 bg-surface-container-low lg:h-auto lg:w-56"
       role="img"
       aria-label={`Stylised locator for ${city}. Not a real map.`}
     >
-      <svg className="absolute inset-0 size-full" aria-hidden="true">
+      {london && <img alt="" className="absolute inset-0 size-full object-cover opacity-70" src="/assets/heathrow-map.png" />}
+      <svg className={`absolute inset-0 size-full ${london ? 'mix-blend-multiply' : ''}`} aria-hidden="true">
         <defs>
           <pattern height="24" id="locator-grid" patternUnits="userSpaceOnUse" width="24">
             <path d="M24 0H0V24" fill="none" stroke="#c2c6d8" strokeOpacity="0.5" strokeWidth="1" />
@@ -44,7 +46,7 @@ function Locator({ city }: { city: string }) {
         </span>
       </div>
       <p className="absolute bottom-2 left-2 rounded bg-white/85 px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-        {city} · approx.
+        {city} · static simulated map
       </p>
     </div>
   )

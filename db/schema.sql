@@ -10,16 +10,37 @@ CREATE TABLE IF NOT EXISTS llm_cache.responses (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE users (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email         TEXT NOT NULL UNIQUE,
+    name          TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE sessions (
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_sessions_user_id ON sessions (user_id);
+CREATE INDEX idx_sessions_expires_at ON sessions (expires_at);
+
 CREATE TABLE travellers (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name            TEXT NOT NULL,
     email           TEXT,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE INDEX idx_travellers_user_id ON travellers (user_id);
 
 CREATE TABLE traveller_constraints (
     traveller_id        UUID PRIMARY KEY REFERENCES travellers(id) ON DELETE CASCADE,
     hard_arrival_by     TIMESTAMPTZ,
+    hard_arrival_timezone TEXT,
     hard_arrival_reason TEXT,
     max_fare_inr        INTEGER,
     max_stops           INTEGER DEFAULT 1,
@@ -46,6 +67,8 @@ CREATE TABLE flights (
     flight_number        TEXT NOT NULL,
     origin               TEXT NOT NULL,
     destination          TEXT NOT NULL,
+    origin_timezone      TEXT,
+    destination_timezone TEXT,
     scheduled_departure  TIMESTAMPTZ NOT NULL,
     scheduled_arrival    TIMESTAMPTZ NOT NULL,
     status               TEXT NOT NULL DEFAULT 'SCHEDULED',
@@ -64,6 +87,7 @@ CREATE TABLE hotels (
     confirmation_number   TEXT,
     name                  TEXT NOT NULL,
     city                  TEXT NOT NULL,
+    city_timezone         TEXT,
     check_in              DATE NOT NULL,
     check_out             DATE NOT NULL,
     nightly_rate_inr      INTEGER,
@@ -134,9 +158,9 @@ CREATE TABLE hotel_changes (
 
 CREATE TABLE approvals (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    plan_id       UUID NOT NULL REFERENCES recovery_plans(id) ON DELETE CASCADE,
-    decision      TEXT,
-    decided_at    TIMESTAMPTZ,
+    plan_id       UUID NOT NULL UNIQUE REFERENCES recovery_plans(id) ON DELETE CASCADE,
+    decision      TEXT NOT NULL CHECK (decision IN ('APPROVED', 'REJECTED')),
+    decided_at    TIMESTAMPTZ NOT NULL,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

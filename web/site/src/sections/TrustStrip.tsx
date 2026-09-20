@@ -27,12 +27,12 @@ export function TrustStrip() {
       <div className="mx-auto flex max-w-[1280px] flex-col items-start justify-between gap-6 md:flex-row md:items-center">
         <div className="max-w-md">
           <p className="text-sm font-semibold text-[#0A2540]">
-            A hackathon prototype, running on real provider APIs
+            Real decision logic, deterministic mock providers
           </p>
           <p className="mt-1 text-xs leading-relaxed text-[#64748B]">
-            Every live status call is metered against a 500-request monthly budget, and the demo
-            ships with <span className="font-mono text-[#0A2540]">DEMO_MODE=true</span> so a
-            rehearsal can never spend it.
+            Production adapters are quota-aware; this MVP ships with{' '}
+            <span className="font-mono text-[#0A2540]">DEMO_MODE=true</span> so rehearsals are
+            stable and never claim live airline write access.
           </p>
         </div>
 

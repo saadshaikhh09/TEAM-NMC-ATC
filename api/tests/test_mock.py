@@ -38,3 +38,16 @@ def test_mock_hotel_lifecycle():
     assert booking.reference == "MOCK-RATE_LON"
     assert provider.cancel(booking.reference)
     assert not provider.cancel(booking.reference)
+
+
+def test_arbitrary_route_has_deterministic_flight_options_and_booking():
+    provider = MockFlightProvider()
+    depart_after = datetime(2026, 10, 1, 14, tzinfo=timezone.utc)
+
+    first = provider.search("JFK", "NRT", depart_after, "economy")
+    second = provider.search("JFK", "NRT", depart_after, "economy")
+
+    assert first == second
+    assert len(first) >= 2
+    assert all(option.departure >= depart_after for option in first)
+    assert provider.book(first[0].id, "Alex Morgan").reference.startswith("MOCK-")

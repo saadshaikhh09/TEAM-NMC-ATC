@@ -14,6 +14,7 @@ RECOVERY_FAILED, not 500 the request that reported the disruption.
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from uuid import UUID
 
@@ -65,7 +66,10 @@ def _constraints(trip: Trip) -> dict:
     deadline = getattr(row, "hard_arrival_by", None)
     return {
         "hard_arrival_by": deadline,
-        "hard_arrival_by_local": local_str(deadline, trip.destination) if deadline else None,
+        "hard_arrival_by_local": local_str(
+            deadline, trip.destination, getattr(row, "hard_arrival_timezone", None)
+        ) if deadline else None,
+        "hard_arrival_timezone": getattr(row, "hard_arrival_timezone", None),
         "hard_arrival_reason": getattr(row, "hard_arrival_reason", None),
         "max_fare_inr": getattr(row, "max_fare_inr", None),
         "max_stops": getattr(row, "max_stops", None),
@@ -73,7 +77,13 @@ def _constraints(trip: Trip) -> dict:
         "avoid_carriers": getattr(row, "avoid_carriers", None),
         "auto_approve_under_inr": getattr(row, "auto_approve_under_inr", None),
         "destination": trip.destination,
+        "destination_timezone": flight_timezone(trip),
     }
+
+
+def flight_timezone(trip: Trip) -> str | None:
+    outbound = next((flight for flight in trip.flights if flight.leg == "outbound"), None)
+    return getattr(outbound, "destination_timezone", None)
 
 
 def _narrate(plan) -> tuple[str, str]:
@@ -83,7 +93,12 @@ def _narrate(plan) -> tuple[str, str]:
     try:
         from llm.explain import draft, explain
 
-        return explain(plan), draft(plan)
+        # Load ORM collections before the read-only narration work fans out.
+        list(plan.options), list(plan.rejections), list(plan.hotel_changes)
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            explained = pool.submit(explain, plan)
+            drafted = pool.submit(draft, plan)
+            return explained.result(), drafted.result()
     except Exception:
         return fallback.explanation(plan), fallback.member_message(plan)
 

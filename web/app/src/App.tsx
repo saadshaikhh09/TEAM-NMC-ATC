@@ -1,212 +1,82 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Link, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
-import { EmptyState } from './components/EmptyState'
-import { FlightAlternativesSkeleton, FlightStatusSkeleton, HotelPolicySkeleton } from './components/Skeletons'
-import { Dashboard } from './screens/Dashboard'
-import {
-  apiTravelService,
-  disruptionIdFrom,
-  loadSnapshot,
-  mockTravelService,
-  refetch,
-  selectTrip,
-  type Snapshot,
-} from './services'
-import type { SimulationKind } from './services/api'
-import { connectLive, type LiveStatus } from './services/live'
-import type { WsEvent } from './types'
+import { AUTH_EXPIRED_EVENT, authApi, type Account } from './services/api'
+import { AppNotFound, NewTripPage, OverviewPage, ProfilePage, RecoveryPage, TripDetailPage, TripsPage } from './screens/Pages'
 
-function App() {
-  const [snapshot, setSnapshot] = useState<Snapshot | null>(null)
-  const [status, setStatus] = useState<LiveStatus>('connecting')
-  // Both the API and the mocks failed. Without this the skeleton would spin forever.
-  const [unavailable, setUnavailable] = useState(false)
-  // Event callbacks read the latest snapshot through a ref so the subscription
-  // is opened once and never torn down by an unrelated state change.
-  const snapshotRef = useRef<Snapshot | null>(null)
-
-  const apply = useCallback((next: Snapshot) => {
-    snapshotRef.current = next
-    setSnapshot(next)
-  }, [])
-
-  // The flag clears only once a retry actually succeeds — clearing it up front would
-  // flash the skeleton over an empty state that is about to come back anyway.
-  const load = useCallback(() => {
-    void loadSnapshot()
-      .then((next) => {
-        apply(next)
-        setUnavailable(false)
-      })
-      .catch(() => setUnavailable(true))
-  }, [apply])
-
-  useEffect(load, [load])
-
-  /**
-   * Refetches the whole trip set, then re-reads the selected trip out of it.
-   *
-   * One request keeps both the dashboard and the switcher's status chips current,
-   * so a traveller who is not on screen still visibly moves when their flight goes.
-   */
-  const refreshTrips = useCallback(async () => {
-    const current = snapshotRef.current
-    if (current?.source !== 'api') return
-    const trips = await refetch.trips()
-    const latest = snapshotRef.current
-    if (!trips || !latest) return
-    const trip = trips.find((candidate) => candidate.id === latest.trip.id)
-    apply({ ...latest, trips, trip: trip ?? latest.trip })
-  }, [apply])
-
-  const refreshTimeline = useCallback(async () => {
-    const current = snapshotRef.current
-    if (current?.source !== 'api') return
-    const actions = await refetch.timeline(current.trip.id)
-    const latest = snapshotRef.current
-    if (!actions || !latest) return
-    apply({ ...latest, actions, disruptionId: disruptionIdFrom(actions) ?? latest.disruptionId })
-  }, [apply])
-
-  const refreshPlan = useCallback(async (disruptionId?: string) => {
-    const current = snapshotRef.current
-    if (current?.source !== 'api') return
-    const id = disruptionId ?? current.disruptionId
-    if (!id) return
-    const plan = await refetch.plan(id)
-    const latest = snapshotRef.current
-    // A failed fetch keeps the last known plan rather than emptying the panel.
-    if (latest) apply({ ...latest, disruptionId: id, plan: plan ?? latest.plan })
-  }, [apply])
-
-  /**
-   * The eight names in CONTRACT.md are fixed strings and this switch is the only
-   * place they are interpreted. Anything else is dropped silently.
-   */
-  const handleEvent = useCallback(
-    (event: WsEvent) => {
-      const current = snapshotRef.current
-      if (current?.source !== 'api') return
-
-      // An event for a trip that is not on screen still has to move that traveller's
-      // chip in the switcher. It must not touch the timeline or plan being shown.
-      if (event.trip_id !== current.trip.id) {
-        if (event.type === 'trip.updated' || event.type === 'disruption.detected') void refreshTrips()
-        return
-      }
-
-      switch (event.type) {
-        case 'trip.updated':
-          void refreshTrips()
-          break
-        case 'disruption.detected': {
-          const disruptionId =
-            typeof event.payload.disruption_id === 'string' ? event.payload.disruption_id : undefined
-          void refreshTrips()
-          void refreshTimeline()
-          void refreshPlan(disruptionId)
-          break
-        }
-        case 'plan.ready':
-        case 'plan.awaiting_approval':
-        case 'plan.executing':
-          void refreshPlan()
-          break
-        case 'plan.executed':
-        case 'plan.failed':
-          void refreshPlan()
-          void refreshTrips()
-          break
-        case 'action.recorded':
-          // The timeline stays a dumb render of agent_actions: refetch the table,
-          // never assemble a row from the payload.
-          void refreshTimeline()
-          break
-        default:
-          break
-      }
-    },
-    [refreshPlan, refreshTimeline, refreshTrips],
-  )
-
-  const poll = useCallback(() => {
-    void refreshTrips()
-    void refreshTimeline()
-    void refreshPlan()
-  }, [refreshPlan, refreshTimeline, refreshTrips])
-
-  const isLiveSource = snapshot?.source === 'api'
-  useEffect(() => {
-    if (!isLiveSource) return
-    return connectLive({ onEvent: handleEvent, onStatus: setStatus, onPoll: poll })
-  }, [isLiveSource, handleEvent, poll])
-
-  const decide = async (decision: 'approve' | 'reject') => {
-    const current = snapshotRef.current
-    if (!current?.plan) return
-    const service = current.source === 'api' ? apiTravelService : mockTravelService
+function AuthPage({ mode, onAuthenticated }: { mode: 'login' | 'signup'; onAuthenticated: (account: Account) => void }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [error, setError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setPending(true); setError(null)
+    const data = new FormData(event.currentTarget)
     try {
-      const plan =
-        decision === 'approve'
-          ? await service.approvePlan(current.plan.id)
-          : await service.rejectPlan(current.plan.id)
-      const latest = snapshotRef.current
-      if (latest) apply({ ...latest, plan })
-    } catch {
-      // The next event or poll carries the real outcome; keep what is on screen.
-    }
+      const account = mode === 'login'
+        ? await authApi.login(String(data.get('email')), String(data.get('password')))
+        : await authApi.register(String(data.get('name')), String(data.get('email')), String(data.get('password')))
+      onAuthenticated(account)
+      const from = (location.state as { from?: string } | null)?.from
+      navigate(from?.startsWith('/app') ? from : '/app', { replace: true })
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Authentication failed.') } finally { setPending(false) }
   }
-
-  const switchTrip = async (tripId: string) => {
-    const current = snapshotRef.current
-    if (current?.source !== 'api' || current.trip.id === tripId) return
-    const next = await selectTrip(current.trips, tripId)
-    // Null means the timeline fetch failed. Staying put beats half-swapping the screen.
-    if (next) apply(next)
-  }
-
-  /**
-   * Fires the declared test harness. Deliberately does not apply the response:
-   * detection broadcasts `disruption.detected`, and the browser has to learn about
-   * a disruption the same way whether it was simulated or polled. Errors are
-   * rethrown so the bar can show the API's own reason.
-   */
-  const simulate = async (kind: SimulationKind) => {
-    const current = snapshotRef.current
-    if (current?.source !== 'api') return
-    const target = current.trip.flights.find((flight) => flight.leg === 'outbound') ?? current.trip.flights[0]
-    await apiTravelService.simulate(kind, target?.id)
-  }
-
+  const title = mode === 'login' ? 'Welcome back.' : 'Your concierge starts here.'
   return (
-    <AppShell trip={snapshot?.trip}>
-      {snapshot ? (
-        <Dashboard
-          actions={snapshot.actions}
-          connection={snapshot.source === 'api' ? status : 'mock'}
-          live={snapshot.source === 'api'}
-          onApprove={() => decide('approve')}
-          onExtract={apiTravelService.extractTrip}
-          onReject={() => decide('reject')}
-          onSelectTrip={(tripId) => void switchTrip(tripId)}
-          onSimulate={simulate}
-          plan={snapshot.plan}
-          timelinePaceMs={850}
-          trip={snapshot.trip}
-          trips={snapshot.trips}
-        />
-      ) : unavailable ? (
-        <EmptyState onRetry={load} />
-      ) : (
-        // Skeletons mirror the real cards so the layout does not jump on arrival.
-        <div className="space-y-8">
-          <FlightStatusSkeleton />
-          <FlightAlternativesSkeleton />
-          <HotelPolicySkeleton />
-        </div>
-      )}
-    </AppShell>
+    <main className="auth-page">
+      <section className="auth-visual" aria-label="ATC route radar">
+        <a className="auth-brand" href={import.meta.env.VITE_SITE_URL ?? 'http://localhost:5173'}><img alt="ATC" src="/assets/atc-logo.png" /></a>
+        <div className="auth-radar" aria-hidden="true"><span /><span /><span /></div>
+        <div><p>SIMULATED FEED · REAL DECISION LOGIC</p><h1>Disruption does not have to become disorder.</h1><span>Deterministic recovery, readable from detection to confirmation.</span></div>
+      </section>
+      <section className="auth-form-wrap">
+        <form aria-describedby={error ? 'auth-error' : undefined} className="auth-form" onSubmit={(event) => void submit(event)}>
+          <p className="auth-eyebrow">ATC MEMBER PORTAL</p><h2>{title}</h2><p>{mode === 'login' ? 'Open your private trip workspace.' : 'Create a secure account and add your first itinerary.'}</p>
+          {mode === 'signup' && <label>Full name<input autoComplete="name" name="name" required /></label>}
+          <label>Email address<input autoComplete="email" name="email" required type="email" /></label>
+          <label>Password<input aria-describedby={mode === 'signup' ? 'password-help' : undefined} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} minLength={12} name="password" required type="password" /></label>
+          {mode === 'signup' && <small id="password-help">At least 12 characters with uppercase, lowercase, number and symbol.</small>}
+          <p className="form-error" id="auth-error" role={error ? 'alert' : undefined}>{error}</p>
+          <button disabled={pending} type="submit">{pending ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Create account'}</button>
+          <p className="auth-switch">{mode === 'login' ? <>New to ATC? <Link to="/signup">Create an account</Link></> : <>Already registered? <Link to="/login">Log in</Link></>}</p>
+          <p className="auth-boundary">HttpOnly sessions · No tokens in browser storage</p>
+        </form>
+      </section>
+    </main>
   )
 }
 
-export default App
+function ProtectedShell({ account, logout }: { account: Account | null; logout: () => Promise<void> }) {
+  const location = useLocation()
+  if (!account) return <Navigate replace state={{ from: location.pathname }} to="/login" />
+  return <AppShell account={account} onLogout={logout}><Outlet /></AppShell>
+}
+
+export default function App() {
+  const [account, setAccount] = useState<Account | null | undefined>(undefined)
+  const navigate = useNavigate()
+  useEffect(() => { void authApi.session().then(setAccount, () => setAccount(null)) }, [])
+  useEffect(() => {
+    const expire = () => { setAccount(null); navigate('/login', { replace: true }) }
+    window.addEventListener(AUTH_EXPIRED_EVENT, expire)
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, expire)
+  }, [navigate])
+  const logout = async () => { await authApi.logout(); setAccount(null); navigate('/login', { replace: true }) }
+  if (account === undefined) return <main className="session-loading" aria-busy="true"><img alt="ATC" src="/assets/atc-logo.png" /><span>Opening your secure session…</span></main>
+  return (
+    <Routes>
+      <Route path="/login" element={account ? <Navigate replace to="/app" /> : <AuthPage mode="login" onAuthenticated={setAccount} />} />
+      <Route path="/signup" element={account ? <Navigate replace to="/app" /> : <AuthPage mode="signup" onAuthenticated={setAccount} />} />
+      <Route path="/app" element={<ProtectedShell account={account} logout={logout} />}>
+        <Route index element={<OverviewPage />} />
+        <Route path="trips" element={<TripsPage />} />
+        <Route path="trips/new" element={<NewTripPage />} />
+        <Route path="trips/:tripId" element={<TripDetailPage />} />
+        <Route path="trips/:tripId/recovery" element={<RecoveryPage />} />
+        <Route path="profile" element={<ProfilePage account={account!} onLogout={logout} />} />
+        <Route path="*" element={<AppNotFound />} />
+      </Route>
+      <Route path="*" element={account ? <Navigate replace to="/app" /> : <Navigate replace to="/login" />} />
+    </Routes>
+  )
+}

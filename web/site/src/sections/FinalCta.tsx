@@ -1,7 +1,6 @@
 import { Icon } from '../components/Icon'
 import { useReveal } from '../lib/useReveal'
-
-const appUrl = import.meta.env.VITE_APP_URL
+import { appLink } from '../lib/links'
 
 export function FinalCta() {
   const [ref, visible] = useReveal<HTMLElement>()
@@ -27,9 +26,9 @@ export function FinalCta() {
           <div className="mb-5 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <a
               className="shimmer-btn group/cta inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-[#0284C7]/40 transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#0369A1] hover:shadow-xl hover:shadow-[#0284C7]/45 active:scale-[0.97] sm:w-auto"
-              href={appUrl}
+              href={appLink('/signup')}
             >
-              <span>Open the dashboard</span>
+              <span>Create your account</span>
               <Icon
                 className="text-[18px] transition-transform duration-200 group-hover/cta:translate-x-1"
                 name="arrow_forward"

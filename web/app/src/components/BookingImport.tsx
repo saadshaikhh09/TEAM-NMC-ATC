@@ -40,11 +40,8 @@ function Row({ label, value }: { label: string; value: string }) {
 /**
  * Paste a booking email, get a structured trip back.
  *
- * This is the replacement for Gmail ingestion (ARCHITECTURE §2), and it is a read:
- * `llm/extract.py` validates against the Trip schema and returns it without
- * touching the database. So this panel shows what was read and says plainly that
- * nothing was stored — the same rule that stops the timeline claiming a rebooking
- * that did not happen applies to a trip that was not saved.
+ * This is the replacement for Gmail ingestion. The server validates the extracted
+ * input first, then persists it through the same transaction as the manual form.
  */
 export function BookingImport({ onExtract, live }: BookingImportProps) {
   const fieldId = useId()
@@ -100,7 +97,7 @@ export function BookingImport({ onExtract, live }: BookingImportProps) {
           onClick={() => void read()}
           type="button"
         >
-          {reading ? 'Reading…' : 'Read this booking'}
+          {reading ? 'Reading and saving…' : 'Import and monitor'}
         </button>
         <button
           className="rounded-lg px-3 py-3 text-sm font-semibold text-primary underline decoration-dotted underline-offset-4 hover:text-primary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-on-surface-variant disabled:no-underline"
@@ -147,7 +144,7 @@ export function BookingImport({ onExtract, live }: BookingImportProps) {
               label="Arrive by"
               value={result.constraints.hard_arrival_by_local ?? 'No deadline'}
             />
-            <Row label="Cabin" value={result.constraints.cabin} />
+            <Row label="Cabin" value={result.constraints.cabin ?? 'Not set'} />
           </dl>
 
           <ul className="mt-4 space-y-2">
@@ -167,8 +164,8 @@ export function BookingImport({ onExtract, live }: BookingImportProps) {
           </ul>
 
           <p className="mt-4 text-xs leading-5 text-on-surface-variant">
-            Nothing is saved. This build monitors the seeded trips above; storing a pasted trip is
-            not wired up, so the concierge is not watching this one.
+            Saved to your account and queued for monitoring. Extraction and persistence are
+            separate server steps, so incomplete bookings never create partial trips.
           </p>
         </section>
       )}

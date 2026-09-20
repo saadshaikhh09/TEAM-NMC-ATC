@@ -40,10 +40,11 @@ function Phase({
   delayMs,
 }: PhaseProps) {
   return (
-    <Reveal
-      className="group overflow-hidden rounded-3xl border border-[#DDE3EA] bg-white shadow-sm transition-all duration-300 hover:border-[#0284C7]/50 hover:shadow-xl"
-      delayMs={delayMs}
-    >
+    <div className="stage-card">
+      <Reveal
+        className="group overflow-hidden rounded-3xl border border-[#DDE3EA] bg-white shadow-sm transition-all duration-300 hover:border-[#0284C7]/50 hover:shadow-xl"
+        delayMs={delayMs}
+      >
       <div className="flex flex-col items-stretch justify-between gap-10 p-8 sm:p-10 lg:flex-row lg:p-12">
         <div className="flex flex-1 flex-col justify-between">
           <div>
@@ -79,7 +80,8 @@ function Phase({
         </div>
         <div className="shrink-0 lg:w-[480px]">{visual}</div>
       </div>
-    </Reveal>
+      </Reveal>
+    </div>
   )
 }
 
@@ -115,7 +117,7 @@ export function HowItWorks() {
           </ul>
         </Reveal>
 
-        <div className="flex w-full flex-col gap-8">
+        <div className="stage-stack">
           <Phase
             chips={[
               { icon: 'schedule', label: 'Cadence tightens as departure nears' },

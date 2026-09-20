@@ -41,15 +41,15 @@ export interface Hotel {
 }
 
 export interface Constraints {
-  hard_arrival_by: string
+  hard_arrival_by: string | null
   hard_arrival_by_local: string | null
-  hard_arrival_reason: string
+  hard_arrival_reason: string | null
   /** Null means the traveller set no fare ceiling, not a ceiling of zero. */
   max_fare_inr: number | null
-  max_stops: number
-  cabin: string
-  avoid_carriers: string[]
-  auto_approve_under_inr: number
+  max_stops: number | null
+  cabin: string | null
+  avoid_carriers: string[] | null
+  auto_approve_under_inr: number | null
 }
 
 export interface Trip {

@@ -10,7 +10,7 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, Text, text
+from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, ForeignKey, Integer, Numeric, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID as PGUUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -30,11 +30,49 @@ class LlmCache(Base):
     )
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    email: Mapped[str] = mapped_column(Text, unique=True)
+    name: Mapped[str] = mapped_column(Text)
+    password_hash: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()")
+    )
+
+    sessions: Mapped[list[UserSession]] = relationship(back_populates="user")
+    travellers: Mapped[list[Traveller]] = relationship(back_populates="user")
+
+
+class UserSession(Base):
+    __tablename__ = "sessions"
+
+    id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    token_hash: Mapped[str] = mapped_column(Text, unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()")
+    )
+
+    user: Mapped[User] = relationship(back_populates="sessions")
+
+
 class Traveller(Base):
     __tablename__ = "travellers"
 
     id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
     name: Mapped[str] = mapped_column(Text)
     email: Mapped[str | None] = mapped_column(Text)
@@ -42,6 +80,7 @@ class Traveller(Base):
         DateTime(timezone=True), server_default=text("now()")
     )
 
+    user: Mapped[User] = relationship(back_populates="travellers")
     constraints: Mapped[TravellerConstraint | None] = relationship(
         back_populates="traveller"
     )
@@ -57,6 +96,7 @@ class TravellerConstraint(Base):
         primary_key=True,
     )
     hard_arrival_by: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    hard_arrival_timezone: Mapped[str | None] = mapped_column(Text)
     hard_arrival_reason: Mapped[str | None] = mapped_column(Text)
     max_fare_inr: Mapped[int | None] = mapped_column(Integer)
     max_stops: Mapped[int | None] = mapped_column(Integer, server_default=text("1"))
@@ -109,6 +149,8 @@ class Flight(Base):
     flight_number: Mapped[str] = mapped_column(Text)
     origin: Mapped[str] = mapped_column(Text)
     destination: Mapped[str] = mapped_column(Text)
+    origin_timezone: Mapped[str | None] = mapped_column(Text)
+    destination_timezone: Mapped[str | None] = mapped_column(Text)
     scheduled_departure: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     scheduled_arrival: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(Text, server_default=text("'SCHEDULED'"))
@@ -135,6 +177,7 @@ class Hotel(Base):
     confirmation_number: Mapped[str | None] = mapped_column(Text)
     name: Mapped[str] = mapped_column(Text)
     city: Mapped[str] = mapped_column(Text)
+    city_timezone: Mapped[str | None] = mapped_column(Text)
     check_in: Mapped[date] = mapped_column(Date)
     check_out: Mapped[date] = mapped_column(Date)
     nightly_rate_inr: Mapped[int | None] = mapped_column(Integer)
@@ -265,6 +308,10 @@ class HotelChange(Base):
 
 class Approval(Base):
     __tablename__ = "approvals"
+    __table_args__ = (
+        UniqueConstraint("plan_id", name="uq_approvals_plan_id"),
+        CheckConstraint("decision IN ('APPROVED', 'REJECTED')", name="ck_approvals_decision"),
+    )
 
     id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
@@ -272,8 +319,8 @@ class Approval(Base):
     plan_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("recovery_plans.id", ondelete="CASCADE")
     )
-    decision: Mapped[str | None] = mapped_column(Text)
-    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    decision: Mapped[str] = mapped_column(Text)
+    decided_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("now()")
     )

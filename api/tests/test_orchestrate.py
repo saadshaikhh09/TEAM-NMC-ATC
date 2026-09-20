@@ -27,6 +27,7 @@ from core.models import (
     Trip,
 )
 from main import app
+from tests.helpers import DEMO_USER_ID, login_demo
 
 
 @pytest.fixture
@@ -34,7 +35,7 @@ def impossible_deadline():
     """Every mock BOM->LHR option arrives after this deadline."""
     traveller_id, trip_id, flight_id = uuid4(), uuid4(), uuid4()
     with SessionLocal.begin() as session:
-        traveller = Traveller(id=traveller_id, name="Impossible Deadline")
+        traveller = Traveller(id=traveller_id, user_id=DEMO_USER_ID, name="Impossible Deadline")
         session.add(TravellerConstraint(
             traveller=traveller,
             hard_arrival_by=datetime(2026, 9, 20, 7, tzinfo=timezone.utc),
@@ -67,7 +68,7 @@ def test_refusal_is_persisted_published_and_ends_in_recovery_failed(impossible_d
     failures = []
     subscribe("plan.failed", failures.append)
 
-    response = TestClient(app).post(f"/simulate/cancellation?flight_id={flight_id}")
+    response = login_demo(TestClient(app)).post(f"/simulate/cancellation?flight_id={flight_id}")
     assert response.status_code == 200
 
     with SessionLocal() as session:
@@ -104,4 +105,4 @@ def test_a_raising_subscriber_cannot_break_the_request_that_fired_it(impossible_
         raise RuntimeError("subscriber blew up")
 
     subscribe("disruption.detected", explode)
-    assert TestClient(app).post(f"/simulate/cancellation?flight_id={flight_id}").status_code == 200
+    assert login_demo(TestClient(app)).post(f"/simulate/cancellation?flight_id={flight_id}").status_code == 200

@@ -59,7 +59,9 @@ def poll_due(
     due = session.scalars(query).all()
     polled = 0
     for flight in due:
-        flight_date = local_time(flight.scheduled_departure, flight.origin).date()
+        flight_date = local_time(
+            flight.scheduled_departure, flight.origin, flight.origin_timezone
+        ).date()
         status = provider.get_status(flight.carrier, flight.flight_number, flight_date)
         if status.status in ("CANCELLED", "DELAYED") and status.status != flight.status:
             kind = "CANCELLATION" if status.status == "CANCELLED" else "DELAY"

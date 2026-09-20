@@ -9,17 +9,18 @@ Say that sentence out loud in the pitch. Do not hide this endpoint.
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import AwareDatetime, BaseModel, ConfigDict, field_serializer
 from sqlalchemy import select
 
 from core.db import SessionLocal
-from core.models import Flight
+from core.auth import current_user
+from core.models import Flight, User
+from core.ownership import flights_for
 from monitor.detection import detect
 
 
 router = APIRouter()
-PRIYA_TRIP_ID = UUID("aaaaaaaa-1111-1111-1111-111111111111")
 
 
 class DisruptionResponse(BaseModel):
@@ -39,15 +40,18 @@ class DisruptionResponse(BaseModel):
         return value.isoformat()
 
 
-def _simulate(kind: str, flight_id: UUID | None) -> DisruptionResponse:
+def _simulate(kind: str, flight_id: UUID | None, user_id) -> DisruptionResponse:
     with SessionLocal() as session:
         if flight_id is None:
             flight_id = session.scalar(
-                select(Flight.id).where(
-                    Flight.trip_id == PRIYA_TRIP_ID,
-                    Flight.leg == "outbound",
-                )
+                flights_for(user_id).with_only_columns(Flight.id).where(
+                    Flight.leg == "outbound"
+                ).order_by(Flight.scheduled_departure)
             )
+        elif session.scalar(
+            flights_for(user_id).with_only_columns(Flight.id).where(Flight.id == flight_id)
+        ) is None:
+            raise HTTPException(status_code=404, detail="Flight not found")
         if flight_id is None:
             raise HTTPException(status_code=404, detail="Flight not found")
         try:
@@ -60,10 +64,14 @@ def _simulate(kind: str, flight_id: UUID | None) -> DisruptionResponse:
 
 
 @router.post("/simulate/cancellation", response_model=DisruptionResponse)
-def simulate_cancellation(flight_id: UUID | None = None) -> DisruptionResponse:
-    return _simulate("CANCELLATION", flight_id)
+def simulate_cancellation(
+    flight_id: UUID | None = None, user: User = Depends(current_user)
+) -> DisruptionResponse:
+    return _simulate("CANCELLATION", flight_id, user.id)
 
 
 @router.post("/simulate/delay", response_model=DisruptionResponse)
-def simulate_delay(flight_id: UUID | None = None) -> DisruptionResponse:
-    return _simulate("DELAY", flight_id)
+def simulate_delay(
+    flight_id: UUID | None = None, user: User = Depends(current_user)
+) -> DisruptionResponse:
+    return _simulate("DELAY", flight_id, user.id)

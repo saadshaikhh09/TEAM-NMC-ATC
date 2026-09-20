@@ -141,6 +141,17 @@ export function Features() {
             </div>
           </Reveal>
         </div>
+
+        <Reveal className="story-film">
+          <video controls muted playsInline preload="metadata">
+            <source src="/assets/flight-story.mp4" type="video/mp4" />
+          </video>
+          <div>
+            <p className="eyebrow">From cabin to control room</p>
+            <h3>One continuous recovery story.</h3>
+            <p>The film is illustrative. The product surfaces below it use a simulated disruption feed, deterministic providers, and sandbox booking.</p>
+          </div>
+        </Reveal>
       </div>
     </section>
   )

@@ -24,6 +24,7 @@ def record(
     detail: dict[str, Any] | None = None,
     plan_id: str | None = None,
     duration_ms: int | None = None,
+    commit: bool = True,
 ):
     """Write one timeline row, then broadcast it. Call BEFORE doing the work."""
     if stage not in STAGES:
@@ -38,7 +39,10 @@ def record(
         duration_ms=duration_ms,
     )
     session.add(action)
-    session.commit()
+    if commit:
+        session.commit()
+    else:
+        session.flush()
     session.refresh(action)
     emit(
         "action.recorded",

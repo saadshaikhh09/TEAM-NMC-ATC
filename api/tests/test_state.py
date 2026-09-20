@@ -15,6 +15,9 @@ def test_legal_transitions():
     assert can("PLANNING", "AWAITING_APPROVAL")
     assert not can("MONITORING", "EXECUTING")
     assert not can("RECOVERED", "EXECUTING")
+    assert can("DISRUPTED", "RECOVERY_FAILED")
+    for early_state in ("PLANNING", "AWAITING_APPROVAL", "EXECUTING"):
+        assert can(early_state, "RECOVERY_FAILED")
 
 
 def test_advance_commits_legal_transition():

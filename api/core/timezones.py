@@ -15,9 +15,22 @@ TIMEZONES = {
 }
 
 
-def local_time(dt: datetime, iata: str) -> datetime:
-    return dt.astimezone(ZoneInfo(TIMEZONES[iata]))
+def timezone_name(code: str, explicit: str | None = None) -> str:
+    if explicit:
+        try:
+            ZoneInfo(explicit)
+        except (KeyError, ValueError) as exc:
+            raise ValueError(f"Invalid IANA timezone: {explicit}") from exc
+        return explicit
+    try:
+        return TIMEZONES[code.upper()]
+    except KeyError as exc:
+        raise ValueError(f"An explicit IANA timezone is required for {code.upper()}") from exc
 
 
-def local_str(dt: datetime, iata: str) -> str:
-    return local_time(dt, iata).strftime("%H:%M, %d %b")
+def local_time(dt: datetime, iata: str, explicit: str | None = None) -> datetime:
+    return dt.astimezone(ZoneInfo(timezone_name(iata, explicit)))
+
+
+def local_str(dt: datetime, iata: str, explicit: str | None = None) -> str:
+    return local_time(dt, iata, explicit).strftime("%H:%M, %d %b")

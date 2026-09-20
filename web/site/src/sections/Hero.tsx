@@ -1,6 +1,5 @@
 import { Icon } from '../components/Icon'
-
-const appUrl = import.meta.env.VITE_APP_URL
+import { appLink } from '../lib/links'
 
 /**
  * Above the fold: the claim, the two calls to action, and a mocked-up console
@@ -46,7 +45,7 @@ export function Hero() {
         <div className="mb-16 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
           <a
             className="shimmer-btn group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-8 py-3.5 text-base font-semibold text-white shadow-md shadow-[#0284C7]/25 transition-all duration-150 hover:-translate-y-0.5 hover:bg-[#0369A1] hover:shadow-lg hover:shadow-[#0284C7]/30 active:scale-[0.97] sm:w-auto"
-            href={appUrl}
+            href={appLink('/signup')}
           >
             <span>Open the dashboard</span>
             <Icon
@@ -56,7 +55,7 @@ export function Hero() {
           </a>
           <a
             className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#64748B]/25 bg-white px-7 py-3.5 text-base font-semibold text-[#0A2540] shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-[#64748B]/40 hover:bg-[#F0F5FA] hover:shadow-md active:scale-[0.97] sm:w-auto"
-            href="#how-it-works"
+            href="/how-it-works"
           >
             <Icon
               className="text-[18px] text-[#0284C7] transition-transform duration-200 group-hover:scale-110"

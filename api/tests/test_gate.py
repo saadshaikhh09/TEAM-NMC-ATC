@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 from uuid import UUID
 
@@ -13,6 +14,7 @@ from main import app
 from planner.rank import ScoredOption
 from providers.base import FlightOption
 from routes import approvals
+from tests.helpers import login_demo
 
 
 POLICY = {
@@ -153,22 +155,27 @@ def test_approve_records_decision_and_executes_plan(pending_plan, monkeypatch):
         return {"id": str(plan_row.id), "state": "EXECUTING"}
 
     monkeypatch.setattr(approvals, "_execute", execute)
-    response = TestClient(app).post(f"/approvals/{pending_plan}/approve")
+    response = login_demo(TestClient(app)).post(f"/approvals/{pending_plan}/approve")
 
     assert response.status_code == 200
     assert executed == [pending_plan]
+    repeated = login_demo(TestClient(app)).post(f"/approvals/{pending_plan}/approve")
+    assert repeated.status_code == 200
+    assert executed == [pending_plan]
+    assert login_demo(TestClient(app)).post(f"/approvals/{pending_plan}/reject").status_code == 409
     with SessionLocal() as session:
         assert session.get(Trip, PRIYA_TRIP_ID).status == "EXECUTING"
         assert session.scalar(
             select(Approval.decision).where(Approval.plan_id == pending_plan)
         ) == "APPROVED"
+        assert len(session.scalars(select(Approval).where(Approval.plan_id == pending_plan)).all()) == 1
         assert session.scalar(
             select(AgentAction.stage).where(AgentAction.plan_id == pending_plan)
         ) == "APPROVED"
 
 
 def test_reject_records_decision_and_fails_recovery(pending_plan):
-    response = TestClient(app).post(f"/approvals/{pending_plan}/reject")
+    response = login_demo(TestClient(app)).post(f"/approvals/{pending_plan}/reject")
 
     assert response.status_code == 200
     assert response.json()["state"] == "REJECTED"
@@ -180,3 +187,33 @@ def test_reject_records_decision_and_fails_recovery(pending_plan):
         assert session.scalar(
             select(AgentAction.stage).where(AgentAction.plan_id == pending_plan)
         ) == "FAILED"
+
+
+def test_plan_and_decision_are_hidden_from_another_account(pending_plan):
+    with SessionLocal() as session:
+        disruption_id = session.get(RecoveryPlan, pending_plan).disruption_id
+    outsider = TestClient(app)
+    assert outsider.post(
+        "/auth/register",
+        json={"name": "Outside User", "email": "outside@example.com", "password": "StrongPass!2026"},
+    ).status_code == 201
+
+    assert outsider.get(f"/disruptions/{disruption_id}/plan").status_code == 404
+    assert outsider.post(f"/approvals/{pending_plan}/approve").status_code == 404
+
+
+def test_concurrent_approval_creates_one_decision(pending_plan, monkeypatch):
+    monkeypatch.setattr(approvals, "_execute", lambda session, plan: {"ok": True})
+    client = login_demo(TestClient(app))
+    token = client.cookies.get("atc_session")
+
+    def submit():
+        return TestClient(app).post(
+            f"/approvals/{pending_plan}/approve",
+            headers={"Cookie": f"atc_session={token}"},
+        ).status_code
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        assert sorted(pool.map(lambda _: submit(), range(2))) == [200, 200]
+    with SessionLocal() as session:
+        assert len(session.scalars(select(Approval).where(Approval.plan_id == pending_plan)).all()) == 1

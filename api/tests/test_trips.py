@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from fastapi.testclient import TestClient
 
 from main import app
+from tests.helpers import login_demo
 
 
 PRIYA_TRIP_ID = "aaaaaaaa-1111-1111-1111-111111111111"
@@ -10,6 +11,7 @@ client = TestClient(app)
 
 
 def test_list_trips_matches_contract():
+    login_demo(client)
     response = client.get("/trips")
 
     assert response.status_code == 200
@@ -45,6 +47,7 @@ def test_list_trips_matches_contract():
 
 
 def test_get_trip_returns_priya():
+    login_demo(client)
     response = client.get(f"/trips/{PRIYA_TRIP_ID}")
 
     assert response.status_code == 200
@@ -52,6 +55,7 @@ def test_get_trip_returns_priya():
 
 
 def test_timeline_returns_agent_actions():
+    login_demo(client)
     response = client.get(f"/trips/{PRIYA_TRIP_ID}/timeline")
 
     assert response.status_code == 200

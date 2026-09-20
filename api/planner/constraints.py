@@ -33,6 +33,10 @@ def _arrival_airport(constraints):
     )
 
 
+def _local(value, constraints, airport):
+    return local_time(value, airport, _value(constraints, "destination_timezone"))
+
+
 def filter(options, constraints, policy=None):
     policy = policy or load_policy()
     rebooking = policy["rebooking"]
@@ -72,8 +76,8 @@ def filter(options, constraints, policy=None):
                 "option_id": option.id,
                 "rule": "hard_arrival_by",
                 "human_reason": (
-                    f"Arrives {local_time(option.arrival, airport):%H:%M}, "
-                    f"misses hard deadline {local_time(deadline, airport):%H:%M}"
+                    f"Arrives {_local(option.arrival, constraints, airport):%H:%M}, "
+                    f"misses hard deadline {_local(deadline, constraints, airport):%H:%M}"
                 ),
                 "note": None,
             }

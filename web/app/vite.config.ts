@@ -17,6 +17,8 @@ export default defineConfig({
       '/disruptions': api,
       '/simulate': api,
       '/health': api,
+      '/auth': api,
+      '/profile': api,
       '/ws': { target: api.replace(/^http/, 'ws'), ws: true },
     },
   },

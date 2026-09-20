@@ -8,7 +8,7 @@ from core.timezones import local_time
 
 
 def assess(hotel, new_arrival_utc, policy) -> dict:
-    arrival = local_time(new_arrival_utc, hotel.city)
+    arrival = local_time(new_arrival_utc, hotel.city, getattr(hotel, "city_timezone", None))
     cutoff = time.fromisoformat(policy["hotel"]["late_arrival_cutoff"])
     new_check_in = hotel.check_in
 

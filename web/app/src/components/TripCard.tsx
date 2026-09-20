@@ -47,11 +47,11 @@ export function TripCard({ trip }: TripCardProps) {
             </div>
             <div>
               <dt className="text-xs text-on-surface-variant">Max stops</dt>
-              <dd className="mt-1 font-semibold">{constraints.max_stops}</dd>
+              <dd className="mt-1 font-semibold">{constraints.max_stops ?? 'Not set'}</dd>
             </div>
             <div>
               <dt className="text-xs text-on-surface-variant">Cabin</dt>
-              <dd className="mt-1 capitalize font-semibold">{constraints.cabin}</dd>
+              <dd className="mt-1 capitalize font-semibold">{constraints.cabin ?? 'Not set'}</dd>
             </div>
             <div>
               <dt className="text-xs text-on-surface-variant">
@@ -59,12 +59,12 @@ export function TripCard({ trip }: TripCardProps) {
                   <span>Auto-approve</span>
                 </Tooltip>
               </dt>
-              <dd className="mt-1 font-semibold">{formatInr(constraints.auto_approve_under_inr)}</dd>
+              <dd className="mt-1 font-semibold">{constraints.auto_approve_under_inr === null ? 'Not set' : formatInr(constraints.auto_approve_under_inr)}</dd>
             </div>
           </dl>
         </div>
         <p className="mt-4 text-xs text-on-surface-variant">
-          Avoided carriers: {constraints.avoid_carriers.length ? constraints.avoid_carriers.join(', ') : 'None'}
+          Avoided carriers: {constraints.avoid_carriers?.length ? constraints.avoid_carriers.join(', ') : 'None'}
         </p>
       </section>
     </article>

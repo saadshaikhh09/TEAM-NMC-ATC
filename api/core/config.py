@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     quota_aerodatabox_monthly: int = 500
     quota_aviationstack_monthly: int = 500
     quota_dev_budget_fraction: float = 0.4
+    environment: str = "development"
+    testing: bool = False
+    cors_origins: str = "http://localhost:5173,http://localhost:5174"
 
     class Config:
         # Absolute, not ".env": `make api` runs from api/, where no .env exists,

@@ -12,7 +12,7 @@ from core.models import Trip
 TRANSITIONS = {
     "CREATED":           {"MONITORING"},
     "MONITORING":        {"DISRUPTED", "RECOVERED"},
-    "DISRUPTED":         {"PLANNING"},
+    "DISRUPTED":         {"PLANNING", "RECOVERY_FAILED"},
     "PLANNING":          {"AWAITING_APPROVAL", "EXECUTING", "RECOVERY_FAILED"},
     "AWAITING_APPROVAL": {"EXECUTING", "RECOVERY_FAILED"},
     "EXECUTING":         {"RECOVERED", "RECOVERY_FAILED"},
@@ -25,7 +25,7 @@ def can(current: str, nxt: str) -> bool:
     return nxt in TRANSITIONS.get(current, set())
 
 
-def advance(session, trip_id: str, nxt: str):
+def advance(session, trip_id: str, nxt: str, *, commit: bool = True):
     trip = session.get(Trip, trip_id)
     if trip is None:
         raise ValueError(f"trip {trip_id} not found")
@@ -34,7 +34,10 @@ def advance(session, trip_id: str, nxt: str):
 
     trip.status = nxt
     trip.updated_at = datetime.now(timezone.utc)
-    session.commit()
+    if commit:
+        session.commit()
+    else:
+        session.flush()
     session.refresh(trip)
     # Every status change reaches the dashboard from here, so no caller can forget.
     emit("trip.updated", {"trip_id": str(trip.id), "payload": {"status": trip.status}})
