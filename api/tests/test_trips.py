@@ -40,6 +40,8 @@ def test_list_trips_matches_contract():
     assert outbound["departure_local"] == "02:30, 20 Sep"
     assert outbound["arrival_local"] == "07:15, 20 Sep"
     assert priya["constraints"]["hard_arrival_by"].endswith("+00:00")
+    assert priya["hotels"][0]["latitude"] == 51.4994
+    assert priya["hotels"][0]["longitude"] == -0.1918
     for flight in priya["flights"]:
         for field in ("scheduled_departure", "scheduled_arrival", "next_poll_at"):
             assert flight[field].endswith("+00:00")

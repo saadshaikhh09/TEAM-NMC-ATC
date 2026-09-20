@@ -144,11 +144,11 @@ export function Features() {
 
         <Reveal className="story-film">
           <video controls muted playsInline preload="metadata">
-            <source src="/assets/flight-story.mp4" type="video/mp4" />
+            <source src="/assets/brag.mp4" type="video/mp4" />
           </video>
           <div>
-            <p className="eyebrow">From cabin to control room</p>
-            <h3>One continuous recovery story.</h3>
+            <p className="eyebrow">Cancelled, evaluated, rebooked</p>
+            <h3>Never manage a cancelled flight alone again.</h3>
             <p>The film is illustrative. The product surfaces below it use a simulated disruption feed, deterministic providers, and sandbox booking.</p>
           </div>
         </Reveal>

@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "brag-output/composition/index.html"
+        ],
+        "createdAt": "2026-09-20T11:01:57.347Z",
+        "reason": "brief-mandated audio-reactive telemetry icon glow (RMS-driven box-shadow), explicitly requested by composition-brief.md's audio-reactive section, not decorative"
+      }
+    ]
+  }
+}

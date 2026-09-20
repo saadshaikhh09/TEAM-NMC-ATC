@@ -34,8 +34,8 @@ VALUES
  ('aaaaaaaa-1111-1111-1111-111111111111', 'return', 'AI', 'AI132', 'LHR', 'BOM',
   '2026-09-25T13:00:00+01:00', '2026-09-26T02:40:00+05:30', 'PNR-AX91', 0, 'economy', now());
 
-INSERT INTO hotels (trip_id, confirmation_number, name, city, check_in, check_out, nightly_rate_inr, modifiable)
-VALUES ('aaaaaaaa-1111-1111-1111-111111111111', 'HTL-99213', 'Kensington Central', 'LON',
+INSERT INTO hotels (trip_id, confirmation_number, name, address, city, latitude, longitude, check_in, check_out, nightly_rate_inr, modifiable)
+VALUES ('aaaaaaaa-1111-1111-1111-111111111111', 'HTL-99213', 'Kensington Central', 'Scarsdale Place, London', 'LON', 51.4994, -0.1918,
         '2026-09-20', '2026-09-25', 9800, true);
 
 -- 2. Rohan — the fare-cap escalation case.

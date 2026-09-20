@@ -10,7 +10,7 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, ForeignKey, Integer, Numeric, Text, UniqueConstraint, text
+from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, Float, ForeignKey, Integer, Numeric, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID as PGUUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -176,8 +176,11 @@ class Hotel(Base):
     provider: Mapped[str] = mapped_column(Text, server_default=text("'mock'"))
     confirmation_number: Mapped[str | None] = mapped_column(Text)
     name: Mapped[str] = mapped_column(Text)
+    address: Mapped[str | None] = mapped_column(Text)
     city: Mapped[str] = mapped_column(Text)
     city_timezone: Mapped[str | None] = mapped_column(Text)
+    latitude: Mapped[float | None] = mapped_column(Float)
+    longitude: Mapped[float | None] = mapped_column(Float)
     check_in: Mapped[date] = mapped_column(Date)
     check_out: Mapped[date] = mapped_column(Date)
     nightly_rate_inr: Mapped[int | None] = mapped_column(Integer)

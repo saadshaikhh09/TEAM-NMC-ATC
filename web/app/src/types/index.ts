@@ -33,7 +33,10 @@ export interface Hotel {
   provider: string
   confirmation_number: string | null
   name: string
+  address: string | null
   city: string
+  latitude: number | null
+  longitude: number | null
   check_in: string
   check_out: string
   nightly_rate_inr: number | null

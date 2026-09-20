@@ -24,10 +24,10 @@ export function AppShell({ children, account, onLogout }: { children: ReactNode;
           </div>
         </div>
       </header>
-      <main className="app-main" id="app-main">{children}</main>
       <nav aria-label="Mobile application navigation" className="mobile-nav">
         <NavLink end to="/app">Overview</NavLink><NavLink to="/app/trips">Trips</NavLink><NavLink to="/app/trips/new">Add trip</NavLink>
       </nav>
+      <main className="app-main" id="app-main">{children}</main>
     </div>
   )
 }

@@ -69,7 +69,10 @@ class Hotel(BaseModel):
     provider: str
     confirmation_number: str | None
     name: str
+    address: str | None
     city: str
+    latitude: float | None
+    longitude: float | None
     check_in: date
     check_out: date
     nightly_rate_inr: int | None

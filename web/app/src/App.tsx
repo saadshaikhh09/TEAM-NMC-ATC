@@ -23,7 +23,7 @@ function AuthPage({ mode, onAuthenticated }: { mode: 'login' | 'signup'; onAuthe
   }
   const title = mode === 'login' ? 'Welcome back.' : 'Your concierge starts here.'
   return (
-    <main className="auth-page">
+    <main className="app-theme auth-page">
       <section className="auth-visual" aria-label="ATC route radar">
         <a className="auth-brand" href={import.meta.env.VITE_SITE_URL ?? 'http://localhost:5173'}><img alt="ATC" src="/assets/atc-logo.png" /></a>
         <div className="auth-radar" aria-hidden="true"><span /><span /><span /></div>

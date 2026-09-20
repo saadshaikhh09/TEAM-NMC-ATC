@@ -1,6 +1,9 @@
+import { lazy, Suspense } from 'react'
 import { formatDelta, formatInrOrNone } from '../lib/format'
 import { Tooltip } from './Tooltip'
 import type { Hotel, HotelChange } from '../types'
+
+const HotelMap = lazy(() => import('./HotelMap').then((module) => ({ default: module.HotelMap })))
 
 interface HotelPolicyCardProps {
   hotel: Hotel
@@ -11,45 +14,6 @@ interface HotelPolicyCardProps {
    * option to price the move against.
    */
   change?: HotelChange | null
-}
-
-/**
- * A stylised locator, not a map.
- *
- * We have no map SDK and no key budget, and a fake map that implies real geography
- * would be a lie on a screen whose whole job is being trustworthy. So this is
- * explicitly an abstract mark, labelled as such.
- */
-function Locator({ city }: { city: string }) {
-  const london = city.toUpperCase() === 'LON' || city.toUpperCase() === 'LHR'
-  return (
-    <div
-      className="relative h-40 shrink-0 overflow-hidden rounded-md border border-outline-variant/60 bg-surface-container-low lg:h-auto lg:w-56"
-      role="img"
-      aria-label={`Stylised locator for ${city}. Not a real map.`}
-    >
-      {london && <img alt="" className="absolute inset-0 size-full object-cover opacity-70" src="/assets/heathrow-map.png" />}
-      <svg className={`absolute inset-0 size-full ${london ? 'mix-blend-multiply' : ''}`} aria-hidden="true">
-        <defs>
-          <pattern height="24" id="locator-grid" patternUnits="userSpaceOnUse" width="24">
-            <path d="M24 0H0V24" fill="none" stroke="#c2c6d8" strokeOpacity="0.5" strokeWidth="1" />
-          </pattern>
-        </defs>
-        <rect fill="url(#locator-grid)" height="100%" width="100%" />
-        <path d="M-10 120 Q 80 60 140 110 T 300 70" fill="none" stroke="#0284c7" strokeOpacity="0.35" strokeWidth="6" />
-        <path d="M40 -10 Q 60 70 30 180" fill="none" stroke="#0284c7" strokeOpacity="0.2" strokeWidth="4" />
-      </svg>
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <span className="relative flex size-4">
-          <span className="ping-ring absolute inline-flex size-4 rounded-full bg-primary opacity-60" />
-          <span className="relative inline-flex size-4 rounded-full border-2 border-white bg-primary shadow-card" />
-        </span>
-      </div>
-      <p className="absolute bottom-2 left-2 rounded bg-white/85 px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-        {city} · static simulated map
-      </p>
-    </div>
-  )
 }
 
 /**
@@ -68,7 +32,9 @@ export function HotelPolicyCard({ hotel, change }: HotelPolicyCardProps) {
       className="lift overflow-hidden rounded-lg border border-outline-variant/70 bg-surface-container-lowest shadow-card hover:border-primary/30"
     >
       <div className="flex flex-col gap-6 p-6 lg:flex-row">
-        <Locator city={hotel.city} />
+        <Suspense fallback={<div aria-label="Loading hotel map" className="hotel-map animate-pulse bg-surface-container-high" />}>
+          <HotelMap hotel={hotel} />
+        </Suspense>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -84,6 +50,7 @@ export function HotelPolicyCard({ hotel, change }: HotelPolicyCardProps) {
                   ? `Confirmation ${hotel.confirmation_number}`
                   : 'Confirmation pending'}
               </p>
+              {hotel.address && <p className="mt-2 text-sm text-on-surface-variant">{hotel.address}</p>}
             </div>
             <span
               className={`rounded-full px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] ${

@@ -24,23 +24,26 @@ make web
 
 ---
 
-## Recording Sequence (Following `docs/DEMO_SCRIPT.md`)
+## Recording sequence
+
+Follow the canonical shot list in `docs/DEMO_SCRIPT.md`. The critical visual checkpoints are:
 
 | Timestamp | Screen Focus | Voiceover Cue |
 |---|---|---|
-| **0:00–0:15** | Dashboard (Priya Sharma, BOM $\rightarrow$ LHR) | *"Notice her declared hard constraint: arrive by 09:00 AM London time."* |
-| **0:15–0:30** | Fire Cancellation via `POST /simulate/cancellation` | *"Her flight AI131 is cancelled. The timeline starts moving."* |
-| **0:30–0:45** | Rejection panel pops up | *"The concierge evaluates 14 options, enforcing constraints first."* |
-| **0:45–1:05** | **The Refusal:** Highlight 11:40 AM flight rejection | *"It could have saved ₹8,000. It didn't, because she would have missed her presentation."* |
-| **1:05–1:20** | Auto-rebook & hotel date shift | *"British Airways flight booked, hotel shifted at Kensington Central, WhatsApp notification ready."* |
-| **1:20–1:30** | Timeline review & closing | *"Simulated disruption feed, real decision logic, sandbox booking."* |
+| **0:00–0:10** | Priya overview | Hard 09:00 London deadline |
+| **0:10–0:22** | Declared cancellation button | Simulated feed, real event path |
+| **0:22–0:38** | Alternatives and rejection | Four evaluated; cheaper VS355 refused |
+| **0:38–0:54** | Approval modal | Fare exceeds auto-approval threshold |
+| **0:54–1:12** | **Trip recovered.** | Ticketed flight, hotel impact, total cost |
+| **1:12–1:24** | Live hotel map and timeline | Real location and auditable stages |
+| **1:24–1:30** | Closing hold | Simulated feed, real logic, sandbox booking |
 
 ---
 
 ## Rehearsal & Verification Checklist
 
 - [x] Script timed under 90s (`docs/DEMO_SCRIPT.md`)
-- [x] Zero network calls during demo (`DEMO_MODE=true`)
+- [ ] Map tiles loaded before recording; all decision and booking behavior remains deterministic
 - [x] Audio track clear with no background noise
 - [x] High-definition resolution (1080p / 16:9)
-- [x] Video file saved and committed into `docs/`
+- [ ] Video file saved as `docs/demo_backup.mp4` or `docs/demo_backup.webm`

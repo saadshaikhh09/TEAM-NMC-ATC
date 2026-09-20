@@ -13,6 +13,7 @@ from sqlalchemy import select
 
 from core.models import Flight, Hotel, Traveller, TravellerConstraint, Trip, User
 from core.timezones import timezone_name
+from providers.geocoding import geocode_hotel
 
 
 IATA = re.compile(r"^[A-Z]{3}$")
@@ -79,8 +80,11 @@ class FlightInput(BaseModel):
 
 class HotelInput(BaseModel):
     name: str = Field(min_length=1, max_length=160)
+    address: str | None = Field(default=None, max_length=240)
     city: str = Field(min_length=2, max_length=80)
     city_timezone: str | None = None
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
     check_in: date
     check_out: date
     confirmation_number: str | None = Field(default=None, max_length=64)
@@ -91,6 +95,9 @@ class HotelInput(BaseModel):
     def validate_hotel(self):
         if self.check_out <= self.check_in:
             raise ValueError("hotel check-out must be after check-in")
+        if (self.latitude is None) != (self.longitude is None):
+            raise ValueError("hotel latitude and longitude must both be provided")
+        self.address = self.address.strip() if self.address and self.address.strip() else None
         self.city_timezone = timezone_name(self.city, self.city_timezone)
         return self
 
@@ -187,6 +194,11 @@ def persist_trip(db, user_id: UUID, data: TripInput) -> Trip:
             next_poll_at=datetime.now(timezone.utc),
         ))
     if data.hotel:
-        db.add(Hotel(trip_id=trip.id, **data.hotel.model_dump()))
+        hotel = data.hotel.model_dump()
+        if hotel["latitude"] is None:
+            coordinates = geocode_hotel(data.hotel.name, data.hotel.city, data.hotel.address)
+            if coordinates:
+                hotel["latitude"], hotel["longitude"] = coordinates
+        db.add(Hotel(trip_id=trip.id, **hotel))
     db.flush()
     return trip

@@ -74,6 +74,52 @@ def test_manual_trip_persists_and_is_denied_to_another_account():
     assert other.get(f"/trips/{trip_id}/timeline").status_code == 404
 
 
+def test_hotel_location_is_geocoded_once_and_returned(monkeypatch):
+    client = TestClient(app)
+    client.post("/auth/register", json=registration("mapped-hotel@example.com"))
+    monkeypatch.setattr(
+        "core.trip_service.geocode_hotel", lambda *_args: (51.4994, -0.1918)
+    )
+    payload = trip_payload("Mapped Hotel") | {
+        "hotel": {
+            "name": "Kensington Central",
+            "address": "15 Example Road",
+            "city": "LON",
+            "check_in": "2026-10-01",
+            "check_out": "2026-10-03",
+        }
+    }
+
+    response = client.post("/trips", json=payload)
+
+    assert response.status_code == 201
+    hotel = response.json()["hotels"][0]
+    assert hotel["address"] == "15 Example Road"
+    assert hotel["latitude"] == 51.4994
+    assert hotel["longitude"] == -0.1918
+
+
+def test_geocoding_failure_does_not_block_trip_creation(monkeypatch):
+    client = TestClient(app)
+    client.post("/auth/register", json=registration("unmapped-hotel@example.com"))
+    monkeypatch.setattr("core.trip_service.geocode_hotel", lambda *_args: None)
+    payload = trip_payload("Unmapped Hotel") | {
+        "hotel": {
+            "name": "Unknown Hotel",
+            "city": "LON",
+            "check_in": "2026-10-01",
+            "check_out": "2026-10-03",
+        }
+    }
+
+    response = client.post("/trips", json=payload)
+
+    assert response.status_code == 201
+    hotel = response.json()["hotels"][0]
+    assert hotel["latitude"] is None
+    assert hotel["longitude"] is None
+
+
 def test_invalid_dependent_input_rolls_back_everything():
     client = TestClient(app)
     client.post("/auth/register", json=registration("rollback@example.com"))
@@ -110,6 +156,7 @@ def test_new_trip_can_recover_and_shift_an_imported_hotel_booking():
             "name": "London demo stay", "city": "LON",
             "check_in": "2026-09-30", "check_out": "2026-10-05",
             "confirmation_number": "IMPORTED-123", "nightly_rate_inr": 9000,
+            "latitude": 51.5072, "longitude": -0.1276,
         },
         "constraints": {"max_stops": 2, "auto_approve_under_inr": 100000},
     }

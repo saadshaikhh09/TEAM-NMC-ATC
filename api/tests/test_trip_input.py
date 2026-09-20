@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import pytest
 from pydantic import ValidationError
 
-from core.trip_service import FlightInput, TripInput
+from core.trip_service import FlightInput, HotelInput, TripInput
 from core.timezones import timezone_name
 
 
@@ -58,3 +58,21 @@ def test_naive_flight_times_are_interpreted_in_declared_airport_timezones():
 
     assert parsed.scheduled_departure.isoformat() == "2026-10-01T10:00:00-04:00"
     assert parsed.scheduled_arrival.isoformat() == "2026-10-02T12:00:00+09:00"
+
+
+def test_hotel_coordinates_are_paired_and_bounded():
+    valid = {
+        "name": "Kensington Central",
+        "city": "LON",
+        "check_in": "2026-10-01",
+        "check_out": "2026-10-03",
+    }
+    parsed = HotelInput(**valid, latitude=51.4994, longitude=-0.1918)
+    assert (parsed.latitude, parsed.longitude) == (51.4994, -0.1918)
+
+    with pytest.raises(ValidationError, match="both be provided"):
+        HotelInput(**valid, latitude=51.4994)
+    with pytest.raises(ValidationError, match="less than or equal to 90"):
+        HotelInput(**valid, latitude=91, longitude=0)
+    with pytest.raises(ValidationError, match="less than or equal to 180"):
+        HotelInput(**valid, latitude=0, longitude=181)

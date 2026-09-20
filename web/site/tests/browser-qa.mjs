@@ -8,7 +8,10 @@ const app = process.env.QA_APP_URL ?? 'http://localhost:5174'
 const api = process.env.QA_API_URL ?? 'http://127.0.0.1:8000'
 const output = resolve('../../tmp/browser-qa')
 await mkdir(output, { recursive: true })
-const browser = await chromium.launch({ channel: 'msedge', headless: true })
+const browser = await chromium.launch({
+  headless: true,
+  ...(process.env.QA_BROWSER_CHANNEL ? { channel: process.env.QA_BROWSER_CHANNEL } : {}),
+})
 const failures = []
 const report = (label, value) => console.log(`${label}: ${value}`)
 
@@ -82,7 +85,13 @@ try {
 
   const privatePage = await browser.newPage({ viewport: { width: 390, height: 844 } })
   privatePage.on('pageerror', (error) => failures.push(`App JS: ${error.message}`))
-  privatePage.on('console', (message) => { if (message.type() === 'error' && !message.text().includes('401 (Unauthorized)')) failures.push(`App console: ${message.text()}`) })
+  privatePage.on('console', (message) => {
+    const location = message.location().url
+    const pendingPlan = message.text().includes('404 (Not Found)') && /\/disruptions\/[^/]+\/plan$/.test(location)
+    if (message.type() === 'error' && !message.text().includes('401 (Unauthorized)') && !pendingPlan) {
+      failures.push(`App console: ${message.text()} ${message.location().url}`)
+    }
+  })
   privatePage.on('requestfailed', (request) => { if (request.url().startsWith(app) && request.failure()?.errorText !== 'net::ERR_ABORTED') failures.push(`App request: ${request.url()} ${request.failure()?.errorText}`) })
   await privatePage.goto(`${app}/app/trips/new`)
   await privatePage.waitForURL('**/login')
@@ -93,6 +102,14 @@ try {
   await privatePage.getByRole('button', { name: 'Create account' }).click()
   await privatePage.waitForURL('**/app')
   await privatePage.goto(`${app}/app/trips/new`)
+  const travellerHeight = await privatePage.locator('[name="traveller_name"]').evaluate((node) => node.getBoundingClientRect().height)
+  const cabinHeight = await privatePage.locator('[name="cabin"]').evaluate((node) => node.getBoundingClientRect().height)
+  assert.equal(cabinHeight, travellerHeight)
+  assert.equal(await privatePage.locator('.mobile-nav').evaluate((node) => getComputedStyle(node).position), 'sticky')
+  const mobileNavBox = await privatePage.locator('.mobile-nav').boundingBox()
+  const mainBox = await privatePage.locator('#app-main').boundingBox()
+  assert.equal(Boolean(mobileNavBox && mainBox && mobileNavBox.y + mobileNavBox.height <= mainBox.y + 1), true)
+  await privatePage.screenshot({ path: resolve(output, 'app-new-trip-mobile.png'), fullPage: true })
   await privatePage.locator('[name="traveller_name"]').fill('Browser QA')
   await privatePage.locator('[name="carrier"]').fill('AI')
   await privatePage.locator('[name="origin"]').fill('BOM')
@@ -111,7 +128,11 @@ try {
   await privatePage.getByText('Review decision').waitFor()
   await privatePage.getByRole('button', { name: 'Review decision' }).click()
   await privatePage.getByRole('button', { name: 'Approve recovery' }).click()
-  await privatePage.getByText('PLAN · EXECUTED').waitFor()
+  await privatePage.getByRole('heading', { name: 'Trip recovered.' }).waitFor()
+  await privatePage.getByRole('heading', { name: 'Agent timeline' }).waitFor()
+  await privatePage.screenshot({ path: resolve(output, 'app-recovery-mobile.png'), fullPage: true })
+  await privatePage.setViewportSize({ width: 1440, height: 900 })
+  await privatePage.screenshot({ path: resolve(output, 'app-recovery-desktop.png'), fullPage: true })
   report('Authenticated flow', 'guard → signup → create → refresh → simulate → approve → executed')
 
   for (const width of [320, 390, 768, 1280]) {
@@ -127,6 +148,21 @@ try {
   await privatePage.goto(app)
   await privatePage.screenshot({ path: resolve(output, 'app-mobile.png'), fullPage: true })
   report('App routes and widths', '7 routes × 4 widths checked')
+
+  const mapPage = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+  await mapPage.goto(`${app}/login`)
+  await mapPage.getByLabel('Email address').fill('demo@atc.local')
+  await mapPage.getByLabel('Password').fill('DemoPass!2026')
+  await mapPage.getByRole('button', { name: 'Log in' }).click()
+  await mapPage.waitForURL('**/app')
+  await mapPage.goto(`${app}/app/trips/aaaaaaaa-1111-1111-1111-111111111111`)
+  await mapPage.locator('.maplibregl-canvas').waitFor()
+  assert.match(await mapPage.locator('.maplibregl-ctrl-attrib').textContent(), /OpenStreetMap/)
+  await mapPage.screenshot({ path: resolve(output, 'app-hotel-map-desktop.png'), fullPage: true })
+  await mapPage.setViewportSize({ width: 390, height: 844 })
+  await mapPage.screenshot({ path: resolve(output, 'app-hotel-map-mobile.png'), fullPage: true })
+  await mapPage.close()
+  report('Hotel map', 'seeded coordinates → MapLibre canvas + OpenStreetMap attribution')
 
   const owner = await request.newContext({ baseURL: api })
   const other = await request.newContext({ baseURL: api })

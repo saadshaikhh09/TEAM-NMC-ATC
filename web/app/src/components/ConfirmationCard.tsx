@@ -62,18 +62,21 @@ export function ConfirmationCard({ plan, actions = [] }: ConfirmationCardProps) 
   return (
     <article
       aria-labelledby="confirmation-heading"
-      className="overflow-hidden rounded-lg border border-outline-variant/70 bg-surface-container-lowest shadow-raised"
+      className="confirmation-card overflow-hidden rounded-lg border border-outline-variant/70 bg-surface-container-lowest shadow-raised"
     >
-      <header className="bg-navy px-6 py-7 text-white">
+      <header className="confirmation-hero bg-navy px-6 py-7 text-white">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
-              Recovery complete
-            </p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight" id="confirmation-heading">
-              You&rsquo;re all set.
-            </h2>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-white/75">{plan.member_message}</p>
+          <div className="flex items-start gap-4">
+            <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full bg-emerald-400 text-xl font-bold text-navy shadow-card">✓</span>
+            <div>
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+                Recovery complete
+              </p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight" id="confirmation-heading">
+                Trip recovered.
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/75">{plan.member_message}</p>
+            </div>
           </div>
           <div className="shrink-0 sm:text-right">
             {elapsed && (
