@@ -53,6 +53,30 @@ versions of the same function.
 Five minutes from clone to a moving timeline: database, API, dashboard, then
 fire a disruption from the UI.
 
+### Running locally
+
+Once you've done the one-time setup below (database, `api/.venv`, `npm
+install` in both `web/` dirs), start the whole stack — API, site, app —
+with one command from the repo root:
+
+```bash
+./start.sh              # everything
+./start.sh --api-only   # just the FastAPI backend
+./start.sh --web-only   # just the site + app dev servers
+./start.sh --help
+```
+
+Or `make dev`, which just calls `./start.sh`.
+
+It reuses the exact commands from `make api` / `make web` / `make site`,
+runs preflight checks (venv, `node_modules`, Postgres reachability +
+migrations, free ports — with a fix command printed for each failure),
+waits for `/health` before declaring readiness, then prints the site,
+app, and API-docs URLs plus the seeded demo login. Output from each
+service is interleaved and prefixed (`[api]`, `[site]`, `[app]`).
+Ctrl-C stops everything and frees the ports — no orphaned uvicorn or
+vite processes left behind.
+
 ### 1. Clone and branch
 
 ```bash

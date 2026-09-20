@@ -1,7 +1,10 @@
-.PHONY: db api web site reset seed test
+.PHONY: db api web site reset seed test dev
 
 db:
 	docker compose up -d
+
+dev:
+	./start.sh
 
 reset:
 	@if command -v docker >/dev/null 2>&1 && docker compose ps >/dev/null 2>&1; then \
