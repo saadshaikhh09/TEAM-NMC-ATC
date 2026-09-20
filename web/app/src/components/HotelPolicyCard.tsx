@@ -4,8 +4,13 @@ import type { Hotel, HotelChange } from '../types'
 
 interface HotelPolicyCardProps {
   hotel: Hotel
-  /** Present once a recovery plan exists and has worked out the knock-on hotel move. */
-  change?: HotelChange
+  /**
+   * Present once a recovery plan exists and has worked out the knock-on hotel
+   * move. Null when the plan exists but has no hotel to move — the API sends
+   * `hotel_change: null` for a trip with no hotel row, or a plan with no chosen
+   * option to price the move against.
+   */
+  change?: HotelChange | null
 }
 
 /**

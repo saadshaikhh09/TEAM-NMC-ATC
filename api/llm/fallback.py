@@ -19,8 +19,11 @@ def _chosen(plan):
     return next(
         (
             option
+            # option_id first: on a persisted plan_options row `id` is the table's
+            # own UUID, so matching on it silently finds nothing and the member
+            # message degrades to "we recommend opt_1".
             for option in _value(plan, "options", [])
-            if _value(option, "id", _value(option, "option_id")) == chosen_id
+            if _value(option, "option_id", _value(option, "id")) == chosen_id
         ),
         None,
     )

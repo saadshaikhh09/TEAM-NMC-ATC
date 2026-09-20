@@ -8,6 +8,7 @@ it — a judge will ask.
 from sqlalchemy import select
 
 from core.audit import record
+from core.events import emit
 from core.models import AgentAction
 from core.state_machine import advance
 from providers.base import FlightProvider, HotelProvider
@@ -18,6 +19,10 @@ def _fail(session, plan, trip_id, headline):
     plan.state = "FAILED"
     session.commit()
     advance(session, trip_id, "RECOVERY_FAILED")
+    emit(
+        "plan.failed",
+        {"trip_id": str(trip_id), "payload": {"plan_id": str(plan.id), "error": headline}},
+    )
     return {"ok": False, "error": headline}
 
 
@@ -134,6 +139,16 @@ def run(
     plan.state = "EXECUTED"
     session.commit()
     advance(session, trip_id, "RECOVERED")
+    emit(
+        "plan.executed",
+        {
+            "trip_id": str(trip_id),
+            "payload": {
+                "plan_id": str(plan.id),
+                "confirmation_reference": flight_confirmation.reference,
+            },
+        },
+    )
     return {
         "ok": True,
         "plan_id": str(plan.id),

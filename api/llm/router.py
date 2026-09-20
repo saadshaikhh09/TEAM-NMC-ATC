@@ -54,6 +54,21 @@ def configure() -> None:
     load_dotenv()
     _registry.clear()
 
+    # groq is OpenAI-compatible, so it needs no adapter of its own. Registered
+    # only when BOTH key and model are set: Groq retires model ids, and a
+    # guessed one fails as a 404 on every call for the rest of the session.
+    groq_key = os.getenv("GROQ_API_KEY", "").strip()
+    groq_model = os.getenv("GROQ_MODEL", "").strip()
+    if groq_key and groq_model:
+        register(
+            "groq",
+            openai_compatible.make(
+                os.getenv("GROQ_BASE", "https://api.groq.com/openai/v1"),
+                groq_key,
+                groq_model,
+            ),
+        )
+
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
     if gemini_key:
         register(

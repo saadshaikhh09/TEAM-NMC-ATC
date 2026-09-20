@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -7,7 +7,7 @@ from sqlalchemy import delete, select
 
 from core.db import SessionLocal
 from core.events import subscribe
-from core.models import AgentAction, Disruption, Flight, Traveller, Trip
+from core.models import AgentAction, Disruption, Flight, RecoveryPlan, Traveller, Trip
 from main import app
 
 
@@ -57,11 +57,29 @@ def test_cancellation_writes_one_disruption_and_broadcasts(flight_ids):
     assert events == [{"trip_id": str(trip_id), "payload": {"disruption_id": body["id"]}}]
 
     with SessionLocal() as session:
-        assert session.get(Trip, trip_id).status == "DISRUPTED"
         assert session.get(Flight, flight_id).status == "CANCELLED"
         assert len(session.scalars(select(Disruption).where(Disruption.trip_id == trip_id)).all()) == 1
-        actions = session.scalars(select(AgentAction).where(AgentAction.trip_id == trip_id)).all()
-        assert [action.stage for action in actions] == ["DETECTED"]
+
+        # Detection is no longer the end of the line: main.py subscribes the
+        # orchestrator, so one simulated cancellation produces a persisted plan
+        # and carries the trip to the gate's verdict.
+        assert session.get(Trip, trip_id).status == "AWAITING_APPROVAL"
+        plan = session.scalars(
+            select(RecoveryPlan).where(RecoveryPlan.disruption_id == UUID(body["id"]))
+        ).one()
+        assert plan.state == "AWAITING_APPROVAL"
+        assert plan.requires_approval is True
+        assert plan.chosen_option_id
+        assert plan.evaluated_count > 0
+
+        actions = session.scalars(
+            select(AgentAction)
+            .where(AgentAction.trip_id == trip_id)
+            .order_by(AgentAction.at, AgentAction.id)
+        ).all()
+        assert [action.stage for action in actions] == [
+            "DETECTED", "PLANNING", "EVALUATED", "AWAITING_APPROVAL",
+        ]
 
 
 def test_delay_uses_same_detection_path(flight_ids):
@@ -71,4 +89,5 @@ def test_delay_uses_same_detection_path(flight_ids):
     assert response.json()["kind"] == "DELAY"
     assert response.json()["new_status"] == "DELAYED"
     with SessionLocal() as session:
-        assert session.get(Trip, trip_id).status == "DISRUPTED"
+        # Same path as a cancellation: detect, plan, halt at the gate.
+        assert session.get(Trip, trip_id).status == "AWAITING_APPROVAL"

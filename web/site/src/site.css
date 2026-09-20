@@ -1,0 +1,358 @@
+/* Landing-page motion and the window-to-clouds intro.
+   Ported from web/design/landing/code.html. Every animation below has a
+   matching disable rule in the prefers-reduced-motion block at the end. */
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The page is one long scroll-driven composition; a scrollbar track fighting
+   the pinned intro reads as chrome. The intro's "Scroll to see how" cue is the
+   affordance that replaces it. */
+::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  overscroll-behavior: none;
+  scrollbar-width: none;
+}
+
+/* Light sweep across primary CTAs. */
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  50%,
+  100% {
+    transform: translateX(200%) skewX(-20deg);
+  }
+}
+
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  animation: shimmer-sweep 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes gentle-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.animate-float-dashboard {
+  animation: gentle-float 6s ease-in-out infinite;
+}
+
+@keyframes radar-beam-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar-beam {
+  transform-origin: center center;
+  animation: radar-beam-sweep 5s linear infinite;
+}
+
+@keyframes dash-flow {
+  from {
+    stroke-dashoffset: 40;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-dash-route {
+  stroke-dasharray: 6 6;
+  animation: dash-flow 2s linear infinite;
+}
+
+@keyframes soft-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 16px 3px rgba(2, 132, 199, 0.4);
+  }
+}
+
+.pulse-glow-border {
+  animation: soft-glow 3s ease-in-out infinite;
+}
+
+@keyframes starlight-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px #38bdf8);
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.85;
+    filter: drop-shadow(0 0 16px #67e8f9);
+  }
+}
+
+.starlight-head {
+  animation: starlight-pulse 1.8s ease-in-out infinite;
+}
+
+/* Scroll reveal. Driven by Reveal.tsx's data-visible, not by a CSS-only
+   trigger, so the reveal state and the animation stay in one place. */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll[data-visible='true'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nav-link-hover {
+  position: relative;
+}
+
+/* Drawn at full width and scaled from the left rather than grown from width: 0.
+   Same 2px bar sweeping left to right, but on the compositor instead of a
+   layout pass per frame. */
+.nav-link-hover::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #0284c7;
+  border-radius: 9999px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link-hover:hover::after {
+  transform: scaleX(1);
+}
+
+/* Accordion height animates through grid-template-rows so the panel can size
+   to its own content — no measured pixel height to keep in sync. */
+.faq-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faq-item.is-open .faq-content {
+  grid-template-rows: 1fr;
+}
+
+.faq-inner {
+  overflow: hidden;
+}
+
+.faq-chevron {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faq-item.is-open .faq-chevron {
+  transform: rotate(180deg);
+}
+
+/* ===== Plane-window-to-clouds scroll intro ===== */
+
+:root {
+  /* Written by WindowIntro on scroll; the header reads them so neither component
+     has to re-render the other on every frame. Visibility rides alongside
+     opacity because a nav faded to 0 is still clickable and still in the tab
+     order — `visibility: hidden` is what actually takes it out of both. */
+  --nav-opacity: 0;
+  --nav-visibility: hidden;
+}
+
+#window-intro {
+  position: relative;
+  width: 100%;
+  height: 280vh;
+  /* Matches the bottom of #intro-sky's gradient, so the hand-off to the hero is
+     seamless even on the frame where the sticky layer releases. */
+  background: #ffffff;
+}
+
+#window-intro-sticky {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#intro-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #bfe0f7 0%, #eaf5fd 45%, #ffffff 100%);
+  overflow: hidden;
+}
+
+.intro-cloud {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 999px;
+  filter: blur(3px);
+  opacity: 0.9;
+  will-change: transform;
+}
+
+@keyframes cloud-drift-a {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50px);
+  }
+}
+
+@keyframes cloud-drift-b {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-70px);
+  }
+}
+
+/* The porthole is a mask hole, not an image: its radius is one custom property
+   the scroll handler writes, so there is no asset to load or scale. */
+#intro-cabin {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #0b1f33 0%, #123554 55%, #0b1f33 100%);
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 46%,
+    transparent var(--window-r, 12vh),
+    #000 calc(var(--window-r, 12vh) + 2px)
+  );
+  mask-image: radial-gradient(
+    circle at 50% 46%,
+    transparent var(--window-r, 12vh),
+    #000 calc(var(--window-r, 12vh) + 2px)
+  );
+}
+
+#intro-rim {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  border-radius: 50%;
+  border: 6px solid rgba(226, 232, 240, 0.7);
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.25) inset,
+    0 0 30px rgba(255, 255, 255, 0.15);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+#intro-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.5rem clamp(1.5rem, 6vw, 4rem);
+  pointer-events: none;
+}
+
+#intro-copy .intro-line {
+  font-family: var(--font-display);
+  color: rgba(255, 255, 255, 0.94);
+  font-size: clamp(32px, 5.5vw, 64px);
+  line-height: 1.05;
+  max-width: 480px;
+  margin: 0;
+}
+
+#intro-copy .intro-line em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+#intro-scroll-cue {
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Motion is decoration here: with it off, every section is in its final state
+   on load and the intro is skipped rather than frozen mid-animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::after,
+  ::before {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  :root {
+    --nav-opacity: 1;
+    --nav-visibility: visible;
+  }
+
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .animate-float-dashboard,
+  .animate-radar-beam,
+  .animate-dash-route,
+  .pulse-glow-border,
+  .starlight-head,
+  .shimmer-btn::after {
+    animation: none !important;
+  }
+
+  #window-intro {
+    display: none !important;
+  }
+}

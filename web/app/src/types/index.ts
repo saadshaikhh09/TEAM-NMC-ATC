@@ -117,9 +117,12 @@ export interface RecoveryPlan {
   evaluated_count: number
   options: FlightOption[]
   rejections: Rejection[]
-  chosen_option_id: string
-  hotel_change: HotelChange
-  total_cost_delta_inr: number
+  /** Null until an option survives the constraint filter — a rejection-only plan has none. */
+  chosen_option_id: string | null
+  /** Null when the trip has no hotel, or no option was chosen to price a move against. */
+  hotel_change: HotelChange | null
+  /** Null on a rejection-only plan. Null is "not calculated", never zero. */
+  total_cost_delta_inr: number | null
   requires_approval: boolean
   approval_reason: string
   explanation: string

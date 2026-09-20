@@ -6,6 +6,7 @@ here — do not UPDATE trips.status from your own module.
 
 from datetime import datetime, timezone
 
+from core.events import emit
 from core.models import Trip
 
 TRANSITIONS = {
@@ -35,4 +36,6 @@ def advance(session, trip_id: str, nxt: str):
     trip.updated_at = datetime.now(timezone.utc)
     session.commit()
     session.refresh(trip)
+    # Every status change reaches the dashboard from here, so no caller can forget.
+    emit("trip.updated", {"trip_id": str(trip.id), "payload": {"status": trip.status}})
     return trip

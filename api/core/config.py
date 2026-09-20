@@ -10,7 +10,8 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://concierge:concierge@localhost:5432/concierge"
     demo_mode: bool = True
     demo_poll_seconds: int = 15
-    provider_flight: str = "mock"
+    provider_flight_status: str = "mock"
+    provider_flight_search: str = "mock"
     provider_hotel: str = "mock"
     llm_provider: str = "gemini"
     gemini_api_key: str = ""
@@ -22,7 +23,9 @@ class Settings(BaseSettings):
     quota_dev_budget_fraction: float = 0.4
 
     class Config:
-        env_file = ".env"
+        # Absolute, not ".env": `make api` runs from api/, where no .env exists,
+        # and a relative path there silently yields the defaults above.
+        env_file = Path(__file__).resolve().parents[2] / ".env"
         extra = "ignore"
 
 

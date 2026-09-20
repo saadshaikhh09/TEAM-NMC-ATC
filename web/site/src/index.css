@@ -1,4 +1,5 @@
 @import '../../packages/tokens/tokens.css';
+@import './site.css';
 
 @tailwind base;
 @tailwind components;
@@ -7,6 +8,12 @@
 @layer base {
   * {
     box-sizing: border-box;
+  }
+
+  /* The nav is fixed and 5rem tall, so an anchor jump would otherwise land the
+     heading underneath it. */
+  [id] {
+    scroll-margin-top: 5.5rem;
   }
 
   html {

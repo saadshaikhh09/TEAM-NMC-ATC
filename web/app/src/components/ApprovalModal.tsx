@@ -1,4 +1,4 @@
-import { formatInr, formatUtc } from '../lib/format'
+import { formatDelta, formatInr, formatUtc } from '../lib/format'
 import type { RecoveryPlan } from '../types'
 
 interface ApprovalModalProps {
@@ -68,15 +68,15 @@ export function ApprovalModal({ plan, onApprove, onClose, onReject }: ApprovalMo
           <section className="grid gap-4 rounded-md bg-surface-container-low p-5 sm:grid-cols-3" aria-label="Plan cost and hotel impact">
             <div>
               <p className="text-xs text-on-surface-variant">Hotel change</p>
-              <p className="mt-1 font-semibold">{plan.hotel_change.required ? `New check-in ${plan.hotel_change.new_check_in}` : 'Not required'}</p>
+              <p className="mt-1 font-semibold">{plan.hotel_change?.required ? `New check-in ${plan.hotel_change.new_check_in}` : 'Not required'}</p>
             </div>
             <div>
               <p className="text-xs text-on-surface-variant">Hotel delta</p>
-              <p className="mt-1 font-semibold">{formatInr(plan.hotel_change.cost_delta_inr)}</p>
+              <p className="mt-1 font-semibold">{formatDelta(plan.hotel_change?.cost_delta_inr ?? null, 'No hotel on this trip')}</p>
             </div>
             <div>
               <p className="text-xs text-on-surface-variant">Total cost delta</p>
-              <p className="mt-1 text-lg font-bold text-primary">{formatInr(plan.total_cost_delta_inr)}</p>
+              <p className="mt-1 text-lg font-bold text-primary">{formatDelta(plan.total_cost_delta_inr)}</p>
             </div>
           </section>
         </div>

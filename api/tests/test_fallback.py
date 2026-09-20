@@ -4,6 +4,8 @@ Proves the system produces usable member-facing text with every LLM key blank.
 If this passes, no model outage can break the demo.
 """
 from types import SimpleNamespace
+from uuid import uuid4
+
 from llm import fallback
 
 
@@ -51,6 +53,20 @@ def test_explanation_uses_recovery_plan_content_with_no_model():
         "fare 52,400 exceeds auto-approve threshold 45,000",
     ):
         assert expected in text
+
+
+def test_names_the_flight_on_a_persisted_plan_row():
+    """plan_options.id is the row's UUID; the option id lives in option_id."""
+    plan = _plan()
+    plan.options = [
+        SimpleNamespace(
+            id=uuid4(), option_id="opt_1", carrier="BA", flight_number="BA138",
+            fare_inr=52_400,
+        )
+    ]
+
+    assert "BA BA138" in fallback.explanation(plan)
+    assert "BA BA138" in fallback.member_message(plan)
 
 
 def test_member_message_is_a_recommendation_not_a_live_booking_claim():

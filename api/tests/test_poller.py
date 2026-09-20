@@ -70,7 +70,11 @@ def test_poll_due_routes_cancellation_through_detection(due_flight):
     with SessionLocal() as session:
         poll_due(session, provider, "simulated", now=NOW, demo_mode=True, flight_id=flight_id)
     with SessionLocal() as session:
-        assert session.get(Trip, trip_id).status == "DISRUPTED"
+        # Deliberately not asserting trip.status: once main.py is imported the
+        # orchestrator is subscribed to disruption.detected and moves the trip on
+        # past DISRUPTED, which would make this test depend on import order.
+        # Detection's own transition is covered in test_state.py.
+        assert session.get(Trip, trip_id).status != "MONITORING"
         assert session.get(Flight, flight_id).next_poll_at is None
         disruptions = session.scalars(select(Disruption).where(Disruption.flight_id == flight_id)).all()
         assert len(disruptions) == 1

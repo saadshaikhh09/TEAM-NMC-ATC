@@ -130,7 +130,9 @@ export function ConfirmationCard({ plan, actions = [] }: ConfirmationCardProps) 
         <div>
           <p className="text-xs text-on-surface-variant">Hotel impact</p>
           <p className="mt-1 text-lg font-bold">
-            {plan.hotel_change.required ? formatDelta(plan.hotel_change.cost_delta_inr) : 'Untouched'}
+            {plan.hotel_change?.required
+              ? formatDelta(plan.hotel_change.cost_delta_inr)
+              : 'Untouched'}
           </p>
         </div>
         <div>
@@ -140,7 +142,11 @@ export function ConfirmationCard({ plan, actions = [] }: ConfirmationCardProps) 
             </Tooltip>
           </p>
           <p
-            className={`mt-1 text-lg font-bold ${plan.total_cost_delta_inr <= 0 ? 'text-emerald-700' : 'text-on-surface'}`}
+            className={`mt-1 text-lg font-bold ${
+              plan.total_cost_delta_inr !== null && plan.total_cost_delta_inr <= 0
+                ? 'text-emerald-700'
+                : 'text-on-surface'
+            }`}
           >
             {formatDelta(plan.total_cost_delta_inr)}
           </p>

@@ -3,9 +3,11 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
+from sqlalchemy import select
 
 from core.audit import record
 from core.db import SessionLocal
+from core.events import emit
 from core.models import Approval, RecoveryPlan
 from core.state_machine import advance
 
@@ -81,6 +83,20 @@ def _get_plan(session, plan_id: UUID) -> RecoveryPlan:
     return plan
 
 
+@router.get("/disruptions/{disruption_id}/plan")
+def plan_for_disruption(disruption_id: UUID):
+    """CONTRACT.md line 48. Same serialiser as approve/reject — one shape, one source."""
+    with SessionLocal() as session:
+        plan = session.scalars(
+            select(RecoveryPlan)
+            .where(RecoveryPlan.disruption_id == disruption_id)
+            .order_by(RecoveryPlan.created_at.desc(), RecoveryPlan.id.desc())
+        ).first()
+        if plan is None:
+            raise HTTPException(status_code=404, detail="No recovery plan for this disruption")
+        return _response(plan)
+
+
 @router.post("/approvals/{plan_id}/approve")
 def approve(plan_id: UUID):
     with SessionLocal() as session:
@@ -101,6 +117,10 @@ def approve(plan_id: UUID):
         plan.state = "EXECUTING"
         session.commit()
         advance(session, trip_id, "EXECUTING")
+        emit(
+            "plan.executing",
+            {"trip_id": str(trip_id), "payload": {"plan_id": str(plan.id)}},
+        )
         _execute(session, plan)
         session.refresh(plan)
         return _response(plan)

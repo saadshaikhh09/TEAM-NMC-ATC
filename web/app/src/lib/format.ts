@@ -41,8 +41,15 @@ export function formatDuration(from: string, to: string) {
   return `${Math.floor(minutes / 60)}h ${String(minutes % 60).padStart(2, '0')}m`
 }
 
-/** Signed money, for cost deltas where the sign carries the meaning. */
-export function formatDelta(amountInr: number) {
+/**
+ * Signed money, for cost deltas where the sign carries the meaning.
+ *
+ * Null is handled here rather than at each call site: the API returns null for
+ * a delta it never calculated, and `−₹0` would announce "no cost change" for a
+ * figure nobody worked out.
+ */
+export function formatDelta(amountInr: number | null, fallback = 'Not calculated') {
+  if (amountInr === null) return fallback
   if (amountInr === 0) return 'No change'
   return `${amountInr > 0 ? '+' : '−'}${formatInr(Math.abs(amountInr))}`
 }

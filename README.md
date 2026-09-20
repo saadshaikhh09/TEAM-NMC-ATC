@@ -182,7 +182,26 @@ With the API and the dashboard both up, at `http://localhost:5174`:
    decision logic" is honest. Say it out loud; do not hide the endpoint.
 4. **Watch the timeline.** It is a dumb render of the `agent_actions` table, so
    whatever the agent actually recorded is what you see — including where it
-   stopped if it broke.
+   stopped if it broke. On the live API path you should now get five to seven
+   rows, not one:
+
+   ```
+   DETECTED           AI131 cancellation detected
+   PLANNING           Searching alternatives BOM to LHR
+   EVALUATED          Evaluated 4 options, rejected 2 on policy
+   AWAITING_APPROVAL  Fare 52,400 exceeds auto-approve threshold 45,000
+   ```
+
+5. **Read the rejection panel out loud.** This is the pitch. `opt_4` was
+   ₹8,000 cheaper and was refused anyway, because it lands after Priya's 09:00
+   London deadline. The agent says so in words a non-engineer can read.
+6. **Approve.** The modal fires `POST /approvals/{id}/approve`; the timeline
+   gains `APPROVED → REBOOKED → NOTIFIED` and the trip reaches `RECOVERED`.
+
+> **First run is slow.** A cold cancellation takes 8–12s, all of it the two
+> `llm/explain.py` narration calls burning their budget against a slow chain. It
+> is cached by plan hash afterwards, so every rehearsal of the same plan is
+> instant. It is not a hang. Filling in `GROQ_API_KEY` is the fix.
 
 Firing the same kind twice on the same leg never moves the screen. `detect()`
 either hands back the disruption it already wrote, or answers `409 flight … is
@@ -190,12 +209,22 @@ already CANCELLED` — and neither writes a timeline row or emits an event. The
 bar checks the leg's status first and tells you, rather than reporting a
 success that changed nothing. `make reset` is how you rehearse again.
 
-> **Known gap.** `GET /disruptions/{id}/plan` (CONTRACT line 48) is not
-> registered on the server yet, and nothing calls `planner/` — `detect()` stops
-> at `DETECTED`. So on the live API path the timeline moves but the plan banner,
-> alternatives, rejection panel, approval modal and confirmation card stay
-> empty. To demo those today, stop the API and reload: the mock path renders the
-> full recovery. See the decision log in `STATUS.md`.
+Each seeded traveller exercises a different branch of the policy gate, and all
+three now run end to end on the live API:
+
+| Traveller | What the gate does | Where it ends |
+|---|---|---|
+| **Priya** BOM→LHR | halts for approval — 52,400 over her 45,000 threshold | `AWAITING_APPROVAL` → approve → `RECOVERED` |
+| **Ananya** BLR→DXB | **auto-rebooks with no click** — 30,000 is under her threshold | `RECOVERED` |
+| **Rohan** DEL→SIN | escalates — 62,000 over his 30,000 threshold | `AWAITING_APPROVAL` |
+
+> **Fixed 2026-09-20 (was a known gap).** `GET /disruptions/{id}/plan` is now
+> registered, and `planner/orchestrate.py` runs the planner off
+> `disruption.detected`, so the live API path renders the full recovery — plan
+> banner, alternatives, rejection panel, approval modal, confirmation card. The
+> header should read **Live**. You no longer have to kill the API to demo the
+> recovery story; if you find yourself on **Mock data**, the API is down, and
+> that is now a bug rather than the plan.
 
 ---
 
@@ -238,6 +267,53 @@ must not stop a rebooking. Write `llm/fallback.py` before any adapter;
 `tests/test_fallback.py` must pass with every key blank.
 
 Full rules in `CONTEXT.md` §4.
+
+---
+
+## The LLM chain
+
+```
+LLM_CHAIN=groq,xkiro,openrouter
+```
+
+Tried left to right, first success wins. **A name with no registered adapter is
+skipped, not an error** (`router.py:120`), so the chain is safe to list ahead of
+the keys. If every provider fails, `llm/fallback.py` produces the same copy from
+a template and the demo continues — the model is a sidecar, never the decision.
+
+| Provider | Role | State |
+|---|---|---|
+| `groq` | primary | OpenAI-compatible, reuses `llm/providers/openai_compatible.py`. Needs a key **and** a model. |
+| `xkiro` | working fallback | verified at 2.58s |
+| `openrouter` | last resort | correct but ~31.7s against a 4s timeout, so in practice always times out |
+| ~~`gemini`~~ | **dropped** | the key was an `AQ.` OAuth token, not an `AIza…` Generative Language key — 404 on every call, from the front of the chain |
+
+### Adding your Groq key
+
+1. Get a key at [console.groq.com/keys](https://console.groq.com/keys) — it
+   starts with `gsk_`. Paste it on the `GROQ_API_KEY=` line in `.env`.
+2. **Pick the model from the API, not from memory.** Groq retires model ids, and
+   a stale one 404s on every call:
+
+   ```bash
+   set -a && source .env && set +a
+   curl -s https://api.groq.com/openai/v1/models \
+     -H "Authorization: Bearer $GROQ_API_KEY" | python3 -m json.tool
+   ```
+
+   Put a fast production chat model from that list on `GROQ_MODEL=`.
+3. Restart the API and confirm it registered:
+
+   ```bash
+   cd api && ./.venv/bin/python -c "from llm import router; router.configure(); print(sorted(router._registry))"
+   ```
+
+   `groq` must appear. **Both the key and the model must be set** — the router
+   registers nothing if either is blank, and the chain silently falls through to
+   xkiro.
+
+This is worth doing before rehearsing: the two narration calls per plan are the
+entire reason a cold cancellation currently takes 8–12 seconds.
 
 ---
 
