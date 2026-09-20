@@ -13,6 +13,4 @@ build/
 .DS_Store
 .pytest_cache/
 demo/recordings/
-ui-ux/
 graphify-out/
-.gstack/

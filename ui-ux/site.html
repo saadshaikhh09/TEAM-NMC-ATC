@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>
+  @layer base {
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      overscroll-behavior: none;
+    }
+    main > :first-child {
+      margin-top: 0 !important;
+    }
+    main > :last-child {
+      margin-bottom: 0 !important;
+    }
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Shimmer / light sweep animation for primary CTAs */
+  @keyframes shimmer-sweep {
+    0% { transform: translateX(-150%) skewX(-20deg); }
+    50%, 100% { transform: translateX(200%) skewX(-20deg); }
+  }
+  .shimmer-btn {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+    animation: shimmer-sweep 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+  }
+
+  /* Gentle hero floating animation */
+  @keyframes gentle-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-7px); }
+  }
+  .animate-float-dashboard {
+    animation: gentle-float 6s ease-in-out infinite;
+  }
+
+  /* Radar sweep & trajectory animations */
+  @keyframes radar-beam-sweep {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .animate-radar-beam {
+    transform-origin: center center;
+    animation: radar-beam-sweep 5s linear infinite;
+  }
+
+  @keyframes dash-flow {
+    0% { stroke-dashoffset: 40; }
+    100% { stroke-dashoffset: 0; }
+  }
+  .animate-dash-route {
+    stroke-dasharray: 6 6;
+    animation: dash-flow 2s linear infinite;
+  }
+
+  /* Subtle breathing pulse for rebooking badge */
+  @keyframes soft-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.25); }
+    50% { box-shadow: 0 0 16px 3px rgba(2, 132, 199, 0.4); }
+  }
+  .pulse-glow-border {
+    animation: soft-glow 3s ease-in-out infinite;
+  }
+
+  /* Starlight progress bar glow & sparkle animations */
+  @keyframes starlight-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 8px #38BDF8); }
+    50% { transform: scale(1.35); opacity: 0.85; filter: drop-shadow(0 0 16px #67e8f9); }
+  }
+  .starlight-head {
+    animation: starlight-pulse 1.8s ease-in-out infinite;
+  }
+
+  /* Scroll Reveal transition defaults */
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+  .reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Navigation Underline Micro-interaction */
+  .nav-link-hover {
+    position: relative;
+  }
+  .nav-link-hover::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background-color: #0284C7;
+    transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 9999px;
+  }
+  .nav-link-hover:hover::after {
+    width: 100%;
+  }
+
+  /* FAQ Accordion Transitions */
+  .faq-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .faq-item.is-open .faq-content {
+    grid-template-rows: 1fr;
+  }
+  .faq-inner {
+    overflow: hidden;
+  }
+  .faq-chevron {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .faq-item.is-open .faq-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Accessibility: Prefers reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::after, ::before {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    .reveal-on-scroll {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .animate-float-dashboard {
+      animation: none !important;
+    }
+    .starlight-head {
+      animation: none !important;
+    }
+    #window-intro { display: none !important; }
+    #main-nav-bar { opacity: 1 !important; }
+  }
+
+  /* ===== Plane-window-to-clouds scroll reveal intro ===== */
+  #window-intro {
+    position: relative;
+    width: 100%;
+    height: 280vh;
+    background: #0b1f33;
+  }
+  #window-intro-sticky {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+  #intro-sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #bfe0f7 0%, #eaf5fd 45%, #ffffff 100%);
+    overflow: hidden;
+  }
+  .intro-cloud {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 999px;
+    filter: blur(3px);
+    opacity: 0.9;
+    will-change: transform;
+  }
+  @keyframes cloud-drift-a { from { transform: translateX(0); } to { transform: translateX(50px); } }
+  @keyframes cloud-drift-b { from { transform: translateX(0); } to { transform: translateX(-70px); } }
+  #intro-cabin {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #0b1f33 0%, #123554 55%, #0b1f33 100%);
+    -webkit-mask-image: radial-gradient(circle at 50% 46%, transparent var(--window-r, 12vh), #000 calc(var(--window-r, 12vh) + 2px));
+    mask-image: radial-gradient(circle at 50% 46%, transparent var(--window-r, 12vh), #000 calc(var(--window-r, 12vh) + 2px));
+  }
+  #intro-rim {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    border-radius: 50%;
+    border: 6px solid rgba(226,232,240,0.7);
+    box-shadow: 0 0 40px rgba(0,0,0,0.25) inset, 0 0 30px rgba(255,255,255,0.15);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  #intro-copy {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2.5rem clamp(1.5rem, 6vw, 4rem);
+    pointer-events: none;
+  }
+  #intro-copy .intro-line {
+    font-family: 'Newsreader', serif;
+    color: rgba(255,255,255,0.94);
+    font-size: clamp(32px, 5.5vw, 64px);
+    line-height: 1.05;
+    max-width: 480px;
+  }
+  #intro-copy .intro-line em { font-style: italic; font-weight: 400; }
+  #intro-scroll-cue {
+    color: rgba(255,255,255,0.6);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  #main-nav-bar {
+    opacity: 0;
+    transition: opacity 0.4s ease-out;
+  }
+</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "navy": {
+            DEFAULT: "#0A2540",
+            900: "#06182B",
+            800: "#0A2540",
+            700: "#0F3254",
+            50: "#F0F5FA"
+          },
+          "sky": {
+            brand: "#0284C7",
+            brandHover: "#0369A1",
+            tint: "#E0F2FE",
+            subtle: "#F0F9FF"
+          },
+          "slate": {
+            brand: "#64748B",
+            light: "#94A3B8",
+            border: "#E2E8F0",
+            bg: "#F8FAFC"
+          },
+          "surface": "#FFFFFF",
+          "surface-muted": "#F8FAFC"
+        },
+        "fontFamily": {
+          "title-md": ["Plus Jakarta Sans", "sans-serif"],
+          "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+          "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
+          "body-md": ["Plus Jakarta Sans", "sans-serif"],
+          "body-lg": ["Plus Jakarta Sans", "sans-serif"],
+          "label-md": ["Plus Jakarta Sans", "sans-serif"],
+          "display-lg": ["Newsreader", "serif"],
+          "label-sm": ["JetBrains Mono", "monospace"],
+          "title-lg": ["Plus Jakarta Sans", "sans-serif"]
+        }
+      }
+    }
+  }</script></head><body class="bg-[#F8FAFC] font-body-md text-[#0A2540] antialiased selection:bg-[#0284C7]/20 selection:text-[#0A2540]">
+<!-- WINDOW-TO-CLOUDS SCROLL REVEAL INTRO -->
+<section id="window-intro" aria-hidden="true">
+  <div id="window-intro-sticky">
+    <div id="intro-sky">
+      <div class="intro-cloud" style="top:16%; left:6%; width:260px; height:90px; animation: cloud-drift-a 42s ease-in-out infinite alternate;"></div>
+      <div class="intro-cloud" style="top:30%; left:58%; width:340px; height:110px; animation: cloud-drift-b 55s ease-in-out infinite alternate;"></div>
+      <div class="intro-cloud" style="top:58%; left:18%; width:220px; height:80px; animation: cloud-drift-a 48s ease-in-out infinite alternate;"></div>
+      <div class="intro-cloud" style="top:70%; left:62%; width:300px; height:100px; animation: cloud-drift-b 60s ease-in-out infinite alternate;"></div>
+      <div class="intro-cloud" style="top:44%; left:38%; width:180px; height:70px; animation: cloud-drift-a 36s ease-in-out infinite alternate;"></div>
+    </div>
+    <div id="intro-cabin"></div>
+    <div id="intro-rim"></div>
+    <div id="intro-copy">
+      <div class="flex items-start justify-start">
+        <p class="intro-line">We detect it <em>first.</em></p>
+      </div>
+      <div class="flex items-end justify-between gap-6 flex-wrap">
+        <span id="intro-scroll-cue">Scroll to see how ↓</span>
+        <p class="intro-line text-right ml-auto">We fix it <em>for you.</em></p>
+      </div>
+    </div>
+  </div>
+</section>
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-[#64748B]/15 transition-shadow duration-300" id="main-nav-bar"><div class="h-20 max-w-[1280px] mx-auto px-6 md:px-10 flex items-center justify-between"><div class="flex items-center gap-3"><a class="flex items-center gap-3 group" data-path="landing-page" href="#"><div class="w-10 h-10 rounded-xl bg-[#0A2540] flex items-center justify-center text-white shadow-sm group-hover:bg-[#0284C7] group-hover:scale-105 active:scale-95 transition-all duration-200"><span class="material-symbols-outlined text-[22px]">connecting_airports</span></div><span class="font-title-lg text-lg tracking-tight text-[#0A2540] font-bold">ATC</span><span class="px-2.5 py-0.5 rounded-full bg-[#E0F2FE] text-[#0284C7] font-label-sm text-[11px] uppercase tracking-wider font-semibold group-hover:bg-[#0284C7] group-hover:text-white transition-colors duration-200">Concierge</span></a></div><nav class="hidden md:flex items-center gap-8"><a class="text-sm font-medium text-[#64748B] hover:text-[#0A2540] transition-colors nav-link-hover py-1" data-path="how-it-works" href="#how-it-works">How it works</a><a class="text-sm font-medium text-[#64748B] hover:text-[#0A2540] transition-colors nav-link-hover py-1" data-path="features" href="#features">Features</a><a class="text-sm font-medium text-[#64748B] hover:text-[#0A2540] transition-colors nav-link-hover py-1" data-path="faq" href="#faq">FAQ</a></nav><div class="flex items-center gap-4"><a class="hidden sm:inline-block text-sm font-medium text-[#64748B] hover:text-[#0A2540] transition-colors hover:-translate-y-0.5 py-1" data-path="login" href="#">Log in</a><a class="shimmer-btn inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-[#0284C7] text-white text-sm font-semibold shadow-sm hover:bg-[#0369A1] hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-150" data-path="get-started" href="#get-started">Get started</a><div class="w-9 h-9 rounded-full bg-[#0A2540] flex items-center justify-center text-white hover:bg-[#0284C7] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm"><span class="material-symbols-outlined text-[18px]">person</span></div></div></div>
+<!-- Top Starlight / Blue Light Horizontal Scroll-Linked Progress Line -->
+<div class="absolute bottom-0 left-0 right-0 h-[2.5px] bg-transparent pointer-events-none overflow-visible" id="scroll-progress-container">
+<div class="h-full bg-gradient-to-r from-[#0284C7] via-[#38BDF8] to-[#67e8f9] shadow-[0_0_12px_2px_rgba(56,189,248,0.7),0_0_4px_1px_rgba(2,132,199,0.9)] relative transition-[width] duration-75 ease-out will-change-[width]" id="scroll-progress-bar" style="width: 0%;">
+<!-- Leading Starlight Sparkle Point -->
+<div class="starlight-head absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center">
+<span class="w-3 h-3 rounded-full bg-white shadow-[0_0_10px_3px_rgba(56,189,248,1),0_0_20px_6px_rgba(14,165,233,0.8)]"></span>
+<span class="absolute w-6 h-[1.5px] bg-white blur-[0.5px]"></span>
+<span class="absolute h-6 w-[1.5px] bg-white blur-[0.5px]"></span>
+</div>
+</div>
+</div>
+</header><main class="w-full pt-20 bg-[#F8FAFC]"><div class="flex flex-col w-full">
+<!-- HERO SECTION -->
+<section class="relative w-full overflow-hidden bg-gradient-to-b from-[#F0F5FA] via-[#F8FAFC] to-[#F8FAFC] pt-16 pb-24 px-6 md:px-10">
+<!-- Atmospheric Ambient Glow Rings -->
+<div class="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[1100px] h-[750px] bg-gradient-to-br from-[#0284C7]/15 via-[#0A2540]/10 to-transparent blur-3xl opacity-70 rounded-full animate-pulse" style="animation-duration: 8s;"></div>
+<div class="max-w-[1280px] mx-auto flex flex-col items-center text-center relative z-10">
+<!-- Status Live Pill -->
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#64748B]/20 shadow-sm mb-6 transition-all duration-300 hover:scale-[1.02] hover:border-[#0284C7]/40 hover:shadow">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0284C7] opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0284C7]"></span>
+</span>
+<span class="font-label-sm text-[12px] text-[#0A2540] font-medium tracking-wide">Real-time flight monitoring • 100% Autonomous resolution</span>
+</div>
+<!-- Main Two-Line Headline -->
+<h1 class="font-display-lg text-[42px] sm:text-[56px] sm:leading-[64px] leading-[48px] text-[#0A2540] tracking-tight max-w-4xl mb-5">
+        Never manage a cancelled <br class="hidden sm:inline"/>
+<span class="italic font-normal text-[#0284C7] transition-colors duration-300 hover:text-[#0369A1]">flight alone</span> again.
+      </h1>
+<!-- Supporting Sentence -->
+<p class="font-body-lg text-base sm:text-lg text-[#64748B] max-w-2xl mx-auto leading-relaxed mb-8">
+        ATC continuously monitors your airline reservations, detects disruptions before gate announcements, and books verified replacement flights and hotel modifications instantly within policy.
+      </p>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto mb-16">
+<a class="shimmer-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#0284C7] text-white font-title-md text-base font-semibold shadow-md shadow-[#0284C7]/25 hover:bg-[#0369A1] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0284C7]/30 active:scale-[0.97] transition-all duration-150 group" href="#get-started">
+<span>Get started free</span>
+<span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform duration-200">arrow_forward</span>
+</a>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-[#0A2540] border border-[#64748B]/25 font-title-md text-base font-semibold shadow-sm hover:bg-[#F0F5FA] hover:border-[#64748B]/40 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97] transition-all duration-150 group" href="#how-it-works">
+<span class="material-symbols-outlined text-[18px] text-[#0284C7] group-hover:scale-110 transition-transform duration-200">play_circle</span>
+<span>See how it works</span>
+</a>
+</div>
+<!-- Floating 3D Product Mockup -->
+<div class="w-full max-w-[1080px] perspective-[1200px] mt-2">
+<div class="animate-float-dashboard relative rounded-2xl bg-white shadow-[0_25px_50px_-12px_rgba(10,37,64,0.16),0_0_0_1px_rgba(100,116,139,0.16)] text-left overflow-hidden hover:shadow-[0_30px_60px_-10px_rgba(10,37,64,0.22),0_0_0_1px_rgba(2,132,199,0.3)] transition-shadow duration-500">
+<!-- Browser Window Chrome -->
+<div class="px-5 py-3 bg-[#0A2540] text-white flex items-center justify-between border-b border-[#0A2540]">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-[#EF4444] hover:opacity-80 transition-opacity cursor-pointer"></span>
+<span class="w-3 h-3 rounded-full bg-[#F59E0B] hover:opacity-80 transition-opacity cursor-pointer"></span>
+<span class="w-3 h-3 rounded-full bg-[#10B981] hover:opacity-80 transition-opacity cursor-pointer"></span>
+</div>
+<div class="flex items-center gap-2 px-4 py-1 rounded-full bg-white/10 text-slate-200 font-label-sm text-[12px] shadow-inner w-80 justify-center group cursor-default">
+<span class="material-symbols-outlined text-[14px] text-[#0284C7] animate-pulse">lock</span>
+<span class="tracking-tight">concierge.atc.travel/monitor/BA-143</span>
+</div>
+<div class="flex items-center gap-2 text-slate-300">
+<span class="material-symbols-outlined text-[16px] hover:text-white hover:rotate-180 transition-all duration-300 cursor-pointer" title="Refresh Telemetry">sync</span>
+<span class="material-symbols-outlined text-[16px] hover:text-white transition-colors cursor-pointer" title="Settings">tune</span>
+</div>
+</div>
+<!-- Inside Dashboard Content -->
+<div class="p-6 md:p-8 flex flex-col gap-6 bg-white">
+<!-- Disruption Warning Banner -->
+<div class="rounded-xl bg-[#FEF2F2] border border-red-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-transform duration-200 hover:scale-[1.005]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0 shadow-sm animate-pulse" style="animation-duration: 2.5s;">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-base text-red-900 font-semibold">Flight BA 143 Cancelled by Airline</span>
+<span class="px-2 py-0.5 rounded-full bg-white font-label-sm text-[11px] text-red-700 font-semibold border border-red-200 uppercase">Gate 24C</span>
+</div>
+<p class="text-xs text-red-700 mt-0.5">Heathrow Control Tower Weather Mandate • Ground stop issued 18m prior to standard pax notification</p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<span class="px-3 py-1.5 rounded-lg bg-white text-red-800 border border-red-200 font-label-sm text-[12px] font-semibold shadow-xs">T-3h 40m to original ETD</span>
+</div>
+</div>
+<!-- Agent Telemetry Bar -->
+<div class="rounded-xl bg-[#0A2540] text-white p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-[#0284C7] flex items-center justify-center text-white shadow-sm">
+<span class="material-symbols-outlined text-[18px] animate-spin" style="animation-duration: 12s;">auto_awesome</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-sm font-semibold text-white">Autonomous Concierge Engine</span>
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+</span>
+<span class="font-label-sm text-[11px] text-emerald-300 font-medium uppercase tracking-wider">Autonomous Mode Active</span>
+</div>
+<p class="text-xs text-slate-300 mt-0.5">Querying LHR T5 &amp; T3 slot release coordinates (42 / 42 airline inventory feeds synced)</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-[11px] text-slate-300 bg-white/10 px-3 py-1 rounded-md border border-white/15">POLICY: PREFERRED ON-TIME PARITY</span>
+</div>
+</div>
+<!-- Resolution Card Options -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<!-- Card 1: Selected & Booked -->
+<div class="pulse-glow-border rounded-xl bg-[#F8FAFC] border-2 border-[#0284C7] p-5 shadow-sm relative overflow-hidden transition-all duration-300 hover:shadow-md">
+<div class="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-[#0284C7] via-[#38BDF8] to-[#0284C7]"></div>
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#0A2540] flex items-center justify-center text-white font-bold text-sm shadow-xs">
+                      VS
+                    </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-title-md text-base text-[#0A2540] font-semibold">Virgin Atlantic • VS 302</span>
+<span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-label-sm text-[11px] font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+  Rebooked • Confirmed
+</span>
+</div>
+<span class="text-xs text-[#64748B]">London Heathrow (LHR) → New York (JFK)</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-lg text-[#0284C7] font-bold font-title-lg">$0.00</span>
+<span class="block font-label-sm text-[10px] text-[#64748B]">Carrier Waiver</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 py-3 px-3 bg-white rounded-lg border border-[#64748B]/15 mb-4 text-center">
+<div>
+<span class="block font-label-sm text-[10px] text-[#64748B] uppercase">New Departure</span>
+<span class="font-label-sm text-[13px] font-semibold text-[#0A2540]">19:40 GMT</span>
+</div>
+<div>
+<span class="block font-label-sm text-[10px] text-[#64748B] uppercase">Cabin Parity</span>
+<span class="font-label-sm text-[13px] font-semibold text-[#0A2540]">Club World (14B)</span>
+</div>
+<div>
+<span class="block font-label-sm text-[10px] text-[#64748B] uppercase">Arrival Delay</span>
+<span class="font-label-sm text-[13px] font-semibold text-emerald-600">+18 min</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-[#64748B]/15">
+<div class="flex items-center gap-2 text-[#64748B] font-label-sm text-xs">
+<span class="material-symbols-outlined text-emerald-600 text-[16px]">check_circle</span>
+<span>Boarding pass sent to Apple Wallet</span>
+</div>
+<span class="font-label-sm text-[11px] text-[#0284C7] font-semibold bg-[#E0F2FE] px-2 py-0.5 rounded">PNR: V48KL9</span>
+</div>
+</div>
+<!-- Card 2: Reserve Backup Option -->
+<div class="rounded-xl bg-[#F8FAFC] border border-[#64748B]/20 p-5 shadow-sm opacity-85 hover:opacity-100 hover:border-[#64748B]/40 hover:-translate-y-0.5 transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#E2E8F0] flex items-center justify-center text-[#0A2540] font-bold text-sm">
+                      AA
+                    </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-title-md text-base text-[#0A2540] font-semibold">American Airlines • AA 105</span>
+<span class="px-2 py-0.5 rounded-full bg-white text-[#64748B] border border-[#64748B]/20 font-label-sm text-[11px]">Held 25m</span>
+</div>
+<span class="text-xs text-[#64748B]">London Heathrow (LHR) → New York (JFK)</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-base text-[#0A2540] font-semibold">$0.00</span>
+<span class="block font-label-sm text-[10px] text-[#64748B]">Interline Protected</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 py-3 px-3 bg-white rounded-lg border border-[#64748B]/15 mb-4 text-center">
+<div>
+<span class="block font-label-sm text-[10px] text-[#64748B] uppercase">Departure</span>
+<span class="font-label-sm text-[13px] font-semibold text-[#0A2540]">20:15 GMT</span>
+</div>
+<div>
+<span class="block font-label-sm text-[10px] text-[#64748B] uppercase">Cabin Parity</span>
+<span class="font-label-sm text-[13px] font-semibold text-[#0A2540]">Business (7D)</span>
+</div>
+<div>
+<span class="block font-label-sm text-[10px] text-[#64748B] uppercase">Arrival Delay</span>
+<span class="font-label-sm text-[13px] font-semibold text-amber-600">+45 min</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-[#64748B]/15">
+<span class="text-[#64748B] text-xs">Standby lock confirmed</span>
+<span class="font-label-sm text-[11px] text-[#64748B] font-mono">INVENTORY HELD</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- QUIET TRUST STRIP -->
+<section class="reveal-on-scroll w-full bg-white py-8 px-6 md:px-10 border-y border-[#64748B]/15">
+<div class="max-w-[1280px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+<!-- Frequent Flyers Metric -->
+<div class="flex items-center gap-4">
+<div class="flex -space-x-2 overflow-hidden">
+<div class="inline-block h-9 w-9 rounded-full bg-[#0A2540] text-white flex items-center justify-center font-label-sm text-xs font-semibold ring-2 ring-white transition-transform hover:scale-110 hover:z-10">EK</div>
+<div class="inline-block h-9 w-9 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-label-sm text-xs font-semibold ring-2 ring-white transition-transform hover:scale-110 hover:z-10">JS</div>
+<div class="inline-block h-9 w-9 rounded-full bg-[#0F3254] text-white flex items-center justify-center font-label-sm text-xs font-semibold ring-2 ring-white transition-transform hover:scale-110 hover:z-10">AR</div>
+<div class="inline-block h-9 w-9 rounded-full bg-[#64748B] text-white flex items-center justify-center font-label-sm text-xs font-semibold ring-2 ring-white transition-transform hover:scale-110 hover:z-10">MT</div>
+</div>
+<div>
+<p class="text-sm font-semibold text-[#0A2540]">Trusted by <span class="counter-ticker" data-target="14000">14,000</span>+ frequent flyers</p>
+<p class="text-xs text-[#64748B]">Across global enterprises • <span class="counter-ticker-decimal" data-target="99.8">99.8</span>% autonomous resolution rate</p>
+</div>
+</div>
+<!-- Partner Badges -->
+<div class="flex flex-wrap items-center justify-center gap-4 text-[#64748B] font-label-sm text-[11px] uppercase tracking-wider font-semibold">
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F8FAFC] border border-[#64748B]/20 hover:border-[#0284C7] hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 cursor-default">
+<span class="material-symbols-outlined text-[16px] text-[#0284C7]">hub</span>
+<span class="text-[#0A2540]">Star Alliance Ready</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F8FAFC] border border-[#64748B]/20 hover:border-[#0284C7] hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 cursor-default">
+<span class="material-symbols-outlined text-[16px] text-[#0284C7]">public</span>
+<span class="text-[#0A2540]">oneworld Compliant</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F8FAFC] border border-[#64748B]/20 hover:border-[#0284C7] hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 cursor-default">
+<span class="material-symbols-outlined text-[16px] text-[#0284C7]">flight_takeoff</span>
+<span class="text-[#0A2540]">SkyTeam Protocol</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F8FAFC] border border-[#64748B]/20 hover:border-[#0284C7] hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 cursor-default">
+<span class="material-symbols-outlined text-[16px] text-[#0284C7]">verified_user</span>
+<span class="text-[#0A2540]">IATA Reso 735d</span>
+</div>
+</div>
+</div>
+</section>
+<!-- EXPANDED FULL-WIDTH ARCHITECTURE "HOW ATC WORKS" SECTION -->
+<section class="w-full py-28 px-4 sm:px-6 lg:px-12 bg-gradient-to-b from-[#F8FAFC] via-[#EEF4F9] to-[#F8FAFC] border-b border-[#64748B]/15" id="how-it-works">
+<div class="max-w-[1400px] mx-auto">
+<!-- Section Header -->
+<div class="reveal-on-scroll text-center max-w-3xl mx-auto mb-20">
+<div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E0F2FE] text-[#0284C7] font-label-sm text-[11px] font-bold uppercase tracking-wider mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-[#0284C7] animate-ping"></span>
+        Enterprise Pipeline Architecture
+      </div>
+<h2 class="font-display-lg text-[40px] sm:text-[48px] leading-[48px] sm:leading-[56px] text-[#0A2540] tracking-tight mb-5">
+        How ATC Operates in Real Time
+      </h2>
+<p class="text-base sm:text-lg text-[#64748B] leading-relaxed">
+        Five autonomous phases engineered with zero human intervention. From raw radar ingestion to confirmed boarding passes and hotel check-in synchronizations in sub-second cycles.
+      </p>
+<!-- Global Architecture Quick Metric Bar -->
+<div class="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-8 font-label-sm text-xs text-[#0A2540]">
+<div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-[#64748B]/20 shadow-xs">
+<span class="text-[#0284C7] font-bold">LATENCY</span>
+<span class="font-mono text-slate-500">&lt; 85ms Ingestion Loop</span>
+</div>
+<div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-[#64748B]/20 shadow-xs">
+<span class="text-emerald-600 font-bold">AUTONOMY</span>
+<span class="font-mono text-slate-500">99.8% Zero-Call Resolution</span>
+</div>
+<div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-[#64748B]/20 shadow-xs">
+<span class="text-[#0A2540] font-bold">ALLIANCE COVERAGE</span>
+<span class="font-mono text-slate-500">450+ Airlines Globally</span>
+</div>
+</div>
+</div>
+<!-- Expansive Full-Width Architecture Stage Stack -->
+<div class="flex flex-col gap-8 w-full">
+<!-- PHASE 01 -->
+<div class="reveal-on-scroll bg-white rounded-3xl border border-[#DDE3EA] shadow-sm hover:shadow-xl hover:border-[#0284C7]/50 transition-all duration-300 overflow-hidden group">
+<div class="p-8 sm:p-10 lg:p-12 flex flex-col lg:flex-row items-stretch justify-between gap-10">
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-3 mb-4">
+<span class="font-label-sm text-xs font-bold text-[#0284C7] bg-[#E0F2FE] px-3 py-1 rounded-md uppercase tracking-wider">PHASE 01 • INGESTION</span>
+<span class="font-label-sm text-xs text-slate-400 font-mono">CYCLE: 500MS STREAM</span>
+</div>
+<h3 class="font-display-lg text-[28px] sm:text-[34px] leading-tight text-[#0A2540] font-semibold mb-4 group-hover:text-[#0284C7] transition-colors">
+                Detect &amp; Ingest Airspace Telemetry
+              </h3>
+<p class="text-sm sm:text-base text-[#64748B] leading-relaxed mb-6">
+                Direct machine connections stream live GDS feeds (<span class="text-[#0A2540] font-semibold">Amadeus, Sabre, Travelport</span>), FAA/Eurocontrol air traffic radar sweeps, runway ground-stops, and inbound aircraft tail turnaround times. ATC pinpoints mechanical delays and air traffic holds up to 3 hours prior to airline terminal display changes.
+              </p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">radar</span>
+<span>FAA / Eurocontrol Radar Hooks</span>
+</div>
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">flight_takeoff</span>
+<span>Inbound Tail-Number Trajectory Tracking</span>
+</div>
+</div>
+</div>
+<div class="pt-4 border-t border-[#64748B]/15 flex flex-wrap items-center justify-between text-xs font-label-sm text-slate-500 gap-2">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live Telemetry Feeds Active (450+ Airlines)</span>
+<span class="font-mono text-[#0A2540] font-semibold">SLA: Sub-85ms Anomaly Detection</span>
+</div>
+</div>
+<!-- Tech Visual Right Side -->
+<div class="lg:w-[480px] shrink-0 rounded-2xl bg-[#0A2540] p-6 text-white flex flex-col justify-between font-mono text-xs border border-[#0F3254] shadow-inner relative overflow-hidden">
+<div class="absolute -right-16 -top-16 w-40 h-40 bg-[#0284C7]/20 rounded-full blur-2xl pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
+<span class="flex items-center gap-2 text-slate-300 font-label-sm text-[11px]"><span class="material-symbols-outlined text-[14px] text-emerald-400">sensors</span> TELEMETRY STREAM #8942-LHR</span>
+<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">STREAMING</span>
+</div>
+<div class="space-y-2 text-slate-300 text-[11px] font-mono leading-relaxed">
+<p><span class="text-sky-400">[08:41:02.120]</span> GDS_INBOUND::BA143 tail:G-ZBLB</p>
+<p><span class="text-sky-400">[08:41:02.340]</span> ATC_FLOW_HOLD::LHR 27R GroundStop(WX)</p>
+<p><span class="text-amber-400">[08:41:02.502]</span> PREDICTIVE_ABORT::Turnaround delta &gt; 180m</p>
+<p class="text-emerald-300 bg-emerald-900/30 p-2 rounded border border-emerald-500/30 font-semibold">[08:41:02.850] STATUS CHANGED: CANCELLATION_IMMINENT</p>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+<span>Target: BA-143 (LHR→JFK)</span>
+<span class="text-emerald-400 font-semibold">22 min pre-gate alert</span>
+</div>
+</div>
+</div>
+</div>
+<!-- PHASE 02 -->
+<div class="reveal-on-scroll bg-white rounded-3xl border border-[#DDE3EA] shadow-sm hover:shadow-xl hover:border-[#0284C7]/50 transition-all duration-300 overflow-hidden group">
+<div class="p-8 sm:p-10 lg:p-12 flex flex-col lg:flex-row items-stretch justify-between gap-10">
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-3 mb-4">
+<span class="font-label-sm text-xs font-bold text-[#0284C7] bg-[#E0F2FE] px-3 py-1 rounded-md uppercase tracking-wider">PHASE 02 • DISRUPTION RADAR</span>
+<span class="font-label-sm text-xs text-slate-400 font-mono">PRIORITY: HIGH</span>
+</div>
+<h3 class="font-display-lg text-[28px] sm:text-[34px] leading-tight text-[#0A2540] font-semibold mb-4 group-hover:text-[#0284C7] transition-colors">
+                Predictive Disruption Alert &amp; Passenger Broadcast
+              </h3>
+<p class="text-sm sm:text-base text-[#64748B] leading-relaxed mb-6">
+                Before terminal public address announcements or standard gate queues form, the passenger and corporate travel desk receive early discreet push notifications, WhatsApp concierge alerts, and silent calendar holds.
+              </p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">chat</span>
+<span>WhatsApp Business Direct API</span>
+</div>
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">cell_tower</span>
+<span>SMS Fallback (Offline Airport Deadzones)</span>
+</div>
+</div>
+</div>
+<div class="pt-4 border-t border-[#64748B]/15 flex flex-wrap items-center justify-between text-xs font-label-sm text-slate-500 gap-2">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#0284C7]"></span> Dual-channel dispatch verified</span>
+<span class="font-mono text-[#0A2540] font-semibold">Pre-Gate Lead Time: ~22 Minutes</span>
+</div>
+</div>
+<!-- Tech Visual Right Side -->
+<div class="lg:w-[480px] shrink-0 rounded-2xl bg-[#F8FAFC] p-6 border border-[#64748B]/20 flex flex-col justify-between">
+<div class="space-y-3">
+<div class="p-3.5 bg-white rounded-xl border border-red-200 shadow-xs flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+</div>
+<div>
+<span class="text-xs font-bold text-red-900 block">Flight BA 143 Ground Stop</span>
+<span class="text-[11px] text-red-700">Pre-gate warning dispatched to traveler</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-mono text-[10px] font-bold border border-red-200">CONFIRMED</span>
+</div>
+<div class="p-3.5 bg-white rounded-xl border border-[#64748B]/15 shadow-xs flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+</div>
+<div class="min-w-0">
+<span class="text-xs font-semibold text-[#0A2540] block">WhatsApp Concierge Bot</span>
+<span class="text-[11px] text-[#64748B] truncate block">"Flight BA143 cancelled. 2 replacement lie-flat seats held."</span>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-[#64748B]/15 flex items-center justify-between text-[11px] text-[#64748B] font-mono">
+<span>Notification Latency: 420ms</span>
+<span class="text-emerald-600 font-semibold">User Queuing Avoided: 100%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- PHASE 03 -->
+<div class="reveal-on-scroll bg-white rounded-3xl border border-[#DDE3EA] shadow-sm hover:shadow-xl hover:border-[#0284C7]/50 transition-all duration-300 overflow-hidden group">
+<div class="p-8 sm:p-10 lg:p-12 flex flex-col lg:flex-row items-stretch justify-between gap-10">
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-3 mb-4">
+<span class="font-label-sm text-xs font-bold text-[#0284C7] bg-[#E0F2FE] px-3 py-1 rounded-md uppercase tracking-wider">PHASE 03 • POLICY MATCH</span>
+<span class="font-label-sm text-xs text-slate-400 font-mono">PARITY ENGINE</span>
+</div>
+<h3 class="font-display-lg text-[28px] sm:text-[34px] leading-tight text-[#0A2540] font-semibold mb-4 group-hover:text-[#0284C7] transition-colors">
+                Autonomous Policy &amp; Alternative Computation
+              </h3>
+<p class="text-sm sm:text-base text-[#64748B] leading-relaxed mb-6">
+                ATC queries multi-alliance global capacity (<span class="text-[#0A2540] font-semibold">Star Alliance, oneworld, SkyTeam</span>) simultaneously. The optimization matrix evaluates lie-flat seat preservation, arrival punctuality, loyalty tier perks, and exact corporate travel compliance (CAR-140 &amp; EU261 reciprocity) without requiring manager sign-off.
+              </p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">airline_seat_recline_extra</span>
+<span>Lie-Flat Seat Parity Lock</span>
+</div>
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">gavel</span>
+<span>IATA Reso 735d / EU261 Interline Rights</span>
+</div>
+</div>
+</div>
+<div class="pt-4 border-t border-[#64748B]/15 flex flex-wrap items-center justify-between text-xs font-label-sm text-slate-500 gap-2">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Corporate Policy Rule: Strict Parity Compliant</span>
+<span class="font-mono text-[#0A2540] font-semibold">0 Exceptions Needed</span>
+</div>
+</div>
+<!-- Tech Visual Right Side -->
+<div class="lg:w-[480px] shrink-0 rounded-2xl bg-[#0A2540] p-6 text-white flex flex-col justify-between font-mono text-xs border border-[#0F3254]">
+<div>
+<div class="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
+<span class="text-slate-300 font-label-sm text-[11px]">PARITY MATRIX SCORING</span>
+<span class="text-sky-400 font-bold">RANK #1 OPTION</span>
+</div>
+<div class="space-y-2.5 text-[11px]">
+<div class="flex justify-between p-2 rounded bg-white/5 border border-white/10">
+<span class="text-slate-300">Virgin Atlantic VS 302</span>
+<span class="text-emerald-400 font-semibold">Score: 98.4 / 100</span>
+</div>
+<div class="flex justify-between p-2 rounded bg-white/5 border border-white/10">
+<span class="text-slate-300">Lie-Flat Cabin Parity (Upper Class)</span>
+<span class="text-sky-300 font-semibold">100% MATCH</span>
+</div>
+<div class="flex justify-between p-2 rounded bg-white/5 border border-white/10">
+<span class="text-slate-300">Corporate Travel Budget Impact</span>
+<span class="text-emerald-400 font-semibold">$0.00 (Carrier Waiver)</span>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+<span>Alliance: SkyTeam Partner</span>
+<span class="text-emerald-300 font-semibold">Hold Acquired (30m lock)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- PHASE 04 -->
+<div class="reveal-on-scroll bg-white rounded-3xl border border-[#DDE3EA] shadow-sm hover:shadow-xl hover:border-[#0284C7]/50 transition-all duration-300 overflow-hidden group">
+<div class="p-8 sm:p-10 lg:p-12 flex flex-col lg:flex-row items-stretch justify-between gap-10">
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-3 mb-4">
+<span class="font-label-sm text-xs font-bold text-[#0284C7] bg-[#E0F2FE] px-3 py-1 rounded-md uppercase tracking-wider">PHASE 04 • AUTONOMOUS EXECUTION</span>
+<span class="font-label-sm text-xs text-slate-400 font-mono">TICKET SWAP</span>
+</div>
+<h3 class="font-display-lg text-[28px] sm:text-[34px] leading-tight text-[#0A2540] font-semibold mb-4 group-hover:text-[#0284C7] transition-colors">
+                Instant GDS Rebooking &amp; Ticket Issuance
+              </h3>
+<p class="text-sm sm:text-base text-[#64748B] leading-relaxed mb-6">
+                Using pre-authenticated electronic ticketing waivers, ATC reissues your ticket directly in the global reservation system. Seats are secured before other delayed passengers reach the customer service line, guaranteeing lie-flat cabin class and priority boarding.
+              </p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">confirmation_number</span>
+<span>Instant E-Ticket Reissue (083 Ticket Stock)</span>
+</div>
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">phone_disabled</span>
+<span>Zero Airline Hold Times or Calls</span>
+</div>
+</div>
+</div>
+<div class="pt-4 border-t border-[#64748B]/15 flex flex-wrap items-center justify-between text-xs font-label-sm text-slate-500 gap-2">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Confirmed PNR Issued: V48KL9</span>
+<span class="font-mono text-[#0A2540] font-semibold">Execution Latency: 1.2 Seconds</span>
+</div>
+</div>
+<!-- Tech Visual Right Side -->
+<div class="lg:w-[480px] shrink-0 rounded-2xl bg-[#F8FAFC] p-6 border border-[#64748B]/20 flex flex-col justify-between">
+<div class="bg-white p-5 rounded-xl border border-[#64748B]/15 shadow-xs">
+<div class="flex items-center justify-between pb-3 border-b border-[#64748B]/15">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="font-title-md text-sm text-[#0A2540] font-bold">REISSUED ELECTRONIC TICKET</span>
+</div>
+<span class="font-label-sm text-xs font-bold text-[#0284C7]">PNR: V48KL9</span>
+</div>
+<div class="grid grid-cols-2 gap-3 mt-4 text-xs font-mono">
+<div>
+<span class="text-[10px] text-[#64748B] uppercase block">Flight</span>
+<span class="font-bold text-[#0A2540]">VS 302 (LHR→JFK)</span>
+</div>
+<div>
+<span class="text-[10px] text-[#64748B] uppercase block">Cabin Class</span>
+<span class="font-bold text-emerald-600">Club World (14B)</span>
+</div>
+<div>
+<span class="text-[10px] text-[#64748B] uppercase block">Gate ETD</span>
+<span class="font-bold text-[#0A2540]">19:40 GMT (T3)</span>
+</div>
+<div>
+<span class="text-[10px] text-[#64748B] uppercase block">Ticket Fee</span>
+<span class="font-bold text-[#0284C7]">$0.00 / In-Policy</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between text-[11px] text-slate-500 font-label-sm">
+<span class="flex items-center gap-1 text-emerald-700 font-semibold"><span class="material-symbols-outlined text-[15px]">verified</span> Corporate waiver accepted</span>
+<span class="font-mono">Carrier: Virgin Atlantic</span>
+</div>
+</div>
+</div>
+</div>
+<!-- PHASE 05 -->
+<div class="reveal-on-scroll bg-white rounded-3xl border border-[#DDE3EA] shadow-sm hover:shadow-xl hover:border-[#0284C7]/50 transition-all duration-300 overflow-hidden group">
+<div class="p-8 sm:p-10 lg:p-12 flex flex-col lg:flex-row items-stretch justify-between gap-10">
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-3 mb-4">
+<span class="font-label-sm text-xs font-bold text-[#0284C7] bg-[#E0F2FE] px-3 py-1 rounded-md uppercase tracking-wider">PHASE 05 • ECOSYSTEM SYNC</span>
+<span class="font-label-sm text-xs text-slate-400 font-mono">SEAMLESS BOARDING</span>
+</div>
+<h3 class="font-display-lg text-[28px] sm:text-[34px] leading-tight text-[#0A2540] font-semibold mb-4 group-hover:text-[#0284C7] transition-colors">
+                Multi-Modal Sync &amp; Seamless Boarding
+              </h3>
+<p class="text-sm sm:text-base text-[#64748B] leading-relaxed mb-6">
+                Your entire travel ecosystem adapts without a single manual call. New boarding passes are pushed straight into Apple Wallet &amp; Google Wallet, destination hotel check-in times are updated to protect non-refundable rooms, and ground chauffeur pickups are automatically adjusted.
+              </p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">wallet</span>
+<span>Direct Apple &amp; Google Wallet Push</span>
+</div>
+<div class="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#64748B]/15 text-xs text-[#0A2540] font-medium">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">hotel</span>
+<span>Hotel Check-In &amp; Chauffeur Re-Dispatch</span>
+</div>
+</div>
+</div>
+<div class="pt-4 border-t border-[#64748B]/15 flex flex-wrap items-center justify-between text-xs font-label-sm text-slate-500 gap-2">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Whole Journey Re-aligned</span>
+<span class="font-mono text-[#0A2540] font-semibold">100% Zero-Stress Resolution</span>
+</div>
+</div>
+<!-- Tech Visual Right Side -->
+<div class="lg:w-[480px] shrink-0 rounded-2xl bg-[#0A2540] p-6 text-white flex flex-col justify-between font-mono text-xs border border-[#0F3254]">
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 rounded-xl bg-white/10 border border-white/10">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-sky-400 text-[18px]">qr_code_2</span>
+<span class="text-white text-xs font-semibold">Apple Wallet Pass</span>
+</div>
+<span class="text-emerald-400 text-[10px] font-bold">PUSHED &amp; ACTIVE</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-white/10 border border-white/10">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-amber-400 text-[18px]">hotel</span>
+<span class="text-white text-xs font-semibold">Hotel Connaught (Mayfair)</span>
+</div>
+<span class="text-slate-300 text-[10px]">Late Arrival Notified</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-white/10 border border-white/10">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-purple-400 text-[18px]">directions_car</span>
+<span class="text-white text-xs font-semibold">JFK Chauffeur Pickup</span>
+</div>
+<span class="text-slate-300 text-[10px]">Shifted +18 min</span>
+</div>
+</div>
+<div class="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+<span>Journey Complete</span>
+<span class="text-emerald-400 font-semibold">Disruption Eliminated</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FEATURES BENTO GRID SECTION -->
+<section class="w-full py-24 px-6 md:px-10 bg-white" id="features">
+<div class="max-w-[1280px] mx-auto">
+<!-- Section Header -->
+<div class="reveal-on-scroll max-w-3xl mb-16">
+<span class="font-label-sm text-[12px] text-[#0284C7] uppercase font-bold tracking-wider mb-2 block">Capabilities</span>
+<h2 class="font-display-lg text-[38px] sm:text-[42px] leading-[50px] text-[#0A2540] tracking-tight mb-4">
+          Engineered for zero-stress travel.
+        </h2>
+<p class="text-base sm:text-lg text-[#64748B]">
+          Disruptions happen. Solving them is now completely off your plate before you even reach the customer service queue.
+        </p>
+</div>
+<!-- Bento Grid (4 Uneven Cards) -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- CARD 1: Airspace Telemetry (Span 7) -->
+<div class="reveal-on-scroll md:col-span-7 bg-[#F8FAFC] rounded-2xl p-8 border border-[#64748B]/20 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:border-[#0284C7]/60 hover:shadow-md transition-all duration-300">
+<div class="max-w-md z-10">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0284C7] font-label-sm text-[11px] font-bold uppercase mb-3 transition-colors group-hover:bg-[#0284C7] group-hover:text-white">
+<span class="w-1.5 h-1.5 rounded-full bg-[#0284C7] group-hover:bg-white animate-ping"></span>
+              Airspace Telemetry
+            </span>
+<h3 class="text-2xl text-[#0A2540] font-bold mb-3">
+              Real-Time Airspace &amp; Flight Monitoring
+            </h3>
+<p class="text-sm text-[#64748B] leading-relaxed">
+              Millimeter-level telemetry tracks turnarounds, inbound aircraft tail numbers, ATC flow-management holds, and runway congestion before gate agents have official updates.
+            </p>
+</div>
+<!-- Radar Telemetry Visual -->
+<div class="mt-8 relative w-full h-64 bg-[#0A2540] rounded-xl overflow-hidden flex items-center justify-center border border-[#0A2540]">
+<!-- Radar Radial Grid -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
+<div class="w-24 h-24 rounded-full border border-[#0284C7]/50"></div>
+<div class="w-48 h-48 rounded-full border border-[#0284C7]/30"></div>
+<div class="w-72 h-72 rounded-full border border-[#0284C7]/20"></div>
+<div class="w-96 h-96 rounded-full border border-dashed border-[#0284C7]/20"></div>
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#0284C7]/20 via-[#0A2540]/80 to-[#06182B]"></div>
+</div>
+<!-- Sweeping Radar Beam (CSS Rotated) -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-[440px] h-[440px] animate-radar-beam flex items-center justify-center">
+<div class="w-1/2 h-1/2 origin-bottom-right" style="background: conic-gradient(from 0deg at 100% 100%, rgba(2, 132, 199, 0.45) 0deg, rgba(2, 132, 199, 0.08) 35deg, transparent 65deg);"></div>
+</div>
+</div>
+<!-- Radar Flight Path SVG with Animated Trajectory -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<svg class="w-full h-full" viewbox="0 0 500 250">
+<!-- Flight Path (Cancelled Dotted Red) -->
+<path d="M 80 200 Q 180 140 240 120" fill="none" opacity="0.9" stroke="#EF4444" stroke-dasharray="4 4" stroke-width="2"></path>
+<circle cx="80" cy="200" fill="#EF4444" r="4"></circle>
+<!-- Re-routed Arc (Animated Sky Blue Dash & Marker) -->
+<path class="animate-dash-route" d="M 240 120 Q 340 70 420 50" fill="none" filter="drop-shadow(0 0 8px #0284C7)" stroke="#0284C7" stroke-width="3"></path>
+<circle cx="420" cy="50" fill="#0284C7" r="5"></circle>
+<circle class="animate-ping" cx="240" cy="120" fill="#EF4444" opacity="0.5" r="6"></circle>
+<circle cx="240" cy="120" fill="#ffffff" r="3"></circle>
+<!-- Moving airplane pulse marker along arc -->
+<g transform="translate(350, 75) rotate(-22)">
+<path d="M0 -7 L4 4 L-4 4 Z" fill="#ffffff"></path>
+<circle class="animate-ping" cx="0" cy="0" fill="none" opacity="0.8" r="12" stroke="#38BDF8" stroke-width="1.5"></circle>
+</g>
+</svg>
+</div>
+<!-- Floating Status Tag 1 -->
+<div class="absolute top-4 left-6 bg-[#06182B]/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10 flex items-center gap-2 shadow-lg transition-transform duration-200 group-hover:translate-x-1">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+</span>
+<div>
+<span class="text-xs font-semibold text-white block">AUTO-REBOOKED</span>
+<span class="font-label-sm text-[10px] text-slate-300">Flight BA249 • +0 min delay</span>
+</div>
+</div>
+<!-- Floating Status Tag 2 -->
+<div class="absolute bottom-4 right-6 bg-[#06182B]/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10 flex items-center gap-2 shadow-lg transition-transform duration-200 group-hover:-translate-x-1">
+<span class="material-symbols-outlined text-[15px] text-[#0284C7] animate-pulse">satellite_alt</span>
+<div>
+<span class="text-xs font-semibold text-white block">AI CONCIERGE ACTIVE</span>
+<span class="font-label-sm text-[10px] text-slate-300">Monitoring 2,400+ flights</span>
+</div>
+</div>
+</div>
+</div>
+<!-- CARD 2: Autonomous Rebooking within Policy (Span 5) -->
+<div class="reveal-on-scroll md:col-span-5 bg-[#F8FAFC] rounded-2xl p-8 border border-[#64748B]/20 shadow-sm flex flex-col justify-between group hover:border-[#0284C7]/60 hover:shadow-md transition-all duration-300" style="transition-delay: 100ms;">
+<div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0284C7] font-label-sm text-[11px] font-bold uppercase mb-3 transition-colors group-hover:bg-[#0284C7] group-hover:text-white">
+              Autonomous Compliance
+            </span>
+<h3 class="text-2xl text-[#0A2540] font-bold mb-3">
+              Autonomous Rebooking within Policy
+            </h3>
+<p class="text-sm text-[#64748B] leading-relaxed mb-6">
+              Respects corporate travel thresholds, cabin class agreements, and preferred alliance tiers without requesting supervisor exceptions.
+            </p>
+</div>
+<!-- Visual Artifact -->
+<div class="bg-white rounded-xl p-4 border border-[#64748B]/20 flex flex-col gap-3 group-hover:border-[#0284C7]/30 transition-colors">
+<div class="flex items-center justify-between p-3 bg-[#F8FAFC] rounded-lg border border-[#64748B]/15 hover:bg-emerald-50/50 hover:border-emerald-200 transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-600 text-[20px]">check_circle</span>
+<span class="text-xs font-semibold text-[#0A2540]">Within Corporate Budget</span>
+</div>
+<span class="font-label-sm text-xs text-[#0284C7] font-semibold">-$140 SAVINGS</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-[#F8FAFC] rounded-lg border border-[#64748B]/15 hover:bg-sky-50/50 hover:border-sky-200 transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#0284C7] text-[20px]">airline_seat_recline_extra</span>
+<span class="text-xs font-semibold text-[#0A2540]">Aisle / Lie-Flat Parity</span>
+</div>
+<span class="font-label-sm text-xs text-emerald-600 font-semibold">MATCHED</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-[#F8FAFC] rounded-lg border border-[#64748B]/15 hover:bg-slate-50/80 transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#0A2540] text-[20px]">loyalty</span>
+<span class="text-xs font-semibold text-[#0A2540]">Frequent Flyer Mileage Credited</span>
+</div>
+<span class="font-label-sm text-xs text-[#64748B] font-mono">100% PARITY</span>
+</div>
+</div>
+</div>
+<!-- CARD 3: Hotel Policy Protection (Span 5) -->
+<div class="reveal-on-scroll md:col-span-5 bg-[#F8FAFC] rounded-2xl p-8 border border-[#64748B]/20 shadow-sm flex flex-col justify-between group hover:border-[#0284C7]/60 hover:shadow-md transition-all duration-300" style="transition-delay: 200ms;">
+<div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0284C7] font-label-sm text-[11px] font-bold uppercase mb-3 transition-colors group-hover:bg-[#0284C7] group-hover:text-white">
+              Stay Protection
+            </span>
+<h3 class="text-2xl text-[#0A2540] font-bold mb-3">
+              Hotel Policy &amp; Check-in Protection
+            </h3>
+<p class="text-sm text-[#64748B] leading-relaxed mb-6">
+              Automatically alerts your destination hotel of delays, preserves non-refundable reservations, and invokes corporate penalty waivers.
+            </p>
+</div>
+<div class="bg-white rounded-xl p-4 border border-[#64748B]/20 flex items-center justify-between gap-4 group-hover:border-[#0284C7]/30 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#E0F2FE] flex items-center justify-center text-[#0284C7] shadow-sm group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">hotel</span>
+</div>
+<div>
+<span class="text-xs font-semibold text-[#0A2540] block">The Connaught • Mayfair</span>
+<span class="font-label-sm text-[11px] text-[#64748B]">Late arrival dispatch transmitted</span>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-label-sm text-xs font-semibold shrink-0">
+              $0 Penalty
+            </span>
+</div>
+</div>
+<!-- CARD 4: Instant Multi-Channel Notifications (Span 7) -->
+<div class="reveal-on-scroll md:col-span-7 bg-[#F8FAFC] rounded-2xl p-8 border border-[#64748B]/20 shadow-sm flex flex-col justify-between group hover:border-[#0284C7]/60 hover:shadow-md transition-all duration-300" style="transition-delay: 300ms;">
+<div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0284C7] font-label-sm text-[11px] font-bold uppercase mb-3 transition-colors group-hover:bg-[#0284C7] group-hover:text-white">
+              Omnichannel Delivery
+            </span>
+<h3 class="text-2xl text-[#0A2540] font-bold mb-3">
+              Instant Multi-Channel Notifications
+            </h3>
+<p class="text-sm text-[#64748B] leading-relaxed mb-6">
+              Receive updates exactly where you look: WhatsApp, SMS, calendar invites, and silent rich push notifications.
+            </p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<div class="p-3.5 bg-white rounded-xl border border-[#64748B]/20 flex items-center gap-3 shadow-sm hover:border-[#25D366]/50 hover:-translate-y-0.5 transition-all duration-200 cursor-default">
+<div class="w-8 h-8 rounded-full bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-[16px]">chat</span>
+</div>
+<div class="min-w-0">
+<span class="text-xs font-semibold text-[#0A2540] block">WhatsApp Concierge</span>
+<span class="text-[11px] text-[#64748B] truncate block">"Flight swapped. Gate 12."</span>
+</div>
+</div>
+<div class="p-3.5 bg-white rounded-xl border border-[#64748B]/20 flex items-center gap-3 shadow-sm hover:border-[#0284C7]/50 hover:-translate-y-0.5 transition-all duration-200 cursor-default">
+<div class="w-8 h-8 rounded-full bg-[#0284C7] text-white flex items-center justify-center shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-[16px]">sms</span>
+</div>
+<div class="min-w-0">
+<span class="text-xs font-semibold text-[#0A2540] block">High-Priority SMS</span>
+<span class="text-[11px] text-[#64748B] truncate block">Bypasses carrier data deadzones</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FAQ ACCORDION SECTION -->
+<section class="w-full py-24 px-6 md:px-10 bg-[#F8FAFC]" id="faq">
+<div class="max-w-[840px] mx-auto">
+<!-- Section Header -->
+<div class="reveal-on-scroll text-center mb-16">
+<span class="font-label-sm text-[12px] text-[#0284C7] uppercase font-bold tracking-wider mb-2 block">Clarifications</span>
+<h2 class="font-display-lg text-[36px] sm:text-[40px] leading-[48px] text-[#0A2540] tracking-tight mb-4">
+          Frequently asked questions
+        </h2>
+<p class="text-base text-[#64748B]">
+          Everything you need to know about our autonomous flight disruption agent.
+        </p>
+</div>
+<!-- FAQ Items -->
+<div class="flex flex-col gap-4">
+<!-- FAQ 1 -->
+<div class="faq-item reveal-on-scroll bg-white rounded-xl p-6 border border-[#64748B]/20 shadow-sm hover:border-[#0284C7]/50 transition-all duration-200">
+<button class="faq-toggle w-full flex items-center justify-between text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7]" type="button">
+<span class="font-title-lg text-base sm:text-lg font-semibold text-[#0A2540]">How does ATC detect flight cancellations before the airline notifies me?</span>
+<span class="material-symbols-outlined text-[#0284C7] faq-chevron shrink-0 ml-3">expand_more</span>
+</button>
+<div class="faq-content">
+<div class="faq-inner">
+<p class="text-sm text-[#64748B] mt-4 leading-relaxed pt-3 border-t border-[#64748B]/15">
+              ATC interfaces directly with federal airspace telemetry, Global Distribution Systems (GDS), and inbound aircraft tracking sensors. While airlines typically wait until administrative protocols and crew rotations are re-scheduled before triggering public gate alerts, ATC detects early operational red flags—such as ground-stops, inbound aircraft diversions, or expired crew duty cycles—minutes to hours ahead of standard SMS blasts.
+            </p>
+</div>
+</div>
+</div>
+<!-- FAQ 2 -->
+<div class="faq-item reveal-on-scroll bg-white rounded-xl p-6 border border-[#64748B]/20 shadow-sm hover:border-[#0284C7]/50 transition-all duration-200" style="transition-delay: 70ms;">
+<button class="faq-toggle w-full flex items-center justify-between text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7]" type="button">
+<span class="font-title-lg text-base sm:text-lg font-semibold text-[#0A2540]">What happens if no suitable flight alternative is available?</span>
+<span class="material-symbols-outlined text-[#0284C7] faq-chevron shrink-0 ml-3">expand_more</span>
+</button>
+<div class="faq-content">
+<div class="faq-inner">
+<p class="text-sm text-[#64748B] mt-4 leading-relaxed pt-3 border-t border-[#64748B]/15">
+              In severe weather events where no direct or one-stop flights exist within your corporate policy window, ATC instantly books high-speed rail connections (where applicable) and places reservations on premium hotel accommodations adjacent to the airport terminal, holding waitlist priority on the very first departure of the subsequent morning.
+            </p>
+</div>
+</div>
+</div>
+<!-- FAQ 3 -->
+<div class="faq-item reveal-on-scroll bg-white rounded-xl p-6 border border-[#64748B]/20 shadow-sm hover:border-[#0284C7]/50 transition-all duration-200" style="transition-delay: 140ms;">
+<button class="faq-toggle w-full flex items-center justify-between text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7]" type="button">
+<span class="font-title-lg text-base sm:text-lg font-semibold text-[#0A2540]">Does ATC charge fees per rebooking or disruption?</span>
+<span class="material-symbols-outlined text-[#0284C7] faq-chevron shrink-0 ml-3">expand_more</span>
+</button>
+<div class="faq-content">
+<div class="faq-inner">
+<p class="text-sm text-[#64748B] mt-4 leading-relaxed pt-3 border-t border-[#64748B]/15">
+              No. ATC operates on a flat enterprise subscription model. There are zero per-incident charges, zero ticketing commissions, and zero markups on reissued tickets. All rebookings utilize existing carrier disruption vouchers, IATA Resolution 735d reciprocity, or your corporate negotiated fares.
+            </p>
+</div>
+</div>
+</div>
+<!-- FAQ 4 -->
+<div class="faq-item reveal-on-scroll bg-white rounded-xl p-6 border border-[#64748B]/20 shadow-sm hover:border-[#0284C7]/50 transition-all duration-200" style="transition-delay: 210ms;">
+<button class="faq-toggle w-full flex items-center justify-between text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7]" type="button">
+<span class="font-title-lg text-base sm:text-lg font-semibold text-[#0A2540]">How does ATC handle hotel reservation changes and late arrivals?</span>
+<span class="material-symbols-outlined text-[#0284C7] faq-chevron shrink-0 ml-3">expand_more</span>
+</button>
+<div class="faq-content">
+<div class="faq-inner">
+<p class="text-sm text-[#64748B] mt-4 leading-relaxed pt-3 border-t border-[#64748B]/15">
+              When a flight arrival shifts past midnight or pushes to the next calendar date, ATC triggers an automated GDS remark directly to the hotel front office, preventing your room from being marked as a "No Show" or released to other travelers, while automatically invoking duty of care late arrival protection.
+            </p>
+</div>
+</div>
+</div>
+<!-- FAQ 5 -->
+<div class="faq-item reveal-on-scroll bg-white rounded-xl p-6 border border-[#64748B]/20 shadow-sm hover:border-[#0284C7]/50 transition-all duration-200" style="transition-delay: 280ms;">
+<button class="faq-toggle w-full flex items-center justify-between text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7]" type="button">
+<span class="font-title-lg text-base sm:text-lg font-semibold text-[#0A2540]">Can I review alternatives before ATC issues the new ticket?</span>
+<span class="material-symbols-outlined text-[#0284C7] faq-chevron shrink-0 ml-3">expand_more</span>
+</button>
+<div class="faq-content">
+<div class="faq-inner">
+<p class="text-sm text-[#64748B] mt-4 leading-relaxed pt-3 border-t border-[#64748B]/15">
+              Yes. You can switch between "Autonomous Execution" (recommended for guaranteed seat capture in tight situations) and "Review &amp; Approve" mode. In Review mode, ATC holds your seat for 15-30 minutes and sends you a 1-tap approval prompt via WhatsApp or push notification before the final ticket reissue.
+            </p>
+</div>
+</div>
+</div>
+<!-- FAQ 6 -->
+<div class="faq-item reveal-on-scroll bg-white rounded-xl p-6 border border-[#64748B]/20 shadow-sm hover:border-[#0284C7]/50 transition-all duration-200" style="transition-delay: 350ms;">
+<button class="faq-toggle w-full flex items-center justify-between text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7]" type="button">
+<span class="font-title-lg text-base sm:text-lg font-semibold text-[#0A2540]">Which airlines and corporate booking tools (OBTs) are supported?</span>
+<span class="material-symbols-outlined text-[#0284C7] faq-chevron shrink-0 ml-3">expand_more</span>
+</button>
+<div class="faq-content">
+<div class="faq-inner">
+<p class="text-sm text-[#64748B] mt-4 leading-relaxed pt-3 border-t border-[#64748B]/15">
+              ATC integrates natively with SAP Concur, Navan, Amex GBT, BCD Travel, and directly with Amadeus, Sabre, and Travelport GDS feeds. We support inventory across 450+ scheduled airlines across Star Alliance, oneworld, and SkyTeam alliances globally.
+            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FINAL CALL-TO-ACTION SECTION -->
+<section class="reveal-on-scroll w-full py-20 px-6 md:px-10 bg-white" id="get-started">
+<div class="max-w-[1140px] mx-auto rounded-3xl bg-[#0A2540] p-10 md:p-16 text-center shadow-xl relative overflow-hidden text-white group">
+<!-- Ambient Glow Decorators -->
+<div class="absolute -bottom-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#0284C7]/30 rounded-full blur-3xl pointer-events-none transition-transform duration-700 group-hover:scale-125"></div>
+<div class="absolute -top-24 right-10 w-72 h-72 bg-[#0284C7]/20 rounded-full blur-2xl pointer-events-none"></div>
+<div class="relative z-10 max-w-2xl mx-auto">
+<h2 class="font-display-lg text-[36px] sm:text-[44px] leading-[44px] sm:leading-[52px] text-white tracking-tight mb-4">
+          Take the stress out of your next business trip.
+        </h2>
+<p class="text-base sm:text-lg text-slate-300 mb-8 leading-relaxed">
+          Join thousands of frequent flyers who let ATC handle flight delays, missed connections, and cancellations automatically.
+        </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-5">
+<a class="shimmer-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#0284C7] text-white font-title-md text-base font-semibold shadow-lg shadow-[#0284C7]/40 hover:bg-[#0369A1] hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#0284C7]/45 active:scale-[0.97] transition-all duration-150 group/cta" href="#">
+<span>Get started free</span>
+<span class="material-symbols-outlined text-[18px] group-hover/cta:translate-x-1 transition-transform duration-200">arrow_forward</span>
+</a>
+</div>
+<p class="font-label-sm text-xs text-slate-400">
+          No credit card required • 30-day corporate pilot • 5-minute setup
+        </p>
+</div>
+</div>
+</section>
+</div></main><footer class="w-full bg-[#0A2540] text-white border-t border-white/10"><div class="w-full max-w-[1280px] mx-auto px-6 md:px-10 pt-16 pb-12"><div class="grid grid-cols-1 md:grid-cols-12 gap-10"><div class="md:col-span-5 flex flex-col gap-4 pr-0 md:pr-12"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-[#0284C7] flex items-center justify-center text-white"><span class="material-symbols-outlined text-[20px]">connecting_airports</span></div><span class="font-title-lg text-lg tracking-tight text-white font-bold">ATC</span></div><p class="text-sm text-slate-400 max-w-md leading-relaxed">Autonomous travel-disruption concierge detecting flight cancellations and resolving itineraries in real time.</p></div><div class="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8"><div class="flex flex-col gap-3"><span class="text-sm font-semibold text-white">Product</span><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="flight-monitor" href="#">Flight Monitor</a><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="autonomous-rebooking" href="#">Autonomous Rebooking</a><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="hotel-policy-resolver" href="#">Hotel Policy Resolver</a><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="corporate-integrations" href="#">Corporate Integrations</a></div><div class="flex flex-col gap-3"><span class="text-sm font-semibold text-white">Company</span><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="about-us" href="#">About Us</a><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="trust-safety" href="#">Trust &amp; Safety</a><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="airline-partnerships" href="#">Airline Partnerships</a><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="careers" href="#">Careers</a></div><div class="flex flex-col gap-3"><span class="text-sm font-semibold text-white">Legal</span><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="privacy-policy" href="#">Privacy Policy</a><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="airline-passenger-rights" href="#">Airline Passenger Rights</a><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="terms-of-service" href="#">Terms of Service</a><a class="text-sm text-slate-400 hover:text-[#0284C7] transition-colors" data-path="security" href="#">Security</a></div></div></div><div class="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-xs text-slate-400">© 2025 Autonomous Travel-Disruption Concierge (ATC) Technologies Inc. All rights reserved.</p><div class="flex items-center gap-2 text-slate-400 font-label-sm text-xs"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>Global Telemetry Live</span></div></div></div></footer>
+<!-- Interactive Scripts -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. FAQ Accordion Interaction
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach((item, index) => {
+      const toggleBtn = item.querySelector('.faq-toggle');
+      if (index === 0) {
+        item.classList.add('is-open');
+      }
+
+      toggleBtn.addEventListener('click', () => {
+        const isOpen = item.classList.contains('is-open');
+        faqItems.forEach(other => {
+          if (other !== item) other.classList.remove('is-open');
+        });
+        if (isOpen) {
+          item.classList.remove('is-open');
+        } else {
+          item.classList.add('is-open');
+        }
+      });
+    });
+
+    // 2. IntersectionObserver for Progressive Scroll Reveals
+    const revealElements = document.querySelectorAll('.reveal-on-scroll');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.12,
+        rootMargin: '0px 0px -40px 0px'
+      });
+
+      revealElements.forEach(el => revealObserver.observe(el));
+    } else {
+      revealElements.forEach(el => el.classList.add('is-visible'));
+    }
+
+    // 3. Counter Ticker Animation for Trust Strip
+    const startTicker = (el, target, isDecimal = false) => {
+      let start = 0;
+      const duration = 1600;
+      const startTime = performance.now();
+
+      const updateCount = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const currentVal = ease * target;
+
+        if (isDecimal) {
+          el.textContent = currentVal.toFixed(1);
+        } else {
+          el.textContent = Math.floor(currentVal).toLocaleString();
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(updateCount);
+        } else {
+          if (isDecimal) {
+            el.textContent = target.toFixed(1);
+          } else {
+            el.textContent = target.toLocaleString();
+          }
+        }
+      };
+      requestAnimationFrame(updateCount);
+    };
+
+    const countElements = document.querySelectorAll('.counter-ticker, .counter-ticker-decimal');
+    if (!prefersReducedMotion && 'IntersectionObserver' in window && countElements.length > 0) {
+      const counterObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            const target = parseFloat(el.getAttribute('data-target'));
+            const isDecimal = el.classList.contains('counter-ticker-decimal');
+            startTicker(el, target, isDecimal);
+            observer.unobserve(el);
+          }
+        });
+      }, { threshold: 0.5 });
+
+      countElements.forEach(el => counterObserver.observe(el));
+    }
+
+    // 4. Header Shadow elevation & Scroll-Linked Starlight Progress Line
+    const header = document.getElementById('main-nav-bar');
+    const progressBar = document.getElementById('scroll-progress-bar');
+
+    const updateScrollMetrics = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      
+      if (header) {
+        if (scrollTop > 20) {
+          header.classList.add('shadow-md');
+        } else {
+          header.classList.remove('shadow-md');
+        }
+      }
+
+      if (progressBar && scrollHeight > 0) {
+        const progress = Math.min(Math.max((scrollTop / scrollHeight) * 100, 0), 100);
+        progressBar.style.width = `${progress}%`;
+      }
+    };
+
+    window.addEventListener('scroll', () => {
+      requestAnimationFrame(updateScrollMetrics);
+    }, { passive: true });
+
+    // Initial check on load
+    updateScrollMetrics();
+
+    // 5. Plane-window-to-clouds scroll reveal
+    const introSection = document.getElementById('window-intro');
+    const introSticky = document.getElementById('window-intro-sticky');
+    const cabin = document.getElementById('intro-cabin');
+    const rim = document.getElementById('intro-rim');
+    const copy = document.getElementById('intro-copy');
+    const navBar = document.getElementById('main-nav-bar');
+
+    const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    function updateWindowIntro() {
+      if (!introSection || prefersReducedMotion) return;
+
+      const total = introSection.offsetHeight - window.innerHeight;
+      const scrolled = -introSection.getBoundingClientRect().top;
+      let progress = total > 0 ? scrolled / total : 0;
+      progress = Math.min(Math.max(progress, 0), 1);
+
+      const minR = Math.min(window.innerWidth, window.innerHeight) * 0.12;
+      const maxR = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2) / 2 + 120;
+      const growProgress = Math.min(progress / 0.72, 1);
+      const radius = minR + (maxR - minR) * easeInOutCubic(growProgress);
+
+      cabin.style.setProperty('--window-r', radius + 'px');
+      rim.style.width = radius * 2 + 'px';
+      rim.style.height = radius * 2 + 'px';
+      rim.style.opacity = growProgress > 0.94 ? Math.max(1 - (growProgress - 0.94) / 0.06, 0) : 1;
+
+      copy.style.opacity = Math.max(1 - progress / 0.35, 0);
+
+      const fadeStart = 0.8;
+      introSticky.style.opacity = progress > fadeStart ? Math.max(1 - (progress - fadeStart) / (1 - fadeStart), 0) : 1;
+
+      if (navBar) {
+        const navFade = Math.min(Math.max((progress - 0.35) / 0.3, 0), 1);
+        navBar.style.opacity = navFade;
+      }
+    }
+
+    if (prefersReducedMotion) {
+      if (introSection) introSection.style.display = 'none';
+      if (navBar) navBar.style.opacity = '1';
+    } else {
+      window.addEventListener('scroll', () => requestAnimationFrame(updateWindowIntro), { passive: true });
+      window.addEventListener('resize', updateWindowIntro);
+      updateWindowIntro();
+    }
+  });
+</script>
+</body></html>

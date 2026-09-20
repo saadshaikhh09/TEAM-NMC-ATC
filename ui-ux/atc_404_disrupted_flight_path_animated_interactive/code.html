@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=1440, initial-scale=1.0" name="viewport"/>
+<title>ATC - Hotel Policy Concierge | 404 Route Disrupted</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#0066ff',
+              600: '#0050cb',
+              700: '#003d99',
+              900: '#0b1c30',
+            },
+            primary: '#0050cb',
+            'primary-container': '#0066ff',
+            'on-primary': '#ffffff',
+            'on-surface': '#0b1c30',
+            secondary: '#49607e',
+            'surface-container-lowest': '#ffffff',
+            'surface-container-low': '#eff4ff',
+            'surface-container': '#e5eeff',
+            'surface-container-high': '#dce9ff',
+            error: '#ba1a1a',
+            outline: '#727687',
+            'outline-variant': '#c2c6d8'
+          }
+        }
+      }
+    }
+</script>
+<style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8f9fb;
+      color: #0b1c30;
+    }
+
+    /* Trajectory Dash Flow Animation */
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -100;
+      }
+    }
+    .animate-dash-flow {
+      stroke-dasharray: 6 5;
+      animation: dashFlow 2.4s linear infinite;
+    }
+
+    /* Radar Compass Soft Slow Rotation / Oscillation */
+    @keyframes radarSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-radar-slow {
+      transform-origin: 270px 140px;
+      animation: radarSpin 45s linear infinite;
+    }
+    @keyframes radarWobble {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.02) rotate(1.5deg); }
+    }
+    .animate-radar-ring {
+      transform-origin: 270px 140px;
+      animation: radarWobble 9s ease-in-out infinite;
+    }
+
+    /* Flight Chart Floating / Breathing Motion */
+    @keyframes floatChart {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+    .flight-chart-floating {
+      animation: floatChart 6s ease-in-out infinite;
+    }
+
+    /* Staggered Entrance Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .enter-stagger-1 { animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both; }
+    .enter-stagger-2 { animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both; }
+    .enter-stagger-3 { animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
+    .enter-stagger-4 { animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both; }
+    .enter-stagger-5 { animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both; }
+
+    /* Waypoint Node Hover & Interactive Tooltips */
+    .waypoint-node {
+      cursor: pointer;
+      outline: none;
+    }
+    .waypoint-node .tooltip-bubble {
+      opacity: 0;
+      transform: translateY(4px);
+      pointer-events: none;
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .waypoint-node:hover .tooltip-bubble,
+    .waypoint-node:focus-visible .tooltip-bubble {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .waypoint-node:hover circle.halo-ring {
+      stroke-width: 3px;
+      opacity: 0.8;
+      transform: scale(1.15);
+      transform-origin: center;
+    }
+
+    /* Return Button Arrow Micro-interaction */
+    .cta-button:hover .cta-arrow {
+      transform: translateX(-4px);
+    }
+    .cta-arrow {
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Soft Button Shimmer / Ripple */
+    .btn-ripple {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-ripple::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(25deg);
+      transition: all 0.75s ease-out;
+    }
+    .btn-ripple:hover::after {
+      left: 140%;
+    }
+
+    /* Beacon Pulse Animations */
+    @keyframes pulseBeacon {
+      0% { transform: scale(0.9); opacity: 0.9; }
+      50% { transform: scale(1.6); opacity: 0.3; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .radar-beacon-ring {
+      transform-origin: center;
+      animation: pulseBeacon 2.6s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    }
+
+    /* Interactive Notification Toast */
+    #actionToast {
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Reduced Motion Respect */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+      .flight-chart-floating, .animate-dash-flow, .animate-radar-slow, .animate-radar-ring, .radar-beacon-ring {
+        animation: none !important;
+      }
+    }
+</style>
+<meta content="web_standard" name="shell-type"/></head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-700 relative bg-[#f8f9fb]">
+<!-- Floating Notification / Feedback Toast -->
+<div class="fixed top-5 right-6 z-50 pointer-events-none opacity-0 translate-y-[-16px] flex items-center gap-3 bg-slate-900/95 text-white border border-blue-500/40 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md max-w-md transition-all duration-300" id="actionToast">
+<div class="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-400/50 flex items-center justify-center text-blue-400 flex-shrink-0" id="toastIcon">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+</div>
+<div>
+<div class="text-xs font-bold tracking-wide text-blue-300 flex items-center gap-1.5" id="toastTitle">
+<span>TELEMETRY ACTIVE</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+</div>
+<p class="text-xs text-slate-200 mt-0.5" id="toastBody">Action dispatched successfully.</p>
+</div>
+</div>
+<!-- Persistent Top Navigation Bar -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 backdrop-blur-sm bg-white/95">
+<div class="max-w-[1440px] mx-auto px-8 h-18 py-4 flex items-center justify-between">
+<!-- Left: Logo & Wordmark -->
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-[#0050cb] flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-xl tracking-tight transition-transform hover:scale-105 cursor-pointer" onclick="handleLogoClick()">
+<svg class="w-6 h-6 transform -rotate-45 transition-transform duration-300 hover:rotate-[-35deg]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="text-2xl font-black text-slate-900 tracking-tight">ATC</span>
+<span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold uppercase tracking-wider border border-blue-200 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Concierge Active
+          </span>
+</div>
+<p class="text-[11px] text-slate-500 font-medium -mt-1 tracking-tight">Autonomous Travel-Disruption Concierge</p>
+</div>
+</div>
+<!-- Center: Stepper / Breadcrumbs -->
+<nav class="hidden md:flex items-center space-x-2 text-sm font-medium">
+<span class="text-slate-400 flex items-center">
+<svg class="w-4 h-4 mr-1 text-emerald-500" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+        Flight Disruption
+      </span>
+<svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="text-slate-400 flex items-center">
+<svg class="w-4 h-4 mr-1 text-emerald-500" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+        Flight Rebooked (BA 249)
+      </span>
+<svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="text-blue-600 font-bold bg-blue-50 px-3 py-1 rounded-full border border-blue-200 shadow-sm flex items-center gap-1.5 transition-colors hover:bg-blue-100 cursor-default">
+<span class="w-2 h-2 rounded-full bg-blue-600 animate-ping opacity-75"></span>
+        Step 3: Hotel Policy Review
+      </span>
+</nav>
+<!-- Right: Traveler Profile -->
+<div class="flex items-center space-x-3">
+<div class="text-right">
+<div class="text-sm font-bold text-slate-900 leading-tight">Rohit Sharma</div>
+<div class="text-xs text-slate-500">Booking Ref: <button class="font-mono text-blue-700 font-semibold hover:underline inline-flex items-center gap-0.5" onclick="copyBookingRef('ATC-9821K')" title="Click to copy locator">ATC-9821K</button></div>
+</div>
+<div class="w-10 h-10 rounded-full bg-blue-100 border-2 border-blue-200 text-blue-700 font-bold flex items-center justify-center text-sm shadow-sm transition hover:ring-2 hover:ring-blue-400 cursor-pointer" title="Rohit Sharma (VIP Passenger)">
+        RS
+      </div>
+</div>
+</div>
+</header>
+<!-- Notification Banner: Live Telemetry & Flight locked -->
+<div class="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-950 text-white py-3 px-8 border-b border-blue-800 shadow-inner">
+<div class="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
+<div class="flex items-center space-x-3">
+<span class="flex h-2.5 w-2.5 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-400"></span>
+</span>
+<p class="text-sm font-medium">
+<span class="font-bold text-teal-300">Replacement Flight Confirmed:</span> BA 249 departing at 19:40 today (within INR budget). Now synchronizing your hotel reservation.
+      </p>
+</div>
+<div class="flex items-center space-x-3">
+<span class="text-[11px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1.5 cursor-pointer hover:bg-emerald-500/25 transition" onclick="triggerPingTest()" title="Click to ping GDS telemetry">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+<span>Synchronizing hotel reservation - <strong class="font-bold" id="latencyDisplay">18ms</strong> latency</span>
+</span>
+<span class="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-3 py-1 rounded-md border border-white/20 font-mono font-medium transition cursor-default">
+        Ticket Issued #6729104
+      </span>
+</div>
+</div>
+</div>
+<!-- Main Content Viewport Area -->
+<main class="flex-1 max-w-[1440px] w-full mx-auto px-8 py-10 flex flex-col items-center justify-center">
+<div class="flex flex-col w-full items-center justify-center">
+<div class="relative w-full max-w-4xl mx-auto flex flex-col items-center text-center">
+<!-- Ambient Telemetry Glow -->
+<div class="absolute -top-16 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-28 -right-20 w-72 h-72 bg-sky-400/10 rounded-full blur-2xl pointer-events-none -z-10"></div>
+<!-- Abstract Geometric Vector Radar / Disrupted Waypoint Visualization -->
+<div class="enter-stagger-1 relative w-full max-w-xl h-72 mb-8 flex items-center justify-center flight-chart-floating" id="radarVisualizationContainer">
+<svg class="w-full h-full drop-shadow-sm select-none" fill="none" id="radarFlightSvg" viewbox="0 0 540 280" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<!-- Grid Pattern -->
+<pattern height="30" id="radarGrid" patternunits="userSpaceOnUse" width="30">
+<path class="text-slate-200/80" d="M 30 0 L 0 0 0 30" fill="none" stroke="currentColor" stroke-dasharray="2 2" stroke-width="0.75"></path>
+</pattern>
+<!-- Linear Gradient for Trajectory -->
+<lineargradient gradientunits="userSpaceOnUse" id="routeGradient" x1="40" x2="480" y1="230" y2="60">
+<stop offset="0%" stop-color="#0050cb" stop-opacity="0.3"></stop>
+<stop offset="35%" stop-color="#0050cb" stop-opacity="0.85"></stop>
+<stop offset="70%" stop-color="#0284c7" stop-opacity="0.95"></stop>
+<stop offset="100%" stop-color="#ba1a1a" stop-opacity="0.95"></stop>
+</lineargradient>
+<lineargradient id="pulseFill" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#0050cb" stop-opacity="0.12"></stop>
+<stop offset="100%" stop-color="#0050cb" stop-opacity="0"></stop>
+</lineargradient>
+<!-- Filter for glowing nodes -->
+<filter height="200%" id="glowBeacon" width="200%" x="-50%" y="-50%">
+<fegaussianblur in="SourceGraphic" stddeviation="2.5"></fegaussianblur>
+<femerge>
+<femergenode></femergenode>
+<femergenode in="SourceGraphic"></femergenode>
+</femerge>
+</filter>
+</defs>
+<!-- Technical Background Grid Masked into a Radar Capsule -->
+<rect fill="url(#radarGrid)" height="240" rx="20" width="500" x="20" y="20"></rect>
+<!-- Concentric Compass & Range Rings with subtle rotation/breathing -->
+<g class="animate-radar-ring">
+<circle class="text-slate-300" cx="270" cy="140" r="120" stroke="currentColor" stroke-dasharray="4 6" stroke-width="1"></circle>
+<circle class="text-slate-400/80" cx="270" cy="140" r="80" stroke="currentColor" stroke-width="1"></circle>
+<circle class="text-slate-300" cx="270" cy="140" r="40" stroke="currentColor" stroke-dasharray="2 4" stroke-width="1"></circle>
+</g>
+<!-- Radar Axis Lines -->
+<line class="text-slate-300" stroke="currentColor" stroke-width="1" x1="270" x2="270" y1="20" y2="260"></line>
+<line class="text-slate-300" stroke="currentColor" stroke-width="1" x1="20" x2="520" y1="140" y2="140"></line>
+<!-- Rotating Technical Radar Sweep Beam (very faint) -->
+<g class="animate-radar-slow opacity-30">
+<line opacity="0.6" stroke="#0050cb" stroke-dasharray="3 3" stroke-width="1.2" x1="270" x2="390" y1="140" y2="20"></line>
+<circle cx="390" cy="20" fill="#0050cb" opacity="0.8" r="2"></circle>
+</g>
+<!-- Origin Departure Corridor (Planned Flight Line) -->
+<path class="text-slate-400" d="M 60 215 C 130 215, 180 185, 230 145" stroke="currentColor" stroke-dasharray="4 4" stroke-width="2"></path>
+<!-- Disrupted Lost Trajectory Arc (Animated stroke dashoffset) -->
+<path class="animate-dash-flow" d="M 230 145 C 290 95, 340 50, 420 72 C 455 82, 475 118, 458 152 C 445 178, 412 188, 390 174 C 374 163, 375 140, 396 128 C 428 110, 465 102, 495 98" fill="none" id="flightTrajectory" stroke="url(#routeGradient)" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Smooth Animated Gliding Dot along route (Simulated Disrupted Jet Probe) -->
+<circle fill="#0050cb" filter="url(#glowBeacon)" r="4">
+<animatemotion dur="7s" fill="freeze" path="M 60 215 C 130 215, 180 185, 230 145 C 290 95, 340 50, 420 72 C 455 82, 475 118, 458 152 C 445 178, 412 188, 390 174 C 374 163, 375 140, 396 128 C 428 110, 465 102, 495 98" repeatcount="indefinite"></animatemotion>
+</circle>
+<!-- INTERACTIVE WAYPOINT 1: LHR T-5 Departure -->
+<g class="waypoint-node" role="button" tabindex="0" transform="translate(60, 215)">
+<circle class="halo-ring text-blue-500/40" cx="0" cy="0" r="10" stroke="currentColor" stroke-width="1.5"></circle>
+<circle class="fill-blue-600" cx="0" cy="0" r="4.5"></circle>
+<rect class="fill-white shadow-sm" height="18" rx="4" width="70" x="-35" y="12"></rect>
+<text class="font-mono text-[10px] fill-slate-700 font-semibold" text-anchor="middle" x="0" y="24">FIX: LHR-T5</text>
+<!-- Interactive Tooltip Bubble -->
+<g class="tooltip-bubble" transform="translate(0, -22)">
+<rect class="fill-slate-900 shadow-lg" height="22" rx="4" width="130" x="-65" y="-12"></rect>
+<polygon class="fill-slate-900" points="-4,10 4,10 0,14"></polygon>
+<text class="font-mono text-[9px] fill-emerald-400 font-bold" text-anchor="middle" x="0" y="2">ORIGIN: DEPARTED (OK)</text>
+</g>
+</g>
+<!-- INTERACTIVE WAYPOINT 2: Mid-Sector Hand-off Intercept -->
+<g class="waypoint-node" role="button" tabindex="0" transform="translate(230, 145)">
+<circle class="radar-beacon-ring text-blue-400" cx="0" cy="0" fill="none" r="12" stroke="currentColor" stroke-width="1.5"></circle>
+<circle class="fill-sky-700" cx="0" cy="0" r="4"></circle>
+<rect class="fill-white shadow-sm" height="18" rx="4" width="80" x="-40" y="-28"></rect>
+<text class="font-mono text-[10px] fill-sky-800 font-semibold" text-anchor="middle" x="0" y="-16">ALT: 33,000 FT</text>
+<!-- Interactive Tooltip Bubble -->
+<g class="tooltip-bubble" transform="translate(0, 14)">
+<rect class="fill-slate-900 shadow-lg" height="22" rx="4" width="140" x="-70" y="2"></rect>
+<polygon class="fill-slate-900" points="-4,2 4,2 0,-2"></polygon>
+<text class="font-mono text-[9px] fill-sky-300 font-bold" text-anchor="middle" x="0" y="16">WAYPOINT: CRUISE DETOUR</text>
+</g>
+</g>
+<!-- INTERACTIVE WAYPOINT 3: Deviation Anomaly Point -->
+<g class="waypoint-node" role="button" tabindex="0" transform="translate(420, 72)">
+<circle class="radar-beacon-ring text-blue-500" cx="0" cy="0" fill="none" r="16" stroke="currentColor" stroke-width="1.5"></circle>
+<circle class="fill-blue-600" cx="0" cy="0" r="5.5"></circle>
+<circle class="text-blue-600/30" cx="0" cy="0" r="13" stroke="currentColor" stroke-width="1.5"></circle>
+<rect class="fill-white shadow-sm" height="18" rx="4" width="88" x="-44" y="-30"></rect>
+<text class="font-mono text-[10px] fill-blue-700 font-semibold" text-anchor="middle" x="0" y="-18">ROUTE SPLIT</text>
+<!-- Interactive Tooltip Bubble -->
+<g class="tooltip-bubble" transform="translate(0, 14)">
+<rect class="fill-slate-900 shadow-lg" height="22" rx="4" width="156" x="-78" y="2"></rect>
+<polygon class="fill-slate-900" points="-4,2 4,2 0,-2"></polygon>
+<text class="font-mono text-[9px] fill-amber-300 font-bold" text-anchor="middle" x="0" y="16">SECTOR RE-ROUTE ACTIVE</text>
+</g>
+</g>
+<!-- INTERACTIVE WAYPOINT 4: Uncharted End Zone / 404 Disruption Core -->
+<g class="waypoint-node" role="button" tabindex="0" transform="translate(495, 98)">
+<circle cx="0" cy="0" fill="url(#pulseFill)" r="18"></circle>
+<circle class="fill-red-600 radar-beacon-ring" cx="0" cy="0" opacity="0.6" r="10"></circle>
+<circle class="fill-red-600" cx="0" cy="0" r="5"></circle>
+<rect class="fill-white shadow-md" height="20" rx="4" width="124" x="-62" y="14"></rect>
+<text class="font-mono text-[10px] fill-red-600 font-bold tracking-wider" text-anchor="middle" x="0" y="28">SECTOR: UNCHARTED</text>
+<!-- Interactive Tooltip Bubble -->
+<g class="tooltip-bubble" transform="translate(0, -22)">
+<rect class="fill-slate-900 shadow-xl" height="22" rx="4" width="150" x="-75" y="-12"></rect>
+<polygon class="fill-slate-900" points="-4,10 4,10 0,14"></polygon>
+<text class="font-mono text-[9px] fill-red-400 font-bold" text-anchor="middle" x="0" y="2">ERR_404: TARGET UNREACHABLE</text>
+</g>
+</g>
+<!-- Minimalist Supersonic Jet Silhouette Banked on Lost Vector -->
+<g class="transition-transform duration-300 hover:scale-110" transform="translate(440, 165) rotate(138)">
+<path class="fill-slate-900 shadow-lg" d="M 0 -13 L 4 -2 L 14 3 L 4 5 L 3 11 L 0 9 L -3 11 L -4 5 L -14 3 L -4 -2 Z"></path>
+<circle class="fill-blue-500" cx="0" cy="11" r="1.5"></circle>
+</g>
+<!-- Technical Telemetry Readout Corners -->
+<text class="font-mono text-[10px] fill-slate-400" x="32" y="42">LAT: 51°28'12"N  LON: 0°27'15"W</text>
+<text class="font-mono text-[10px] fill-slate-400" text-anchor="end" x="508" y="42">RADAR: DISRUPTED [ERR_404]</text>
+<text class="font-mono text-[10px] fill-slate-400" x="32" y="246">AUTONOMOUS DISPATCH // ATC-NAV</text>
+<text class="font-mono text-[10px] fill-red-600 font-bold tracking-wider" text-anchor="end" x="508" y="246">VECTOR MISMATCH</text>
+</svg>
+</div>
+<!-- Status Metadata Badge -->
+<div class="enter-stagger-2 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 shadow-sm mb-4 border border-slate-200/60 hover:border-slate-300 transition-colors">
+<span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+<span class="font-mono text-[11px] text-red-600 uppercase font-bold tracking-wider">
+        Error 404 • Flight Path Disrupted
+      </span>
+<span class="text-slate-300 font-mono text-[11px]">•</span>
+<span class="font-mono text-[11px] text-slate-600 font-mono">CODE: DISR-404-SECTOR</span>
+</div>
+<!-- Main Typographic Block -->
+<h1 class="enter-stagger-3 text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-4">
+      Looks like this route took a wrong turn
+    </h1>
+<p class="enter-stagger-3 text-slate-600 text-base max-w-xl mx-auto mb-8 leading-relaxed">
+      The sector, flight leg, or rebooking itinerary you requested does not exist or has been dynamically rerouted by air traffic automation.
+    </p>
+<!-- Contextual Rescue Container / Card -->
+<div class="enter-stagger-4 w-full max-w-md bg-white rounded-xl p-6 shadow-sm border border-slate-200/80 mb-8 text-left transition-all duration-300 hover:shadow-md hover:-translate-y-0.5" id="itineraryCard">
+<div class="flex items-center justify-between pb-3 mb-3 bg-slate-50 px-3.5 py-2.5 rounded-lg border border-slate-100">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-blue-600 text-lg">flight_takeoff</span>
+<span class="text-xs text-slate-900 font-semibold tracking-wide">Active Itinerary Locator</span>
+</div>
+<button class="font-mono text-sm text-blue-600 hover:text-blue-800 font-bold bg-blue-50/80 hover:bg-blue-100 px-2 py-0.5 rounded border border-blue-200/80 transition-all flex items-center gap-1.5 active:scale-95" id="locatorBadgeBtn" onclick="copyBookingRef('ATC-9821K')" title="Click to copy booking code">
+<span id="locatorBadgeText">ATC-9821K</span>
+<span class="material-symbols-outlined text-xs text-blue-500" id="locatorCopyIcon">content_copy</span>
+</button>
+</div>
+<p class="text-xs text-slate-600 mb-5 leading-relaxed">
+        Your replacement flight <strong class="font-semibold text-slate-900">BA 249</strong> is secure and proceeding on schedule. You can safely return to your real-time travel console.
+      </p>
+<!-- Primary Action CTA -->
+<button class="cta-button btn-ripple w-full py-3 px-6 rounded-lg bg-[#0050cb] hover:bg-[#0066ff] text-white text-xs font-semibold shadow-md hover:shadow-blue-500/25 flex items-center justify-center space-x-2 transition-all duration-200 active:scale-[0.99]" id="returnBtn" onclick="handleReturnItinerary()">
+<span class="material-symbols-outlined text-lg cta-arrow" id="returnBtnIcon">arrow_back</span>
+<span id="returnBtnText">Return to Active Itinerary</span>
+</button>
+</div>
+<!-- Helpful Concierge Fallbacks -->
+<div class="enter-stagger-5 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs text-slate-600 mb-12">
+<div class="flex items-center gap-1.5 text-slate-500">
+<span class="material-symbols-outlined text-sky-700 text-base">support_agent</span>
+<span>Need emergency assistance?</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-blue-600 hover:text-blue-800 hover:underline font-semibold transition-colors flex items-center gap-1 active:scale-95" id="pageSpecialistBtn" onclick="pageSpecialist()">
+          Page 24/7 ATC Specialist
+        </button>
+<span class="text-slate-300">•</span>
+<button class="text-blue-600 hover:text-blue-800 hover:underline font-semibold transition-colors flex items-center gap-1 active:scale-95" id="resyncBtn" onclick="resyncSector()">
+<span class="material-symbols-outlined text-xs inline-block" id="resyncSpinner">refresh</span>
+          Re-synchronize Sector
+        </button>
+</div>
+</div>
+<!-- Trust & Operational Governance Footprint -->
+<div class="enter-stagger-5 w-full pt-6 bg-slate-100/70 border border-slate-200/60 rounded-xl px-6 py-4 flex flex-wrap items-center justify-between gap-4 text-slate-500 text-[11px]">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-blue-600 text-sm">verified_user</span>
+<span class="font-semibold text-slate-700">IATA Resolution 735d Automated Protection</span>
+</div>
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-blue-600 text-sm">lock</span>
+<span>256-Bit Encrypted Telemetry Gateway</span>
+</div>
+<div class="flex items-center space-x-2 cursor-pointer hover:text-slate-800 transition-colors" onclick="triggerPingTest()">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="material-symbols-outlined text-sky-700 text-sm">network_check</span>
+<span class="font-mono">GDS SYNC: ONLINE (<span id="footerLatencyDisplay">18ms</span>)</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Interactive Logic & Micro-Interactions -->
+<script>
+  // 1. Telemetry Latency Simulator with micro jitter
+  const latencyDisplay = document.getElementById('latencyDisplay');
+  const footerLatencyDisplay = document.getElementById('footerLatencyDisplay');
+  let currentPing = 18;
+
+  function updateLatency(val) {
+    if (val) currentPing = val;
+    else currentPing = Math.floor(Math.random() * 7) + 15;
+    if (latencyDisplay) latencyDisplay.textContent = currentPing + 'ms';
+    if (footerLatencyDisplay) footerLatencyDisplay.textContent = currentPing + 'ms';
+  }
+  setInterval(() => updateLatency(), 4200);
+
+  function triggerPingTest() {
+    updateLatency(9);
+    showToast("Telemetry Verified", "Direct connection to Amadeus & Sabre GDS is nominal (9ms ping).", "network_check");
+  }
+
+  // 2. Interactive Toast Handler
+  let toastTimer;
+  function showToast(title, message, iconName = "check_circle") {
+    const toast = document.getElementById('actionToast');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastBody = document.getElementById('toastBody');
+    const toastIcon = document.getElementById('toastIcon');
+
+    if (!toast || !toastTitle || !toastBody) return;
+
+    toastTitle.innerHTML = `<span>${title}</span><span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>`;
+    toastBody.textContent = message;
+    if (toastIcon && iconName) {
+      toastIcon.innerHTML = `<span class="material-symbols-outlined text-lg">${iconName}</span>`;
+    }
+
+    clearTimeout(toastTimer);
+    toast.classList.remove('opacity-0', 'translate-y-[-16px]', 'pointer-events-none');
+    toast.classList.add('opacity-100', 'translate-y-0');
+
+    toastTimer = setTimeout(() => {
+      toast.classList.add('opacity-0', 'translate-y-[-16px]', 'pointer-events-none');
+      toast.classList.remove('opacity-100', 'translate-y-0');
+    }, 4200);
+  }
+
+  // 3. Copy Itinerary Locator Interaction
+  function copyBookingRef(refCode) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(refCode);
+    }
+    const badgeText = document.getElementById('locatorBadgeText');
+    const copyIcon = document.getElementById('locatorCopyIcon');
+
+    if (badgeText && copyIcon) {
+      const originalText = badgeText.textContent;
+      badgeText.textContent = "COPIED!";
+      copyIcon.textContent = "done";
+      badgeText.classList.add('text-emerald-600');
+      
+      showToast("Booking Ref Copied", `Locator "${refCode}" copied to your clipboard.`, "content_copy");
+
+      setTimeout(() => {
+        badgeText.textContent = originalText;
+        copyIcon.textContent = "content_copy";
+        badgeText.classList.remove('text-emerald-600');
+      }, 1800);
+    } else {
+      showToast("Booking Ref Copied", `Locator "${refCode}" copied.`, "content_copy");
+    }
+  }
+
+  // 4. Return to Active Itinerary CTA Interaction
+  function handleReturnItinerary() {
+    const btn = document.getElementById('returnBtn');
+    const btnText = document.getElementById('returnBtnText');
+    const btnIcon = document.getElementById('returnBtnIcon');
+
+    if (!btn || btn.dataset.loading === "true") return;
+    btn.dataset.loading = "true";
+
+    btnText.textContent = "Redirecting to Live Console...";
+    btnIcon.outerHTML = `
+      <svg id="returnBtnIcon" class="w-4 h-4 animate-spin text-white mr-1" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+    `;
+
+    showToast("Route Restoring", "Returning to your BA 249 confirmed itinerary...", "flight_takeoff");
+
+    setTimeout(() => {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        // Fallback smooth reset if no previous session history
+        const currentIcon = document.getElementById('returnBtnIcon');
+        if (currentIcon) {
+          currentIcon.outerHTML = `<span class="material-symbols-outlined text-lg cta-arrow" id="returnBtnIcon">arrow_back</span>`;
+        }
+        btnText.textContent = "Return to Active Itinerary";
+        btn.dataset.loading = "false";
+        showToast("Console Synchronized", "Active travel console ready: BA 249 to London Heathrow.", "verified");
+      }
+    }, 1200);
+  }
+
+  // 5. Emergency Specialist Paging Interaction
+  function pageSpecialist() {
+    const btn = document.getElementById('pageSpecialistBtn');
+    if (btn) {
+      btn.innerHTML = `<span class="material-symbols-outlined text-xs animate-spin">sync</span> Paging Specialist...`;
+      btn.classList.add('opacity-75');
+    }
+
+    setTimeout(() => {
+      showToast("ATC Specialist Paged", "Priority travel desk alerted for booking ATC-9821K. Live agent voice link connecting in 14s.", "support_agent");
+      if (btn) {
+        btn.innerHTML = `<span class="text-emerald-600">✓ Agent Dispatched</span>`;
+        setTimeout(() => {
+          btn.innerHTML = `Page 24/7 ATC Specialist`;
+          btn.classList.remove('opacity-75');
+        }, 3500);
+      }
+    }, 700);
+  }
+
+  // 6. Re-synchronize Sector Cache Interaction
+  function resyncSector() {
+    const spinner = document.getElementById('resyncSpinner');
+    if (spinner) {
+      spinner.classList.add('animate-spin');
+    }
+
+    setTimeout(() => {
+      if (spinner) spinner.classList.remove('animate-spin');
+      updateLatency(12);
+      showToast("Sector Re-synchronized", "Cache cleared. Flight corridor re-aligned with Eurocontrol automated routing (0ms discrepancy).", "sync");
+    }, 600);
+  }
+
+  // 7. Interactive Logo Action
+  function handleLogoClick() {
+    showToast("Autonomous Travel Concierge", "System Status: Green. Rebooking algorithms running nominal.", "flight");
+  }
+
+  // 8. Add Click Handlers on SVG Waypoint Nodes for immediate telemetry readouts
+  document.addEventListener('DOMContentLoaded', () => {
+    const waypoints = document.querySelectorAll('.waypoint-node');
+    waypoints.forEach((wp, idx) => {
+      wp.addEventListener('click', () => {
+        const labels = [
+          "Fix LHR-T5: Initial departure logged on schedule.",
+          "Cruise Detour: Altitude 33,000 FT - Oceanic speed mode active.",
+          "Route Split: Air traffic routing deviation detected.",
+          "Sector Uncharted: Destination waypoint disconnected (ERR_404)."
+        ];
+        showToast(`Waypoint Telemetry [0${idx + 1}]`, labels[idx] || "Waypoint data nominal.", "radar");
+      });
+    });
+  });
+</script>
+</body></html>

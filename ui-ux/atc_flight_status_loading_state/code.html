@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>ATC - Autonomous Travel-Disruption Concierge</title><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "primary-container": "#0066ff", "inverse-surface": "#213145", "surface-container": "#e5eeff", "tertiary-fixed": "#cce5ff", "error-container": "#ffdad6", "background": "#f8f9ff", "outline-variant": "#c2c6d8", "on-tertiary-container": "#f5f8ff", "inverse-on-surface": "#eaf1ff", "on-secondary-container": "#49617f", "surface-tint": "#0054d6", "outline": "#727687", "tertiary-container": "#0078b6", "on-secondary": "#ffffff", "secondary-container": "#c4dcff", "secondary-fixed": "#d2e4ff", "on-secondary-fixed": "#001c37", "tertiary-fixed-dim": "#93ccff", "error": "#ba1a1a", "on-tertiary": "#ffffff", "inverse-primary": "#b3c5ff", "primary-fixed-dim": "#b3c5ff", "surface-bright": "#f8f9ff", "primary": "#0050cb", "on-primary-fixed": "#001849", "on-primary-fixed-variant": "#003fa4", "on-tertiary-fixed-variant": "#004b73", "on-primary": "#ffffff", "surface-container-low": "#eff4ff", "on-secondary-fixed-variant": "#314865", "on-primary-container": "#f8f7ff", "secondary": "#49607e", "tertiary": "#005e90", "on-error-container": "#93000a", "on-background": "#0b1c30", "surface-container-lowest": "#ffffff", "surface-variant": "#d3e4fe", "on-tertiary-fixed": "#001d31", "secondary-fixed-dim": "#b0c8eb", "surface": "#f8f9ff", "surface-dim": "#cbdbf5", "on-surface": "#0b1c30", "on-surface-variant": "#424656", "on-error": "#ffffff", "primary-fixed": "#dae1ff", "surface-container-high": "#dce9ff", "surface-container-highest": "#d3e4fe" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-md": "1rem", "gutter-mobile": "0.75rem", "space-xs": "0.25rem", "margin-mobile": "1rem", "space-xl": "2.5rem", "margin": "2rem", "space-lg": "1.5rem", "gutter": "1.5rem", "space-sm": "0.5rem" }, "fontFamily": { "label-md": [ "Inter" ], "body-lg": [ "Inter" ], "headline-lg": [ "Plus Jakarta Sans" ], "display-lg-mobile": [ "Plus Jakarta Sans" ], "display-lg": [ "Plus Jakarta Sans" ], "body-md": [ "Inter" ], "code-flight": [ "JetBrains Mono" ], "label-sm": [ "JetBrains Mono" ], "headline-md": [ "Plus Jakarta Sans" ], "headline-lg-mobile": [ "Plus Jakarta Sans" ], "body-sm": [ "Inter" ] }, "fontSize": { "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" } ], "body-lg": [ "16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" } ], "headline-lg": [ "30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "display-lg-mobile": [ "32px", { "lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700" } ], "display-lg": [ "44px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" } ], "body-md": [ "14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" } ], "code-flight": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.06em", "fontWeight": "600" } ], "label-sm": [ "10px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "500" } ], "headline-md": [ "20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "headline-lg-mobile": [ "24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "body-sm": [ "12px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" } ] } } } };</script></head><body class="bg-surface text-on-surface antialiased"><header class="fixed top-0 left-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(10,37,64,0.06)]"><div class="h-20 max-w-[1440px] mx-auto px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-[0_2px_6px_rgba(0,80,203,0.3)]"><span class="material-symbols-outlined text-[24px]">flight_takeoff</span></div><div><div class="flex items-center gap-space-xs"><span class="font-headline-md text-headline-md font-bold tracking-tight text-on-surface">ATC</span><span class="px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-code-flight text-label-sm font-semibold uppercase tracking-wider">v4.2</span></div><span class="font-body-sm text-body-sm text-on-surface-variant block -mt-1">Auto Concierge</span></div></div><div class="h-8 w-px bg-outline-variant/30 hidden sm:block"></div><div class="hidden sm:flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/30"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="font-code-flight text-label-sm text-emerald-800 font-semibold tracking-wider uppercase">Concierge Active</span></div></div><nav class="hidden lg:flex items-center gap-space-xs p-1.5 bg-surface-container-low rounded-xl" data-active-classes="bg-primary-container text-on-primary-container font-semibold shadow-sm"><a aria-current="page" class="px-3 py-2 rounded-lg transition-all bg-primary-container text-on-primary-container font-semibold shadow-sm" data-path="flight-disruption" href="#">Flight Disruption</a><a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="flight-alternatives" href="#">Flight Alternatives</a><a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="hotel-policy-review" href="#">Hotel Policy Review</a><a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="final-itinerary" href="#">Final Itinerary</a></nav><div class="flex items-center gap-space-md"><div class="text-right hidden md:block"><div class="font-headline-md text-body-md font-semibold text-on-surface leading-tight">Rohit Sharma</div><div class="flex items-center justify-end gap-1 font-code-flight text-label-sm text-on-surface-variant"><span>PNR:</span><span class="text-primary font-semibold">ATC-9821K</span></div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="w-full bg-surface-container-low/80 backdrop-blur-md px-margin py-1.5 border-t border-outline-variant/20"><div class="max-w-[1440px] mx-auto flex items-center justify-between font-code-flight text-label-sm text-on-surface-variant"><div class="flex items-center gap-space-md"><div class="flex items-center gap-1.5"><span class="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span><span>GDS SYNC: <strong class="text-on-surface font-semibold">SABRE / AMADEUS LIVE</strong></span></div><div class="hidden sm:flex items-center gap-1.5"><span>LATENCY: <strong class="text-on-surface font-semibold">18ms</strong></span></div><div class="hidden md:flex items-center gap-1.5"><span>PASSENGER ENTITLEMENT: <strong class="text-emerald-700 font-semibold">EU261 / DOT COMPLIANT</strong></span></div></div><div class="flex items-center gap-space-sm"><span>LAST HEARTBEAT: <strong class="text-on-surface font-semibold">JUST NOW</strong></span><span class="material-symbols-outlined text-[14px] text-primary animate-spin">sync</span></div></div></div></header><main class="w-full pt-28 bg-surface min-h-[calc(100vh-80px)]"><div class="flex flex-col w-full">
+<div class="w-full max-w-[1440px] mx-auto px-margin pb-space-xl">
+<!-- Top Context & Live Scanning Header -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md mb-space-lg">
+<div class="flex flex-col gap-space-xs">
+<!-- Breadcrumb Tracker -->
+<div class="flex items-center gap-2 font-code-flight text-label-sm text-secondary tracking-wider uppercase">
+<span class="hover:text-primary transition-colors cursor-pointer">Operations</span>
+<span class="text-outline-variant">/</span>
+<span class="text-secondary">PNR ATC-9821K</span>
+<span class="text-outline-variant">/</span>
+<span class="text-primary font-semibold">Live Monitor</span>
+</div>
+<!-- Live Status Heading -->
+<div class="flex items-center gap-space-md">
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Checking Live Flight Telemetry...</h1>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+</span>
+<span class="font-code-flight text-label-sm text-primary font-semibold uppercase">Scan Cycle 04/12</span>
+</div>
+</div>
+</div>
+<!-- Telemetry Probe Pill -->
+<div class="flex items-center gap-space-sm bg-surface-container-low px-4 py-2.5 rounded-xl shadow-sm self-start lg:self-auto">
+<span class="material-symbols-outlined text-primary text-[20px] animate-spin">radar</span>
+<div class="flex flex-col">
+<span class="font-code-flight text-label-sm text-secondary uppercase font-semibold">Querying FAA &amp; Airline Telemetry Feeds...</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Synchronizing ADS-B transponder data &amp; ATC slots</span>
+</div>
+</div>
+</div>
+<!-- Main Grid Skeleton (Identical exact heights to prevent CLS) -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- 1. Flight Summary Card Skeleton -->
+<div class="col-span-12 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between min-h-[300px] relative overflow-hidden">
+<!-- Shimmer Overlay Element via Tailwind/CSS Animation -->
+<div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent animate-[shimmer_2s_infinite] pointer-events-none"></div>
+<!-- Header Row: Carrier, Flight Code, Status Tag -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<!-- Airline Logo Placeholder -->
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant text-[24px]">airlines</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<!-- Flight Number Pill Placeholder -->
+<div class="h-6 w-32 rounded-md bg-surface-container"></div>
+<!-- Carrier Meta Placeholder -->
+<div class="h-3.5 w-48 rounded bg-surface-container-low"></div>
+</div>
+</div>
+<!-- Status Pill Skeleton -->
+<div class="h-7 w-28 rounded-full bg-surface-container-high"></div>
+</div>
+<!-- Route Summary Block: LHR -> DEL with Waypoints -->
+<div class="grid grid-cols-1 md:grid-cols-12 items-center gap-space-md my-space-md">
+<!-- Departure Airport Block (LHR) -->
+<div class="md:col-span-3 flex flex-col">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">LHR</span>
+<span class="font-body-sm text-body-sm text-secondary">London Heathrow</span>
+</div>
+<div class="h-4 w-28 rounded bg-surface-container mt-1"></div>
+</div>
+<!-- Trajectory Path Dotted Skeleton with Animated Progress Node -->
+<div class="md:col-span-6 flex flex-col items-center justify-center px-space-sm">
+<div class="w-full flex items-center justify-between text-secondary mb-1">
+<span class="font-code-flight text-label-sm">SCHEDULED: 08H 45M</span>
+<span class="font-code-flight text-label-sm flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[14px] animate-pulse">satellite_alt</span>
+                RADAR FIX PENDING
+              </span>
+</div>
+<div class="relative w-full flex items-center">
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary/40 rounded-full w-2/5 animate-[pulse_1.5s_ease-in-out_infinite]"></div>
+</div>
+<!-- Mid-point Waypoint Node Indicator -->
+<div class="absolute left-[40%] -top-1.5 w-4 h-4 rounded-full bg-surface-container-lowest shadow-md flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary animate-ping"></div>
+</div>
+</div>
+<div class="w-full flex justify-between font-code-flight text-label-sm text-outline mt-1.5">
+<span>WAYPOINT: CLACTON</span>
+<span>FIR: EGTT / LONDON</span>
+</div>
+</div>
+<!-- Arrival Airport Block (DEL) -->
+<div class="md:col-span-3 flex flex-col md:items-end">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">DEL</span>
+<span class="font-body-sm text-body-sm text-secondary">Indira Gandhi Intl</span>
+</div>
+<div class="h-4 w-32 rounded bg-surface-container mt-1"></div>
+</div>
+</div>
+<!-- Sub-grid: 4 Exact-Dimension Parameter Cells -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter pt-space-md bg-surface-container-low rounded-lg p-space-md">
+<!-- Parameter 1 -->
+<div class="flex flex-col gap-1.5">
+<span class="font-code-flight text-label-sm text-secondary uppercase font-semibold">Scheduled Departure</span>
+<div class="h-5 w-24 rounded bg-surface-container"></div>
+<div class="h-3 w-16 rounded bg-surface-container-high"></div>
+</div>
+<!-- Parameter 2 -->
+<div class="flex flex-col gap-1.5">
+<span class="font-code-flight text-label-sm text-secondary uppercase font-semibold">Terminal / Gate</span>
+<div class="h-5 w-20 rounded bg-surface-container"></div>
+<div class="h-3 w-28 rounded bg-surface-container-high"></div>
+</div>
+<!-- Parameter 3 -->
+<div class="flex flex-col gap-1.5">
+<span class="font-code-flight text-label-sm text-secondary uppercase font-semibold">Aircraft Telemetry</span>
+<div class="h-5 w-32 rounded bg-surface-container"></div>
+<div class="h-3 w-20 rounded bg-surface-container-high"></div>
+</div>
+<!-- Parameter 4 -->
+<div class="flex flex-col gap-1.5">
+<span class="font-code-flight text-label-sm text-secondary uppercase font-semibold">Class / Cabin</span>
+<div class="h-5 w-28 rounded bg-surface-container"></div>
+<div class="h-3 w-14 rounded bg-surface-container-high"></div>
+</div>
+</div>
+</div>
+<!-- 2. Live Telemetry & Radar Panel Skeleton (Left / Central 7 Cols) -->
+<div class="col-span-12 lg:col-span-7 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between min-h-[440px] relative overflow-hidden">
+<div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent animate-[shimmer_2.2s_infinite] pointer-events-none"></div>
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">explore</span>
+<span class="font-headline-md text-body-lg font-bold text-on-surface">Airspace Sector &amp; Radar Corridor</span>
+</div>
+<div class="flex items-center gap-2 font-code-flight text-label-sm text-secondary">
+<span>FREQ: 132.85 MHz</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+</div>
+</div>
+<!-- Radar Canvas Mock with Concentric Subtle Shimmer Rings & Active Probe Sweep -->
+<div class="relative w-full h-[320px] rounded-lg bg-surface-container-low flex items-center justify-center overflow-hidden">
+<!-- Concentric Vector Calibration Rings -->
+<div class="absolute w-72 h-72 rounded-full border border-surface-container-highest"></div>
+<div class="absolute w-52 h-52 rounded-full border border-surface-container-highest"></div>
+<div class="absolute w-32 h-32 rounded-full border border-surface-container-highest"></div>
+<div class="absolute w-12 h-12 rounded-full border border-surface-container-highest"></div>
+<!-- Axis Crosshairs -->
+<div class="absolute inset-x-0 top-1/2 h-px bg-surface-container-highest"></div>
+<div class="absolute inset-y-0 left-1/2 w-px bg-surface-container-highest"></div>
+<!-- Radar Sweep Cone Animation -->
+<div class="absolute w-72 h-72 rounded-full animate-[spin_4s_linear_infinite]">
+<div class="w-1/2 h-1/2 origin-bottom-right rounded-tl-full bg-gradient-to-br from-primary/20 to-transparent"></div>
+</div>
+<!-- Center Airspace Ping Marker -->
+<div class="relative z-10 flex flex-col items-center gap-1">
+<div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-on-primary text-[16px] animate-bounce">flight</span>
+</div>
+<div class="px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm shadow-sm font-code-flight text-label-sm text-primary font-semibold">
+              AC-7443 LOCKING
+            </div>
+</div>
+<!-- Simulated Airway Nodes -->
+<div class="absolute top-10 left-16 flex items-center gap-1 opacity-60">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="font-code-flight text-[10px] text-secondary">EGLL (ORIGIN)</span>
+</div>
+<div class="absolute bottom-12 right-20 flex items-center gap-1 opacity-60">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="font-code-flight text-[10px] text-secondary">VIDP (DEST)</span>
+</div>
+<!-- Sector Telemetry Overlay Badges -->
+<div class="absolute bottom-3 left-3 bg-surface-container-lowest/80 backdrop-blur-md px-3 py-1.5 rounded-lg flex items-center gap-3">
+<div class="flex items-center gap-1 font-code-flight text-label-sm text-secondary">
+<span>WIND: 280@34KT</span>
+</div>
+<div class="flex items-center gap-1 font-code-flight text-label-sm text-secondary">
+<span>VIS: 10KM+</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Disruption Assessment & Contingency Plan Skeleton (Right 5 Cols) -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between min-h-[440px] relative overflow-hidden">
+<div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent animate-[shimmer_2.5s_infinite] pointer-events-none"></div>
+<div class="flex flex-col gap-space-md">
+<!-- Card Header & Badge -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">verified</span>
+<span class="font-headline-md text-body-lg font-bold text-on-surface">Disruption Assessment</span>
+</div>
+<div class="h-6 w-24 rounded-full bg-surface-container-high"></div>
+</div>
+<!-- Multi-line Shimmer Content Skeleton Bars -->
+<div class="flex flex-col gap-2.5 pt-2">
+<div class="h-4 w-full rounded bg-surface-container"></div>
+<div class="h-4 w-5/6 rounded bg-surface-container"></div>
+<div class="h-4 w-4/6 rounded bg-surface-container-low"></div>
+</div>
+<!-- Analysis Details Module Skeleton -->
+<div class="rounded-lg bg-surface-container-low p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="h-3.5 w-32 rounded bg-surface-container-high"></div>
+<div class="h-3.5 w-16 rounded bg-surface-container-high"></div>
+</div>
+<div class="flex items-center justify-between">
+<div class="h-3.5 w-28 rounded bg-surface-container"></div>
+<div class="h-3.5 w-20 rounded bg-surface-container"></div>
+</div>
+<div class="flex items-center justify-between">
+<div class="h-3.5 w-36 rounded bg-surface-container-high"></div>
+<div class="h-3.5 w-24 rounded bg-surface-container-high"></div>
+</div>
+</div>
+<!-- Contingency Status Actions Skeleton -->
+<div class="flex flex-col gap-2 pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">auto_mode</span>
+<span class="font-code-flight text-label-sm text-secondary font-semibold uppercase">Contingency Auto-Reserve</span>
+</div>
+<div class="h-10 w-full rounded-lg bg-surface-container-high flex items-center justify-between px-3">
+<div class="h-4 w-40 rounded bg-surface-container"></div>
+<div class="h-5 w-16 rounded bg-primary/20"></div>
+</div>
+</div>
+</div>
+<!-- Action Trigger Skeleton Buttons -->
+<div class="grid grid-cols-2 gap-space-sm pt-space-md">
+<div class="h-11 rounded-lg bg-surface-container flex items-center justify-center">
+<div class="h-4 w-28 rounded bg-surface-container-high"></div>
+</div>
+<div class="h-11 rounded-lg bg-primary/30 flex items-center justify-center">
+<div class="h-4 w-32 rounded bg-surface-container-lowest/60"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Telemetry Stream Feed Terminal (Footer Detail) -->
+<div class="mt-gutter rounded-xl bg-surface-container-lowest p-space-md shadow-sm flex flex-col md:flex-row items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md">
+<span class="flex h-2.5 w-2.5 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+</span>
+<span class="font-code-flight text-label-sm text-secondary">
+          STREAM: <span class="text-on-surface font-semibold">EGLL_DEL_TELEMETRY_INBOUND</span>
+</span>
+<span class="hidden sm:inline font-code-flight text-label-sm text-outline-variant">|</span>
+<span class="hidden sm:inline font-code-flight text-label-sm text-secondary">
+          BUFFER: <span class="text-primary font-semibold">98.4% COMPLETE</span>
+</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-code-flight text-label-sm text-secondary">EXPECTED LOCK: ~1.8 SECONDS</span>
+<div class="w-24 h-1.5 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-primary rounded-full w-4/5 animate-[pulse_1s_infinite]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Soft pulse cycle handler for flight telemetry lock simulation
+  (function() {
+    const cycleLabels = [
+      'Querying FAA & Airline Telemetry Feeds...',
+      'Cross-referencing IATA slot clearances...',
+      'Verifying connecting gate transits at DEL...',
+      'Finalizing flight telemetry buffer...'
+    ];
+    let index = 0;
+    setInterval(() => {
+      index = (index + 1) % cycleLabels.length;
+      const probeEl = document.querySelector('[data-probe-label]');
+      if (probeEl) {
+        probeEl.textContent = cycleLabels[index];
+      }
+    }, 2400);
+  })();
+</script></main><footer class="w-full bg-surface-container-lowest border-t border-outline-variant/30 py-space-md"><div class="max-w-[1440px] mx-auto px-margin flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg text-on-surface-variant font-body-sm text-body-sm"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px] text-primary">lock</span><span class="font-code-flight text-label-sm uppercase tracking-wide">256-Bit Encrypted Gateway</span></div><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px] text-primary">verified_user</span><span class="font-code-flight text-label-sm uppercase tracking-wide">IATA Resolution 735d Protection</span></div><div class="hidden sm:flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px] text-emerald-600">sensors</span><span class="font-code-flight text-label-sm uppercase tracking-wide text-emerald-700">GDS Telemetry: Optimal</span></div></div><div class="flex items-center gap-space-md text-on-surface-variant font-code-flight text-label-sm"><span>SESSION: <strong class="text-on-surface">ATC-SEC-8491</strong></span><span>© 2025 Autonomous Travel Concierge Ops</span></div></div></footer></body></html>

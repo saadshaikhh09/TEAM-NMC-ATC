@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_standard" name="shell-type"/>
+<title>ATC - Autonomous Travel Concierge</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+      main > :first-child { margin-top: 0 !important; }
+      main > :last-child { margin-bottom: 0 !important; }
+    }
+    ::-webkit-scrollbar { display: none; }
+
+    /* Radar Animations */
+    @keyframes radarSweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .radar-beam {
+      transform-origin: 210px 90px;
+      animation: radarSweep 4s linear infinite;
+    }
+
+    @keyframes dashMove {
+      0% { stroke-dashoffset: 60; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .flow-dash {
+      stroke-dasharray: 6 4;
+      animation: dashMove 1.4s linear infinite;
+    }
+
+    @keyframes rippleEffect {
+      0% { r: 5px; opacity: 0.9; stroke-width: 2px; }
+      100% { r: 24px; opacity: 0; stroke-width: 0.5px; }
+    }
+    .ripple-ring {
+      animation: rippleEffect 2.2s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+      transform-origin: center;
+    }
+    .ripple-ring-delayed {
+      animation: rippleEffect 2.2s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+      animation-delay: 1.1s;
+      transform-origin: center;
+    }
+
+    /* Badge Shimmer Sheen */
+    @keyframes shimmerSheen {
+      0% { transform: translateX(-150%) skewX(-20deg); }
+      40%, 100% { transform: translateX(250%) skewX(-20deg); }
+    }
+    .shimmer-pill {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer-pill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+      animation: shimmerSheen 3.6s infinite ease-in-out;
+    }
+
+    /* Progress Connecting Glowing Line */
+    @keyframes glowFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    .stepper-glow-track {
+      background: linear-gradient(90deg, #0050cb, #0066ff, #93ccff, #0050cb);
+      background-size: 200% 100%;
+      animation: glowFlow 3s linear infinite;
+    }
+
+    /* Interactive Flight Card Selection Glow */
+    .flight-card-interactive {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.2s ease;
+    }
+    .flight-card-interactive:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px -6px rgba(0, 102, 255, 0.12), 0 4px 12px -2px rgba(10, 37, 64, 0.06);
+    }
+    .flight-card-interactive.selected-card {
+      border: 2px solid #0066ff !important;
+      background-color: #f6f9ff !important;
+      box-shadow: 0 8px 24px rgba(0, 102, 255, 0.16);
+    }
+
+    /* Smooth transition for tab state switching */
+    .tab-content-panel {
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tab-content-panel.hidden-panel {
+      display: none !important;
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    .tab-content-panel.active-panel {
+      display: flex !important;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Buttons micro-interaction */
+    button {
+      transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .radar-beam, .flow-dash, .ripple-ring, .ripple-ring-delayed, .shimmer-pill::after, .stepper-glow-track, #telemetry-plane {
+        animation: none !important;
+      }
+      .flight-card-interactive {
+        transform: none !important;
+      }
+    }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "secondary-fixed": "#d2e4ff",
+            "surface-container-low": "#eff4ff",
+            "outline-variant": "#c2c6d8",
+            "on-secondary-container": "#49617f",
+            "secondary": "#49607e",
+            "surface-container-lowest": "#ffffff",
+            "on-primary-fixed-variant": "#003fa4",
+            "tertiary": "#005e90",
+            "surface-dim": "#cbdbf5",
+            "tertiary-container": "#0078b6",
+            "inverse-on-surface": "#eaf1ff",
+            "on-primary-container": "#f8f7ff",
+            "surface-container-highest": "#d3e4fe",
+            "surface-container-high": "#dce9ff",
+            "secondary-fixed-dim": "#b0c8eb",
+            "inverse-surface": "#213145",
+            "surface-variant": "#d3e4fe",
+            "surface-container": "#e5eeff",
+            "on-error-container": "#93000a",
+            "primary-fixed-dim": "#b3c5ff",
+            "on-tertiary-fixed": "#001d31",
+            "surface": "#f8f9ff",
+            "on-tertiary-fixed-variant": "#004b73",
+            "surface-tint": "#0054d6",
+            "primary": "#0050cb",
+            "secondary-container": "#c4dcff",
+            "error": "#ba1a1a",
+            "on-surface-variant": "#424656",
+            "primary-fixed": "#dae1ff",
+            "on-secondary-fixed": "#001c37",
+            "background": "#f8f9ff",
+            "on-background": "#0b1c30",
+            "error-container": "#ffdad6",
+            "outline": "#727687",
+            "surface-bright": "#f8f9ff",
+            "on-tertiary-container": "#f5f8ff",
+            "inverse-primary": "#b3c5ff",
+            "on-secondary-fixed-variant": "#314865",
+            "primary-container": "#0066ff",
+            "on-surface": "#0b1c30",
+            "tertiary-fixed-dim": "#93ccff",
+            "on-tertiary": "#ffffff",
+            "on-primary": "#ffffff",
+            "tertiary-fixed": "#cce5ff",
+            "on-primary-fixed": "#001849",
+            "on-secondary": "#ffffff",
+            "on-error": "#ffffff"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "margin-mobile": "1rem",
+            "gutter": "1.5rem",
+            "margin": "2rem",
+            "space-md": "1rem",
+            "gutter-mobile": "0.75rem",
+            "space-xl": "2.5rem"
+          },
+          fontFamily: {
+            "display-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "label-md": ["Inter"],
+            "display-lg": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "code-flight": ["JetBrains Mono"],
+            "label-sm": ["JetBrains Mono"],
+            "body-md": ["Inter"]
+          },
+          fontSize: {
+            "display-lg-mobile": ["32px", { lineHeight: "38px", letterSpacing: "-0.025em", fontWeight: "700" }],
+            "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "headline-lg-mobile": ["24px", { lineHeight: "32px", letterSpacing: "-0.015em", fontWeight: "600" }],
+            "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }],
+            "display-lg": ["44px", { lineHeight: "52px", letterSpacing: "-0.03em", fontWeight: "700" }],
+            "body-sm": ["12px", { lineHeight: "18px", letterSpacing: "0.005em", fontWeight: "400" }],
+            "headline-lg": ["30px", { lineHeight: "38px", letterSpacing: "-0.02em", fontWeight: "600" }],
+            "body-lg": ["16px", { lineHeight: "26px", letterSpacing: "-0.005em", fontWeight: "400" }],
+            "code-flight": ["14px", { lineHeight: "20px", letterSpacing: "0.06em", fontWeight: "600" }],
+            "label-sm": ["10px", { lineHeight: "14px", letterSpacing: "0.08em", fontWeight: "500" }],
+            "body-md": ["14px", { lineHeight: "22px", letterSpacing: "0em", fontWeight: "400" }]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-surface font-body-md text-body-md text-on-surface antialiased">
+<!-- Seat Preview Modal -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm hidden items-center justify-center p-4 transition-all duration-300" id="seat-modal">
+<div class="bg-surface-container-lowest max-w-lg w-full rounded-2xl p-6 shadow-2xl border border-surface-container-high transform transition-all scale-95 opacity-0" id="seat-modal-content">
+<div class="flex items-center justify-between pb-4 border-b border-surface-container">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center font-bold text-primary text-xs font-code-flight">VS</div>
+<div>
+<h4 class="font-headline-md text-headline-md font-bold text-on-surface">Virgin Atlantic VS 301</h4>
+<span class="text-xs text-secondary font-code-flight">Upper Class • Boeing 787-9 Dreamliner</span>
+</div>
+</div>
+<button class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-on-surface-variant" onclick="closeSeatModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="py-4 flex flex-col gap-4">
+<div class="flex items-center justify-between bg-surface-container-low p-3 rounded-xl">
+<div>
+<div class="text-xs font-semibold text-secondary uppercase font-code-flight">Assigned Suite</div>
+<div class="text-xl font-bold text-primary font-headline-md">Suite 5K (Window / Direct Aisle)</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-code-flight font-bold flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-600"></span> Confirmed Hold
+          </span>
+</div>
+<!-- Mini Seat Map Layout Visualizer -->
+<div class="bg-surface-container rounded-xl p-4 flex flex-col gap-3">
+<div class="text-xs font-code-flight text-center text-secondary uppercase tracking-wider">Forward Cabin Layout (1-2-1 Herringbone)</div>
+<div class="grid grid-cols-4 gap-2 text-center text-xs font-code-flight">
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">4A (Occ)</div>
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">4D (Occ)</div>
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">4G (Occ)</div>
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">4K (Occ)</div>
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">5A (Occ)</div>
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">5D (Occ)</div>
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">5G (Occ)</div>
+<div class="p-2 rounded-lg bg-primary-container text-on-primary font-bold shadow-md ring-2 ring-primary animate-pulse">5K (YOU)</div>
+<div class="p-2 rounded bg-surface-container-lowest border border-outline-variant text-primary font-semibold cursor-pointer hover:bg-primary-fixed">6A (Open)</div>
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">6D (Occ)</div>
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">6G (Occ)</div>
+<div class="p-2 rounded bg-surface-container-high text-on-surface-variant opacity-60">6K (Occ)</div>
+</div>
+<div class="flex items-center justify-center gap-4 text-[11px] text-secondary mt-1">
+<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-primary-container"></span> Your Selected Suite</span>
+<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-surface-container-lowest border"></span> Available</span>
+<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-surface-container-high"></span> Occupied</span>
+</div>
+</div>
+<div class="text-xs text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">bed</span>
+          Full flatbed 82" length • Retractable privacy screen • Multi-region power &amp; USB-C 65W
+        </div>
+</div>
+<div class="flex gap-2 pt-2">
+<button class="flex-1 py-2.5 rounded-lg bg-primary text-on-primary font-label-md font-semibold hover:bg-primary-container transition-all" onclick="closeSeatModal()">Keep Suite 5K</button>
+</div>
+</div>
+</div>
+<header class="fixed top-0 w-full z-40 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(10,37,64,0.04)]">
+<div class="h-16 max-w-[1440px] mx-auto px-margin flex items-center justify-between">
+<div class="flex items-center gap-space-lg">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-primary tracking-tight font-bold leading-none">ATC</span>
+<span class="font-label-sm text-label-sm text-secondary tracking-wider uppercase font-semibold leading-tight">Autonomous Concierge</span>
+</div>
+<nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold">
+<a aria-current="page" class="px-space-md py-space-sm rounded-lg transition-all bg-primary-container text-on-primary font-semibold" data-path="flights" href="#">Flights</a>
+<a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="rebooking" href="#">Rebooking</a>
+<a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="history" href="#">History</a>
+</nav>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="hidden sm:flex items-center gap-space-sm px-space-sm py-space-xs rounded-full bg-surface-container-high">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="font-label-sm text-label-sm uppercase font-code-flight text-primary tracking-wider">Protected</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="text-right hidden sm:block">
+<div class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Rohan Sharma</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant leading-none">Premier Executive</div>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_1px_3px_0_rgba(10,37,64,0.1)]">
+<span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="w-full pt-16 bg-surface">
+<div class="flex flex-col w-full">
+<!-- Interactive View State Controller & Real-Time Disruption Monitor -->
+<div class="max-w-[1440px] w-full mx-auto px-margin py-space-lg flex flex-col gap-space-lg">
+<!-- Top Telemetry & Scenario Selector Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md bg-surface-container-low px-space-lg py-space-sm rounded-xl">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
+<span class="font-label-sm text-label-sm uppercase font-code-flight text-primary tracking-wider">Telemetry Link Active • SITA GDS Connected</span>
+<span class="text-outline text-xs">/</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Live PNR Watch: <strong class="font-code-flight text-on-surface">W8K2P9</strong></span>
+</div>
+<!-- State Simulator Toggle Tabs -->
+<div class="flex items-center bg-surface-container p-1 rounded-lg">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase px-space-sm hidden sm:inline-block">Simulate Feed:</span>
+<button class="px-space-md py-1.5 rounded font-label-md text-label-md transition-all font-semibold bg-surface shadow-sm text-error flex items-center gap-1.5" id="tab-cancelled" onclick="switchState('cancelled')">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<span>1. Cancelled (Active)</span>
+</button>
+<button class="px-space-md py-1.5 rounded font-label-md text-label-md transition-all font-medium text-on-surface-variant hover:text-on-surface flex items-center gap-1.5" id="tab-delayed" onclick="switchState('delayed')">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>2. Delayed (45m)</span>
+</button>
+<button class="px-space-md py-1.5 rounded font-label-md text-label-md transition-all font-medium text-on-surface-variant hover:text-on-surface flex items-center gap-1.5" id="tab-ontime" onclick="switchState('ontime')">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span>3. On-Time</span>
+</button>
+</div>
+</div>
+<!-- Main Summary Itinerary Banner Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg transition-all duration-300 hover:shadow-md">
+<!-- Left: Carrier & PNR Group -->
+<div class="flex items-center gap-space-md">
+<div class="w-14 h-14 rounded-xl bg-primary-container flex items-center justify-center text-on-primary shadow-sm relative overflow-hidden group">
+<span class="material-symbols-outlined text-[32px] group-hover:translate-x-0.5 transition-transform">flight_takeoff</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md text-on-surface tracking-tight" id="main-flight-num">AI 102</span>
+<span class="text-outline-variant font-code-flight">/</span>
+<span class="font-label-md text-label-md text-secondary tracking-wider font-code-flight">BA 249 (Codeshare)</span>
+</div>
+<div class="flex items-center gap-space-xs mt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Air India • Flagship 787-9 Dreamliner</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container font-code-flight text-primary font-semibold">PNR: W8K2P9</span>
+</div>
+</div>
+</div>
+<!-- Center: Routing Visual with Flight Arc -->
+<div class="flex items-center gap-space-md min-w-[280px] justify-between">
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">DEL</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Indira Gandhi Intl</span>
+<span class="font-label-sm text-label-sm text-secondary uppercase font-code-flight">Terminal 3</span>
+</div>
+<div class="flex-1 px-space-md flex flex-col items-center">
+<div class="w-full flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<div class="h-0.5 flex-1 bg-surface-container-highest relative">
+<span class="material-symbols-outlined text-primary text-[18px] absolute -top-2 left-1/2 -translate-x-1/2 rotate-90 animate-pulse">flight</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<span class="font-label-sm text-label-sm font-code-flight text-on-surface-variant mt-1">8h 45m Direct</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">LHR</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">London Heathrow</span>
+<span class="font-label-sm text-label-sm text-secondary uppercase font-code-flight">Terminal 5</span>
+</div>
+</div>
+<!-- Right: Passenger, Schedule & Auto-Budget Shield -->
+<div class="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-space-sm pl-0 lg:pl-space-lg lg:border-l lg:border-surface-container">
+<div class="flex flex-col lg:text-right">
+<div class="font-label-md text-label-md text-on-surface font-semibold" id="main-flight-sched">Thursday, 24 Oct 2024 • 08:15 IST</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Rohan Sharma • 1 Adult (Business Class, Seat 4A)</div>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 rounded-full shadow-sm hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-label-sm text-label-sm font-code-flight text-primary font-bold tracking-wide">₹1,20,000 AUTO-APPROVED BUDGET</span>
+</div>
+</div>
+</div>
+<!-- ======================================================== -->
+<!-- STATE 1: CANCELLED (Default Active Hero Panel)           -->
+<!-- ======================================================== -->
+<div class="tab-content-panel active-panel flex-col gap-space-lg" id="state-panel-cancelled">
+<!-- Disruption Hero Box -->
+<div class="relative overflow-hidden bg-error-container/25 rounded-xl p-space-lg shadow-md flex flex-col gap-space-lg border border-error/15">
+<!-- Radar Orbital Arc Watermark -->
+<div class="absolute right-0 top-0 w-96 h-96 -mr-16 -mt-16 pointer-events-none opacity-20">
+<svg class="w-full h-full text-error" viewbox="0 0 300 300">
+<circle cx="150" cy="150" fill="none" r="130" stroke="currentColor" stroke-dasharray="4 4" stroke-width="1.5"></circle>
+<circle cx="150" cy="150" fill="none" r="90" stroke="currentColor" stroke-width="1.5"></circle>
+<circle cx="150" cy="150" fill="none" r="45" stroke="currentColor" stroke-dasharray="2 2" stroke-width="1.5"></circle>
+<path d="M 40 240 Q 150 70 260 90" fill="none" stroke="currentColor" stroke-width="3"></path>
+<circle cx="260" cy="90" fill="currentColor" r="6"></circle>
+<circle cx="40" cy="240" fill="currentColor" r="5"></circle>
+</svg>
+</div>
+<!-- Warning Header & Urgent Status Row -->
+<div class="flex flex-wrap items-start justify-between gap-space-md relative z-10">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-full bg-error flex items-center justify-center text-on-error shadow-md mt-1 shrink-0 animate-bounce">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="px-space-sm py-0.5 rounded-full bg-error text-on-error font-code-flight text-label-sm font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                      FLIGHT CANCELLED BY AIRLINE
+                    </span>
+<span class="font-code-flight text-label-sm text-error font-medium">DISRUPTION-ID: ATC-DEL-8812</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-error tracking-tight mt-1 font-bold">
+                    Scheduled flight AI 102 cannot depart as planned
+                  </h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mt-1">
+<strong>Ground Broadcast:</strong> Aircraft grounded due to unforeseen technical servicing &amp; crew duty limitation regulations at DEL Terminal 3.
+                  </p>
+</div>
+</div>
+<!-- Autonomous Agent Telemetry Chip -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-md flex flex-col gap-1 min-w-[260px] relative z-10 border border-surface-container">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase font-code-flight text-secondary">Autonomous Guard</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-code-flight text-label-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
+                    Searching GDS
+                  </span>
+</div>
+<div class="font-headline-md text-headline-md text-primary font-bold">4 Options Evaluated</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Matching Business Class cabin &amp; fast-track arrival.</div>
+</div>
+</div>
+<!-- Autonomous Rebooking 4-Step Pipeline -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm relative z-10 border border-surface-container">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-md text-label-md font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
+                  Autonomous Concierge Execution Protocol
+                </span>
+<span class="font-code-flight text-label-sm text-primary flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+                  Autonomous Latency: <span class="font-bold" id="latency-indicator">420ms</span>
+</span>
+</div>
+<!-- Stepper Cards with glowing progress line -->
+<div class="relative">
+<!-- Background Connection Line with animated gradient flow -->
+<div class="hidden md:block absolute top-1/2 left-8 right-8 h-1 -translate-y-1/2 rounded-full stepper-glow-track z-0"></div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-space-sm relative z-10">
+<!-- Step 1: Completed -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-high/90 backdrop-blur-sm border border-primary/20 shadow-sm">
+<div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Disruption Captured</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-xs">07:12:04 IST • Verified</span>
+</div>
+</div>
+<!-- Step 2: In Progress -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-secondary-container/80 backdrop-blur-sm border border-primary-container shadow-sm ring-1 ring-primary/20">
+<div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center text-on-primary shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[16px] animate-spin">sync</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-primary font-semibold truncate">Live Inventory Scraping</span>
+<span class="font-body-sm text-body-sm text-on-secondary-container truncate text-xs">Pricing 2 direct routes</span>
+</div>
+</div>
+<!-- Step 3: Pending -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low backdrop-blur-sm border border-surface-container">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-outline shrink-0">
+<span class="font-code-flight text-label-sm font-bold">3</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-outline font-medium truncate">Preference Scoring</span>
+<span class="font-body-sm text-body-sm text-outline-variant text-xs">Direct flights &amp; Flatbed</span>
+</div>
+</div>
+<!-- Step 4: Final Trigger -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low backdrop-blur-sm border border-surface-container">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center text-outline shrink-0">
+<span class="font-code-flight text-label-sm font-bold">4</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-outline font-medium truncate">Instant Ticket Issuance</span>
+<span class="font-body-sm text-body-sm text-outline-variant text-xs">Auto-checkin &amp; Wallet sync</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Autonomous Alternatives & Instant One-Tap Resolution Section -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left 8-Cols: Rebooking Candidates Mosaic -->
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px] animate-spin" style="animation-duration: 6s;">auto_awesome</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Auto-Rebook Candidates Ranked</h3>
+</div>
+<span class="font-body-sm text-body-sm text-secondary">All pre-cleared against ₹1,20,000 corporate budget</span>
+</div>
+<!-- Option 1: Top Recommended Flight Match -->
+<div class="flight-card-interactive selected-card relative bg-surface-container-lowest rounded-xl p-space-lg shadow-md flex flex-col md:flex-row justify-between gap-space-lg border border-transparent cursor-pointer" id="card-vs301" onclick="selectFlightCard('VS301')">
+<div class="absolute -top-3 left-6 px-space-sm py-0.5 rounded-full bg-primary-container text-on-primary font-code-flight text-label-sm font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm shimmer-pill">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+                  Top Autonomous Match • 99.4% Match Score
+                </div>
+<div class="flex flex-col gap-space-sm flex-1 pt-2">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold font-code-flight shadow-sm">
+                      VS
+                    </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md text-on-surface font-bold">Virgin Atlantic • VS 301</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-code-flight text-label-sm">Upper Class (Flatbed)</span>
+<span class="material-symbols-outlined text-primary text-[20px]" id="badge-vs301">check_circle</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Boeing 787-9 • DEL T3 Departure</span>
+</div>
+</div>
+<!-- Segment Schedule Comparison -->
+<div class="flex items-center gap-space-lg mt-2 bg-surface-container-low p-space-sm rounded-lg">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">11:30 IST</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">DEL Terminal 3</span>
+</div>
+<div class="flex-1 flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-primary font-code-flight">+3h 15m delta from orig.</span>
+<div class="w-full h-0.5 bg-outline-variant relative my-1">
+<span class="w-2 h-2 rounded-full bg-primary absolute -top-[3px] left-1/2 -translate-x-1/2 animate-ping"></span>
+<span class="w-2 h-2 rounded-full bg-primary absolute -top-[3px] left-1/2 -translate-x-1/2"></span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Non-stop • 9h 00m</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">16:00 GMT</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">LHR Terminal 3</span>
+</div>
+</div>
+<!-- Budget & Perks Bar -->
+<div class="flex flex-wrap items-center gap-space-md text-body-sm">
+<span class="flex items-center gap-1 text-primary font-semibold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                      ₹94,500 (100% Covered • ₹25,500 Under Budget)
+                    </span>
+<span class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]">airline_seat_recline_extra</span>
+                      Aisle Suite Confirmed (5K)
+                    </span>
+<span class="flex items-center gap-1 text-error font-semibold font-code-flight animate-pulse">
+<span class="material-symbols-outlined text-[16px]">event_seat</span>
+                      Only 2 seats left
+                    </span>
+</div>
+</div>
+<!-- Instant One-Click CTA Column -->
+<div class="flex flex-col justify-center items-stretch md:items-end gap-space-sm md:min-w-[200px]" onclick="event.stopPropagation()">
+<button class="w-full px-space-md py-3 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md font-semibold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 group" id="btn-confirm-vs" onclick="confirmFlight('VS301')">
+<span id="btn-confirm-vs-text">Confirm Virgin VS301</span>
+<span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<button class="w-full px-space-md py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-medium transition-all text-center flex items-center justify-center gap-1.5" onclick="openSeatModal()">
+<span class="material-symbols-outlined text-[16px] text-primary">view_in_ar</span>
+<span>Review Suite 5K Layout</span>
+</button>
+<div class="flex items-center gap-1.5 justify-center text-outline">
+<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+<span class="font-label-sm text-label-sm">Automated ticketing hold active for <strong class="font-code-flight text-on-surface" id="hold-timer">14m:20s</strong></span>
+</div>
+</div>
+</div>
+<!-- Option 2: Alternate Connecting / Fast Hub Match -->
+<div class="flight-card-interactive relative bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col md:flex-row justify-between gap-space-lg border border-transparent cursor-pointer" id="card-ek511" onclick="selectFlightCard('EK511')">
+<div class="flex flex-col gap-space-sm flex-1">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface font-bold font-code-flight shadow-sm">
+                      EK
+                    </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md text-on-surface font-bold">Emirates • EK 511 via DXB</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-secondary font-code-flight text-label-sm">Business Class A380</span>
+<span class="material-symbols-outlined text-outline text-[20px] hidden" id="badge-ek511">check_circle</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">1 Stop at Dubai International (1h 45m fast connection)</span>
+</div>
+</div>
+<!-- Segment Schedule Comparison -->
+<div class="flex items-center gap-space-lg mt-1 bg-surface-container-low p-space-sm rounded-lg">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md font-semibold text-on-surface">10:45 IST</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">DEL Terminal 3</span>
+</div>
+<div class="flex-1 flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-secondary font-code-flight">DXB Transit 1h 45m</span>
+<div class="w-full h-0.5 bg-outline-variant relative my-1">
+<span class="w-2 h-2 rounded-full bg-secondary absolute -top-[3px] left-1/2 -translate-x-1/2"></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Total 11h 15m</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-headline-md text-headline-md font-semibold text-on-surface">18:30 GMT</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">LHR Terminal 3</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md text-body-sm text-on-surface-variant">
+<span class="font-semibold text-on-surface">₹1,08,000 (Covered by budget)</span>
+<span>•</span>
+<span>Chauffeur-drive service included in London</span>
+</div>
+</div>
+<!-- Alternative CTA -->
+<div class="flex flex-col justify-center items-stretch md:items-end gap-space-sm md:min-w-[200px]" onclick="event.stopPropagation()">
+<button class="w-full px-space-md py-2.5 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold transition-all shadow-sm flex items-center justify-center gap-2" id="btn-select-ek" onclick="confirmFlight('EK511')">
+<span id="btn-select-ek-text">Select Emirates Flight</span>
+</button>
+<button class="w-full px-space-md py-2 text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all text-center">
+                    Compare Connection Risk
+                  </button>
+</div>
+</div>
+</div>
+<!-- Right 4-Cols: Tactical Concierge Controls & Context -->
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<!-- Auto-Confirm Guarantee Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md border border-surface-container">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">verified</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface">Concierge Autopilot</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Active corporate policy compliance</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  ATC will trigger ticket checkout for <strong class="text-on-surface" id="autopilot-flight-name">Virgin Atlantic VS301</strong> in <strong class="font-code-flight text-primary font-bold" id="countdown-timer">07:59</strong> minutes if no counter-preference is selected, ensuring your London board meeting is protected.
+                </p>
+<button class="w-full py-2.5 px-space-md bg-primary-container text-on-primary rounded-lg font-label-md text-label-md font-semibold hover:bg-primary transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md" id="btn-autopilot" onclick="autoConfirmTrigger()">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span id="btn-autopilot-label">Let Agent Auto-Confirm Best Option</span>
+</button>
+<div class="flex gap-space-xs pt-space-xs border-t border-surface-container">
+<button class="flex-1 py-2 rounded bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-all" onclick="openSeatModal()">
+                    Seat Preferences
+                  </button>
+<button class="flex-1 py-2 rounded bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-all" onclick="alert('Connecting to Premier Concierge Desk...')">
+                    Call VIP Desk
+                  </button>
+</div>
+</div>
+<!-- Airport Ground Assistance Card -->
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm border border-surface-container">
+<span class="font-label-sm text-label-sm uppercase font-code-flight text-secondary font-semibold tracking-wider">DEL Lounge Access Granted</span>
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined">local_cafe</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Encalm Privé Lounge</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Mezzanine Level, Near Gate 15</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                  Your digital boarding pass barcode has been granted immediate lounge refreshment privileges while rebooking resolves.
+                </p>
+</div>
+<!-- Baggage Re-routing Status Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-center justify-between border border-surface-container">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px]">luggage</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Checked Baggage (2 pcs)</span>
+<span class="font-label-sm text-label-sm font-code-flight text-secondary">Tag #BA-918231 / #BA-918232</span>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-surface-container font-code-flight text-label-sm text-primary font-medium flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+                  Auto-Transferring
+                </span>
+</div>
+</div>
+</div>
+</div>
+<!-- ======================================================== -->
+<!-- STATE 2: DELAYED STATE PANEL (Hidden by default)         -->
+<!-- ======================================================== -->
+<div class="tab-content-panel hidden-panel flex-col gap-space-lg" id="state-panel-delayed">
+<div class="bg-surface-container-highest/40 rounded-xl p-space-lg shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-space-lg border border-secondary/20">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[28px]">schedule</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="px-space-sm py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-code-flight text-label-sm font-bold uppercase tracking-wider flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
+                    DELAYED BY 45 MINUTES
+                  </span>
+<span class="font-code-flight text-label-sm text-secondary">METAR HOLDING PATTERN</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mt-1 font-bold">
+                  New Estimated Departure: 09:00 IST
+                </h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mt-1">
+                  Dense morning fog in the northern approach corridor caused staggered ATC takeoff slots. Gate updated to <strong>B26</strong>. Late incoming aircraft from Singapore arriving shortly.
+                </p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-space-sm items-center">
+<div class="bg-surface-container-lowest p-space-md rounded-xl text-center min-w-[160px] shadow-sm border border-surface-container">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-code-flight block">Boarding Begins</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">08:25 IST</span>
+</div>
+<button class="px-space-md py-3 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-semibold hover:bg-primary transition-all shadow-sm" onclick="alert('Calendar event updated to 09:00 IST departure.')">
+                Notify My Calendar
+              </button>
+</div>
+</div>
+<!-- Connecting Leg Protection Telemetry -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-surface-container">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-headline-md text-on-surface">Downstream Flight Risk Assessment</h3>
+<span class="font-label-sm text-label-sm text-emerald-700 font-code-flight font-semibold bg-emerald-50 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                ALL SUBSEQUENT LEGS GREEN
+              </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-1 border border-surface-container">
+<span class="font-label-sm text-label-sm text-secondary">LHR Arrival Projection</span>
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">13:30 GMT (+35m)</span>
+<span class="font-body-sm text-body-sm text-primary">Tailwinds reducing 10m en route</span>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-1 border border-surface-container">
+<span class="font-label-sm text-label-sm text-secondary">Border Control Expedited</span>
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">Fast Track Lane 1</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">LHR Iris Scan / ePassport active</span>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-1 border border-surface-container">
+<span class="font-label-sm text-label-sm text-secondary">London Chauffeur Notification</span>
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">Auto-Rescheduled</span>
+<span class="font-body-sm text-body-sm text-primary">Driver adjusted for 14:15 pickup</span>
+</div>
+</div>
+</div>
+</div>
+<!-- ======================================================== -->
+<!-- STATE 3: ON-TIME STATE PANEL (Hidden by default)         -->
+<!-- ======================================================== -->
+<div class="tab-content-panel hidden-panel flex-col gap-space-lg" id="state-panel-ontime">
+<div class="bg-emerald-50/70 border border-emerald-200 rounded-xl p-space-lg shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-space-lg">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-full bg-emerald-600 flex items-center justify-center text-white shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[28px]">check_circle</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="px-space-sm py-0.5 rounded-full bg-emerald-600 text-white font-code-flight text-label-sm font-bold uppercase tracking-wider flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                    FLIGHT ON-TIME &amp; PRE-BOARDING
+                  </span>
+<span class="font-code-flight text-label-sm text-emerald-800">TAXIWAY CLEAR • AIRSPACE NORMAL</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-emerald-950 tracking-tight mt-1 font-bold">
+                  Flight AI 102 Operating Exactly to Schedule
+                </h2>
+<p class="font-body-md text-body-md text-emerald-900/80 max-w-2xl mt-1">
+                  Departure gate <strong>B22</strong> is active and catering complete. Turnstile boarding commenced for Priority Zone 1. Active In-Flight Telemetry Guard enabled.
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<button class="px-space-md py-3 rounded-lg bg-emerald-700 text-white font-label-md text-label-md font-semibold hover:bg-emerald-800 transition-all shadow-sm flex items-center gap-2" onclick="alert('Displaying Apple Wallet Boarding Pass...')">
+<span class="material-symbols-outlined text-[20px]">qr_code_2</span>
+                Display Mobile Boarding Pass
+              </button>
+</div>
+</div>
+<!-- On-Time Telemetry & Weather Overview -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-space-md">
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-1 border border-surface-container">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-code-flight">Gate Status</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">B22 (Terminal 3)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">4 min walk from Central Lounge</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-1 border border-surface-container">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-code-flight">Assigned Seat</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">4A (Window Suite)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Business Class Forward Cabin</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-1 border border-surface-container">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-code-flight">LHR Runway Weather</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">14°C • Fair</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Wind 08kt WNW • Visual approach</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-1 border border-surface-container">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-code-flight">ATC Guard Active</span>
+<span class="font-headline-md text-headline-md text-emerald-600 font-bold flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                Autopilot Idle
+              </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Watching for gate updates</span>
+</div>
+</div>
+</div>
+<!-- ======================================================== -->
+<!-- BOTTOM FLIGHT RADAR VISUAL FEED PREVIEW                  -->
+<!-- ======================================================== -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col lg:flex-row items-center justify-between gap-space-lg border border-surface-container">
+<div class="flex flex-col gap-space-xs max-w-lg">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="font-label-sm text-label-sm uppercase font-code-flight text-primary font-semibold tracking-wider">Airspace Live Vector Tracking</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface font-bold">Sub-orbital telemetry vector &amp; route safety corridor</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              ATC continuously monitors 2,400+ international routes in real-time, anticipating airspace slots, geopolitical re-routings, and equipment swaps before airline agents report them.
+            </p>
+<div class="flex items-center gap-4 text-xs font-code-flight text-secondary mt-1">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-error"></span> AI 102 Void Waypoint</span>
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#0066ff]"></span> Active Re-route Vector</span>
+</div>
+</div>
+<!-- Radar Display Card with Simulated Trajectory Visual -->
+<div class="relative w-full lg:w-[460px] h-[200px] rounded-xl overflow-hidden bg-[#0a1628] flex items-center justify-center shadow-inner group cursor-crosshair border border-slate-700/60" id="radar-container">
+<!-- Continuous Smooth Radar Sweep Line / Conical Sweep -->
+<svg class="w-full h-full absolute inset-0 pointer-events-none" viewbox="0 0 420 180">
+<defs>
+<!-- Conical gradient simulation for radar beam -->
+<radialgradient cx="50%" cy="50%" id="radarCenterGlow" r="50%">
+<stop offset="0%" stop-color="#0066ff" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#0066ff" stop-opacity="0"></stop>
+</radialgradient>
+</defs>
+<!-- Dark Radar Grid Rings -->
+<ellipse cx="210" cy="90" fill="none" rx="160" ry="75" stroke="#1d2e47" stroke-dasharray="3 3" stroke-width="1"></ellipse>
+<ellipse cx="210" cy="90" fill="none" rx="110" ry="50" stroke="#1d2e47" stroke-width="0.8"></ellipse>
+<ellipse cx="210" cy="90" fill="none" rx="60" ry="25" stroke="#1d2e47" stroke-width="0.8"></ellipse>
+<line stroke="#1d2e47" stroke-dasharray="2 2" stroke-width="0.8" x1="210" x2="210" y1="10" y2="170"></line>
+<line stroke="#1d2e47" stroke-dasharray="2 2" stroke-width="0.8" x1="40" x2="380" y1="90" y2="90"></line>
+<!-- Continuous Rotating Radar Sweep Beam -->
+<g class="radar-beam">
+<line opacity="0.85" stroke="#00e5ff" stroke-width="1.8" x1="210" x2="210" y1="90" y2="10"></line>
+<!-- Beam soft trail wedge -->
+<path d="M 210 90 L 150 15 A 160 75 0 0 1 210 15 Z" fill="url(#radarCenterGlow)" opacity="0.6"></path>
+</g>
+<!-- Flight Trajectory Path: Disrupted Void Vector (Red dashed) -->
+<path d="M 60 140 Q 140 110 205 90" fill="none" opacity="0.8" stroke="#ba1a1a" stroke-dasharray="4 4" stroke-width="2.2"></path>
+<!-- Flight Trajectory Path: Proposed Active Re-route (Flowing animated dashed vector) -->
+<path class="flow-dash" d="M 205 90 Q 280 40 370 45" fill="none" filter="drop-shadow(0 0 8px #0066ff)" id="active-trajectory" stroke="#0066ff" stroke-width="3"></path>
+<!-- Ripple Pings around AI 102 Void (Delhi Origin/Cancel) -->
+<circle class="ripple-ring" cx="60" cy="140" fill="none" stroke="#ba1a1a"></circle>
+<circle class="ripple-ring-delayed" cx="60" cy="140" fill="none" stroke="#ba1a1a"></circle>
+<circle cx="60" cy="140" fill="#ba1a1a" r="5"></circle>
+<!-- Ripple Pings around VS 301 Inbound Vector Waypoint -->
+<circle class="ripple-ring" cx="205" cy="90" fill="none" stroke="#0066ff"></circle>
+<circle class="ripple-ring-delayed" cx="205" cy="90" fill="none" stroke="#0066ff"></circle>
+<circle cx="205" cy="90" fill="#0066ff" r="7"></circle>
+<!-- Destination Waypoint (LHR) -->
+<circle class="ripple-ring" cx="370" cy="45" fill="none" stroke="#38bdf8"></circle>
+<circle cx="370" cy="45" fill="#38bdf8" r="5"></circle>
+<!-- Animated Gliding Airplane along the Trajectory Vector -->
+<g id="flight-glyph">
+<animatemotion dur="4s" path="M 205 90 Q 280 40 370 45" repeatcount="indefinite" rotate="auto">
+</animatemotion>
+<!-- Plane Icon -->
+<path d="M 0 -7 L 4 0 L 10 2 L 4 3 L 3 8 L 0 6 L -3 8 L -4 3 L -10 2 L -4 0 Z" fill="#ffffff" filter="drop-shadow(0 0 4px #00e5ff)"></path>
+</g>
+</svg>
+<!-- Floating Telemetry Coordinates Tooltip (Shows on hover) -->
+<div class="absolute top-2 right-2 bg-slate-900/90 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-slate-700 text-[11px] font-code-flight text-slate-200 shadow-lg pointer-events-none transition-opacity duration-200" id="radar-tooltip">
+<div class="flex items-center gap-1.5 text-cyan-400 font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+<span>TELEMETRY ACTIVE</span>
+</div>
+<div class="text-[10px] text-slate-400 mt-0.5">Alt: <strong class="text-white">FL380</strong> • Spd: <strong class="text-white">Mach 0.84</strong> • Cor: <strong class="text-white">L888</strong></div>
+</div>
+<!-- Dynamic Floating HUD Badges -->
+<div class="absolute bottom-2.5 left-3 px-2 py-1 rounded bg-inverse-surface/90 backdrop-blur-md flex items-center gap-1.5 shadow-sm border border-slate-700">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span>
+<span class="font-code-flight text-label-sm text-inverse-on-surface font-semibold">AI 102 Void (DEL)</span>
+</div>
+<div class="absolute bottom-2.5 right-3 px-2.5 py-1 rounded bg-primary-container text-on-primary font-code-flight text-label-sm font-semibold flex items-center gap-1.5 shadow-md border border-blue-400/40">
+<span class="material-symbols-outlined text-[14px]">flight</span>
+<span id="radar-vector-tag">VS 301 Inbound Vector</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="w-full bg-surface-container-low mt-space-xl shadow-[0_-1px_4px_rgba(10,37,64,0.02)]">
+<div class="max-w-[1440px] mx-auto px-margin py-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md text-primary font-bold">ATC</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">© 2025 Autonomous Travel Concierge System. Operating under real-time telemetry.</span>
+</div>
+<div class="flex items-center gap-space-lg">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Flight Operations</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Assurance Guarantee</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Support Desk</a>
+</div>
+</div>
+</footer>
+<!-- Vanilla JavaScript for Interactivity, Dynamic Timers, and Tab Switching -->
+<script>
+    // 1. Interactive Simulation Feed Switcher
+    function switchState(targetState) {
+      const panels = {
+        cancelled: document.getElementById('state-panel-cancelled'),
+        delayed: document.getElementById('state-panel-delayed'),
+        ontime: document.getElementById('state-panel-ontime')
+      };
+
+      const tabs = {
+        cancelled: document.getElementById('tab-cancelled'),
+        delayed: document.getElementById('tab-delayed'),
+        ontime: document.getElementById('tab-ontime')
+      };
+
+      const schedEl = document.getElementById('main-flight-sched');
+
+      // Reset tabs styling
+      Object.keys(tabs).forEach(k => {
+        tabs[k].className = 'px-space-md py-1.5 rounded font-label-md text-label-md transition-all font-medium text-on-surface-variant hover:text-on-surface flex items-center gap-1.5';
+        panels[k].classList.remove('active-panel');
+        panels[k].classList.add('hidden-panel');
+      });
+
+      if (targetState === 'cancelled') {
+        panels.cancelled.classList.remove('hidden-panel');
+        panels.cancelled.classList.add('active-panel');
+        tabs.cancelled.className = 'px-space-md py-1.5 rounded font-label-md text-label-md transition-all font-semibold bg-surface shadow-sm text-error flex items-center gap-1.5';
+        if (schedEl) schedEl.textContent = 'Thursday, 24 Oct 2024 • 08:15 IST (Cancelled)';
+      } else if (targetState === 'delayed') {
+        panels.delayed.classList.remove('hidden-panel');
+        panels.delayed.classList.add('active-panel');
+        tabs.delayed.className = 'px-space-md py-1.5 rounded font-label-md text-label-md transition-all font-semibold bg-surface shadow-sm text-secondary flex items-center gap-1.5';
+        if (schedEl) schedEl.textContent = 'Thursday, 24 Oct 2024 • 09:00 IST (Delayed +45m)';
+      } else if (targetState === 'ontime') {
+        panels.ontime.classList.remove('hidden-panel');
+        panels.ontime.classList.add('active-panel');
+        tabs.ontime.className = 'px-space-md py-1.5 rounded font-label-md text-label-md transition-all font-semibold bg-surface shadow-sm text-emerald-700 flex items-center gap-1.5';
+        if (schedEl) schedEl.textContent = 'Thursday, 24 Oct 2024 • 08:15 IST (On-Time)';
+      }
+    }
+
+    // 2. Flight Selection & Interactive Highlighting
+    let selectedFlight = 'VS301';
+
+    function selectFlightCard(flightId) {
+      selectedFlight = flightId;
+      const cardVS = document.getElementById('card-vs301');
+      const cardEK = document.getElementById('card-ek511');
+      const badgeVS = document.getElementById('badge-vs301');
+      const badgeEK = document.getElementById('badge-ek511');
+      const autopilotFlight = document.getElementById('autopilot-flight-name');
+      const radarVectorTag = document.getElementById('radar-vector-tag');
+
+      if (flightId === 'VS301') {
+        cardVS.classList.add('selected-card');
+        cardEK.classList.remove('selected-card');
+        badgeVS.classList.remove('hidden');
+        badgeEK.classList.add('hidden');
+        if (autopilotFlight) autopilotFlight.textContent = 'Virgin Atlantic VS301';
+        if (radarVectorTag) radarVectorTag.textContent = 'VS 301 Inbound Vector';
+      } else {
+        cardEK.classList.add('selected-card');
+        cardVS.classList.remove('selected-card');
+        badgeEK.classList.remove('hidden');
+        badgeVS.classList.add('hidden');
+        if (autopilotFlight) autopilotFlight.textContent = 'Emirates EK511';
+        if (radarVectorTag) radarVectorTag.textContent = 'EK 511 Inbound Vector';
+      }
+    }
+
+    function confirmFlight(flightCode) {
+      selectFlightCard(flightCode);
+      const isVS = flightCode === 'VS301';
+      const btn = isVS ? document.getElementById('btn-confirm-vs') : document.getElementById('btn-select-ek');
+      const btnText = isVS ? document.getElementById('btn-confirm-vs-text') : document.getElementById('btn-select-ek-text');
+
+      if (!btn) return;
+
+      btn.classList.add('opacity-90', 'pointer-events-none');
+      btnText.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span> Issuing E-Ticket...';
+
+      setTimeout(() => {
+        btnText.innerHTML = '<span class="material-symbols-outlined text-[18px]">check_circle</span> Rebooked &amp; Ticketed!';
+        btn.classList.remove('bg-primary-container', 'bg-surface-container-highest');
+        btn.classList.add('bg-emerald-600', 'text-white');
+        
+        const autopilotBtn = document.getElementById('btn-autopilot-label');
+        if (autopilotBtn) autopilotBtn.textContent = `${flightCode} Confirmed & Dispatched`;
+      }, 1100);
+    }
+
+    function autoConfirmTrigger() {
+      confirmFlight(selectedFlight);
+    }
+
+    // 3. Live Countdown Timers
+    let checkoutSeconds = 7 * 60 + 59;
+    const checkoutEl = document.getElementById('countdown-timer');
+
+    let holdSeconds = 14 * 60 + 20;
+    const holdEl = document.getElementById('hold-timer');
+
+    setInterval(() => {
+      if (checkoutSeconds > 0) {
+        checkoutSeconds--;
+        const m = Math.floor(checkoutSeconds / 60);
+        const s = checkoutSeconds % 60;
+        if (checkoutEl) checkoutEl.textContent = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      }
+
+      if (holdSeconds > 0) {
+        holdSeconds--;
+        const m = Math.floor(holdSeconds / 60);
+        const s = holdSeconds % 60;
+        if (holdEl) holdEl.textContent = `${m}m:${s < 10 ? '0' : ''}${s}s`;
+      }
+    }, 1000);
+
+    // 4. Subtle Realism Latency Indicator Flutter (410ms - 435ms)
+    const latencyEl = document.getElementById('latency-indicator');
+    if (latencyEl) {
+      setInterval(() => {
+        const ms = 415 + Math.floor(Math.random() * 20);
+        latencyEl.textContent = `${ms}ms`;
+      }, 3000);
+    }
+
+    // 5. Seat Modal Interactions
+    function openSeatModal() {
+      const modal = document.getElementById('seat-modal');
+      const content = document.getElementById('seat-modal-content');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+
+    function closeSeatModal() {
+      const modal = document.getElementById('seat-modal');
+      const content = document.getElementById('seat-modal-content');
+      content.classList.remove('scale-100', 'opacity-100');
+      content.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }, 200);
+    }
+
+    // Close on backdrop click
+    document.getElementById('seat-modal')?.addEventListener('click', function(e) {
+      if (e.target === this) closeSeatModal();
+    });
+  </script>
+</body></html>
