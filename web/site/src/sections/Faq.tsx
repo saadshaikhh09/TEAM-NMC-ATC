@@ -13,7 +13,7 @@ const QUESTIONS = [
   },
   {
     q: 'Does it book without asking me?',
-    a: 'Only under a limit you set. Each traveller has an auto-approve threshold for the net cost change. Under it, the plan executes on its own. Over it — or when the plan bumps into a hard constraint — the trip parks in AWAITING_APPROVAL with the ranked options and the rejections on screen, and waits for you to approve or reject.',
+    a: 'Only under a limit you set. Each traveller has an auto-approve threshold for the replacement fare. Under it, the plan can execute on its own. Over it, or when a hotel change needs review, the trip waits for your decision with the ranked options and rejection reasons on screen.',
   },
   {
     q: 'How are hotel dates handled when the new flight lands later?',
@@ -21,7 +21,7 @@ const QUESTIONS = [
   },
   {
     q: 'What is real in this demo and what is mocked?',
-    a: 'The state machine, the constraint filter, the ranking, the approval gate, the audit timeline and the WebSocket are all real and tested. Flight search and booking run against Duffel in test mode; hotels run against the LiteAPI/Nuitee sandbox; flight status can run against AeroDataBox or AviationStack. The demo ships with DEMO_MODE=true, which forces mock providers so a rehearsal cannot spend the 500-call monthly quota.',
+    a: 'The state machine, constraint filter, ranking, approval gate, audit timeline and account permissions are real and tested. The current app uses deterministic mock flight search, mock booking and mock hotel changes. Status adapters for AeroDataBox and AviationStack exist, but demo mode keeps live polling off to protect the monthly quota. It does not have live airline write access.',
   },
   {
     q: 'Does it send WhatsApp or SMS alerts?',
@@ -42,9 +42,9 @@ export function Faq() {
           <span className="mb-2 block font-mono text-[12px] font-bold uppercase tracking-wider text-[#0284C7]">
             Clarifications
           </span>
-          <h2 className="mb-4 font-display text-[36px] leading-[48px] tracking-tight text-[#0A2540] sm:text-[40px]">
+          <h1 className="mb-4 font-display text-[36px] leading-[48px] tracking-tight text-[#0A2540] sm:text-[40px]">
             Frequently asked questions
-          </h2>
+          </h1>
           <p className="text-base text-[#64748B]">
             Including what the agent does not do.
           </p>

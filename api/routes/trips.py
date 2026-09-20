@@ -42,6 +42,7 @@ class Flight(BaseModel):
     scheduled_departure: AwareDatetime
     scheduled_arrival: AwareDatetime
     status: Literal["SCHEDULED", "DELAYED", "CANCELLED", "DEPARTED", "LANDED"]
+    booking_reference: str | None
     next_poll_at: AwareDatetime | None
     origin_timezone: str | None = Field(default=None, exclude=True)
     destination_timezone: str | None = Field(default=None, exclude=True)

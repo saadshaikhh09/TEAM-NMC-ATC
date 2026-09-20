@@ -51,3 +51,23 @@ def test_arbitrary_route_has_deterministic_flight_options_and_booking():
     assert len(first) >= 2
     assert all(option.departure >= depart_after for option in first)
     assert provider.book(first[0].id, "Alex Morgan").reference.startswith("MOCK-")
+
+
+def test_generic_business_route_and_hotel_change_work_in_mock_sandbox():
+    flights = MockFlightProvider()
+    options = flights.search(
+        "JFK", "NRT", datetime(2026, 10, 1, 14, tzinfo=timezone.utc), "business"
+    )
+    assert len(options) == 3
+    assert all(option.cabin == "business" for option in options)
+    assert flights.book(options[0].id, "Alex Morgan").provider == "mock"
+
+    hotels = MockHotelProvider()
+    check_in, check_out = date(2026, 10, 2), date(2026, 10, 5)
+    rate = hotels.search("TOKYO", check_in, check_out)[0]
+    confirmation = hotels.change_dates(
+        "IMPORTED-123", rate.rate_id, check_in, check_out, "Alex Morgan"
+    )
+    assert confirmation.provider == "mock"
+    assert confirmation.check_in == check_in
+    assert not hotels.cancel("IMPORTED-123")

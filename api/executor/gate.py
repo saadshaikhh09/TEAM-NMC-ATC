@@ -69,7 +69,9 @@ def decide(plan, constraints, policy) -> tuple[str, str | None]:
                 "APPROVAL",
                 "Hotel is not modifiable — cancel and rebook needs approval",
             )
-        cost = _value(change, "cost_delta_inr", 0)
+        cost = _value(change, "cost_delta_inr")
+        if cost is None:
+            return "APPROVAL", "Hotel change cost is unknown and needs review"
         hotel_threshold = policy["hotel"]["auto_modify_under_inr"]
         if cost > hotel_threshold:
             return (

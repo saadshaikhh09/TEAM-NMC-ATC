@@ -85,10 +85,11 @@ class MockFlightProvider(FlightProvider):
                cabin: str) -> list[FlightOption]:
         if depart_after.tzinfo is None or depart_after.utcoffset() is None:
             raise ValueError("depart_after must include a timezone")
-        if cabin != "economy":
-            return []
         route = (origin.upper(), destination.upper())
-        rows = _OPTIONS.get(route) or self._generic_rows(route, depart_after)
+        rows = _OPTIONS.get(route) if cabin == "economy" else None
+        if rows and not any(_utc(row[3]) >= depart_after for row in rows):
+            rows = None
+        rows = rows or self._generic_rows(route, depart_after, cabin)
         return [
             self._remember(FlightOption(option_id, carrier, number, _utc(departure), _utc(arrival),
                                         stops, cabin, fare))
@@ -97,8 +98,9 @@ class MockFlightProvider(FlightProvider):
         ]
 
     @staticmethod
-    def _generic_rows(route: tuple[str, str], depart_after: datetime) -> tuple:
-        digest = hashlib.sha256("|".join(route).encode()).hexdigest()
+    def _generic_rows(route: tuple[str, str], depart_after: datetime,
+                      cabin: str) -> tuple:
+        digest = hashlib.sha256("|".join((*route, cabin)).encode()).hexdigest()
         base = depart_after.astimezone(timezone.utc).replace(minute=0, second=0, microsecond=0)
         carriers = ("AT", "SK", "NX")
         return tuple(
@@ -107,7 +109,8 @@ class MockFlightProvider(FlightProvider):
                 f"{carriers[index]}{100 + int(digest[index:index + 2], 16) % 800}",
                 (base + timedelta(hours=2 + index * 3)).isoformat(),
                 (base + timedelta(hours=8 + index * 4)).isoformat(),
-                index % 2, 28000 + int(digest[index * 2:index * 2 + 4], 16) % 32000,
+                index % 2, (28000 + int(digest[index * 2:index * 2 + 4], 16) % 32000)
+                * (2 if cabin == "business" else 1),
             )
             for index in range(3)
         )
@@ -147,14 +150,19 @@ class MockHotelProvider(HotelProvider):
         self._rates: dict[str, tuple[date, date]] = {}
         self._prebooks: dict[str, str] = {}
         self._bookings: set[str] = set()
+        self._cancelled_imports: set[str] = set()
 
     def search(self, city: str, check_in: date, check_out: date) -> list[HotelOption]:
         if check_out <= check_in:
             raise ValueError("check_out must be after check_in")
         city = city.upper()
-        if city not in _HOTELS:
-            return []
-        option_id, rate_id, name, nightly_rate = _HOTELS[city]
+        if city in _HOTELS:
+            option_id, rate_id, name, nightly_rate = _HOTELS[city]
+        else:
+            digest = hashlib.sha256(city.encode()).hexdigest()[:8]
+            option_id, rate_id, name, nightly_rate = (
+                f"hotel_{digest}", f"rate_{digest}", f"{city} demo hotel", 9000,
+            )
         self._rates[rate_id] = (check_in, check_out)
         return [HotelOption(option_id, rate_id, name, city, nightly_rate)]
 
@@ -178,7 +186,20 @@ class MockHotelProvider(HotelProvider):
         return HotelConfirmation(reference, "mock", check_in, check_out, 0)
 
     def cancel(self, booking_id: str) -> bool:
-        if booking_id not in self._bookings:
-            return False
-        self._bookings.remove(booking_id)
-        return True
+        if booking_id in self._bookings:
+            self._bookings.remove(booking_id)
+            return True
+        # Manually entered/seeded confirmations predate this provider instance.
+        # The mock treats their first cancellation as a sandbox operation.
+        if booking_id and not booking_id.startswith("MOCK-") and booking_id not in self._cancelled_imports:
+            self._cancelled_imports.add(booking_id)
+            return True
+        return False
+
+    def change_dates(self, booking_id: str, rate_id: str, new_check_in: date,
+                     new_check_out: date, guest: str) -> HotelConfirmation:
+        if self._rates.get(rate_id) != (new_check_in, new_check_out):
+            raise ValueError("replacement hotel rate does not match the requested dates")
+        if not self.cancel(booking_id):
+            raise ValueError("original hotel booking could not be cancelled")
+        return self.book(self.prebook(rate_id), guest)

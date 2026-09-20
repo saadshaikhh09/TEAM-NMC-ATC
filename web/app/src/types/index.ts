@@ -23,6 +23,7 @@ export interface Flight {
   departure_local: string
   arrival_local: string
   status: FlightStatus
+  booking_reference: string | null
   /** Null once the flight is disrupted or terminal — the monitor stops scheduling polls. */
   next_poll_at: string | null
 }

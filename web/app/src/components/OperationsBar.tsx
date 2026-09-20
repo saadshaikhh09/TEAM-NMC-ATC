@@ -42,7 +42,7 @@ export function OperationsBar({ trips, trip, live, onSelectTrip, onSimulate }: O
 
   // Detection targets a leg, not a trip. Outbound is the demo leg; falling back to
   // the first flight keeps this working for a one-way trip.
-  const target = trip.flights.find((flight) => flight.leg === 'outbound') ?? trip.flights[0]
+  const target = trip.flights.find((flight) => flight.leg === 'outbound' && flight.status === 'SCHEDULED') ?? trip.flights.find((flight) => flight.leg === 'outbound') ?? trip.flights[0]
 
   const fire = async (kind: SimulationKind) => {
     if (!target) return
@@ -70,7 +70,7 @@ export function OperationsBar({ trips, trip, live, onSelectTrip, onSimulate }: O
     }
   }
 
-  const disabled = !live || !target || pending !== null
+  const disabled = !live || !target || trip.status !== 'MONITORING' || pending !== null
 
   return (
     <section
@@ -156,6 +156,8 @@ export function OperationsBar({ trips, trip, live, onSelectTrip, onSimulate }: O
               ? 'Mock data is already showing a disrupted trip. Start the API to fire a real event.'
               : !target
                 ? 'This trip has no flight to disrupt.'
+                : trip.status !== 'MONITORING'
+                  ? `This trip is ${trip.status.toLowerCase().replaceAll('_', ' ')}. The demo action is available while a trip is monitoring.`
                 : target.status === 'SCHEDULED'
                   ? `Targets ${target.flight_number}, the ${target.leg} leg.`
                   : `${target.flight_number} is already ${target.status.toLowerCase()}. Run \`make reset\` to rehearse it again.`}

@@ -12,7 +12,7 @@ from dotenv import dotenv_values
 def config_value(name: str, default: str = "") -> str:
     """Read an environment value, falling back to the repository's .env."""
     value = os.getenv(name)
-    if value is None:
+    if value is None and os.getenv("TESTING", "").lower() != "true":
         value = dotenv_values(Path(__file__).resolve().parents[2] / ".env").get(name)
     return str(value).strip() if value is not None else default
 

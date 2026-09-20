@@ -51,7 +51,8 @@ def configure() -> None:
     """Register only fully configured providers from the environment."""
     from llm.providers import gemini, openai_compatible
 
-    load_dotenv()
+    if os.getenv("TESTING", "").lower() != "true":
+        load_dotenv()
     _registry.clear()
 
     # groq is OpenAI-compatible, so it needs no adapter of its own. Registered

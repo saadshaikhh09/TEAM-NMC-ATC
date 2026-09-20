@@ -18,8 +18,10 @@ from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from uuid import UUID
 
+from sqlalchemy import select
+
 from core.audit import record
-from core.config import policy as load_policy
+from core.config import policy as load_policy, settings
 from core.db import SessionLocal
 from core.events import emit
 from core.models import (
@@ -41,6 +43,7 @@ from planner.rank import rank
 
 _flight_provider = None
 _hotel_provider = None
+_narration_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="atc-narration")
 
 
 def configure(flight_provider, hotel_provider) -> None:
@@ -87,28 +90,47 @@ def flight_timezone(trip: Trip) -> str | None:
 
 
 def _narrate(plan) -> tuple[str, str]:
-    """Prose for the plan. Off the critical path: templated copy if the chain is down."""
+    """Immediate deterministic copy; the optional model can refine it later."""
     from llm import fallback
 
+    return fallback.explanation(plan), fallback.member_message(plan)
+
+
+def _enrich_narration(plan_id: UUID) -> None:
+    """Run slow model calls away from the monitor and simulation request."""
     try:
         from llm.explain import draft, explain
 
-        # Load ORM collections before the read-only narration work fans out.
-        list(plan.options), list(plan.rejections), list(plan.hotel_changes)
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            explained = pool.submit(explain, plan)
-            drafted = pool.submit(draft, plan)
-            return explained.result(), drafted.result()
+        with SessionLocal() as session:
+            plan = session.get(RecoveryPlan, plan_id)
+            if plan is None:
+                return
+            list(plan.options), list(plan.rejections), list(plan.hotel_changes)
+            explanation = explain(plan)
+            message = draft(plan)
+            plan.explanation = explanation
+            plan.member_message = message
+            trip_id = plan.disruption.trip_id
+            session.commit()
+        emit("plan.ready", _event(trip_id, plan))
     except Exception:
-        return fallback.explanation(plan), fallback.member_message(plan)
+        # Narration never changes the selected option or stops recovery.
+        return
+
+
+def _queue_narration(plan: RecoveryPlan) -> None:
+    if not settings().testing:
+        _narration_pool.submit(_enrich_narration, plan.id)
 
 
 def _escalate(session, trip_id, headline: str, plan=None) -> None:
+    trip = session.get(Trip, trip_id)
+    if trip is not None and trip.status == "RECOVERED":
+        return
     record(session, trip_id, "FAILED", headline, plan_id=plan.id if plan else None)
     if plan is not None:
         plan.state = "FAILED"
         session.commit()
-    trip = session.get(Trip, trip_id)
     if trip is not None and can(trip.status, "RECOVERY_FAILED"):
         advance(session, trip_id, "RECOVERY_FAILED")
     emit("plan.failed", _event(trip_id, plan, error=headline))
@@ -145,7 +167,7 @@ def plan_for(session, disruption: Disruption) -> RecoveryPlan:
     hotel = trip.hotels[0] if trip.hotels else None
     hotel_deltas = (
         {
-            option.id: assess(hotel, option.arrival, policy)["cost_delta_inr"]
+            option.id: assess(hotel, option.arrival, policy)["cost_delta_inr"] or 0
             for option in survivors
         }
         if hotel is not None
@@ -212,14 +234,15 @@ def plan_for(session, disruption: Disruption) -> RecoveryPlan:
         session.commit()
         emit("plan.ready", _event(trip.id, plan, disruption_id=str(disruption.id)))
         _escalate(session, trip.id, "No option satisfies the traveller's hard constraints", plan)
+        _queue_narration(plan)
         return plan
 
     chosen = scored[0]
     plan.chosen_option_id = chosen.option.id
+    hotel_cost = change.cost_delta_inr if change is not None and change.required else 0
     plan.total_cost_delta_inr = (
-        chosen.option.fare_inr
-        - (flight.fare_inr or 0)
-        + (change.cost_delta_inr if change is not None and change.required else 0)
+        chosen.option.fare_inr - flight.fare_inr + hotel_cost
+        if flight.fare_inr is not None and hotel_cost is not None else None
     )
     session.commit()
     session.refresh(plan)
@@ -243,6 +266,7 @@ def plan_for(session, disruption: Disruption) -> RecoveryPlan:
         )
         advance(session, trip.id, "AWAITING_APPROVAL")
         emit("plan.awaiting_approval", _event(trip.id, plan, reason=reason))
+        _queue_narration(plan)
         return plan
 
     plan.state = "EXECUTING"
@@ -251,6 +275,7 @@ def plan_for(session, disruption: Disruption) -> RecoveryPlan:
     emit("plan.executing", _event(trip.id, plan))
     run(session, plan, _flight_provider, _hotel_provider)
     session.refresh(plan)
+    _queue_narration(plan)
     return plan
 
 
@@ -269,4 +294,8 @@ def on_disruption_detected(message: dict) -> None:
             plan_for(session, disruption)
         except Exception as exc:  # planning must escalate, never 500 the reporter
             session.rollback()
-            _escalate(session, trip_id, f"Planning failed: {exc}")
+            plan = session.scalars(
+                select(RecoveryPlan).where(RecoveryPlan.disruption_id == disruption_id)
+                .order_by(RecoveryPlan.created_at.desc(), RecoveryPlan.id.desc())
+            ).first()
+            _escalate(session, trip_id, f"Planning failed: {exc}", plan)

@@ -100,3 +100,37 @@ def test_extract_uses_the_same_persistence_sink(monkeypatch):
     assert response.status_code == 201
     assert response.json()["traveller_name"] == "Extract User"
     assert any(item["id"] == response.json()["id"] for item in client.get("/trips").json())
+
+
+def test_new_trip_can_recover_and_shift_an_imported_hotel_booking():
+    client = TestClient(app)
+    assert client.post("/auth/register", json=registration("hotel-flow@example.com")).status_code == 201
+    payload = trip_payload("Hotel Flow") | {
+        "hotel": {
+            "name": "London demo stay", "city": "LON",
+            "check_in": "2026-09-30", "check_out": "2026-10-05",
+            "confirmation_number": "IMPORTED-123", "nightly_rate_inr": 9000,
+        },
+        "constraints": {"max_stops": 2, "auto_approve_under_inr": 100000},
+    }
+    created = client.post("/trips", json=payload)
+    assert created.status_code == 201
+    trip_id = created.json()["id"]
+    flight_id = created.json()["flights"][0]["id"]
+
+    disruption = client.post(f"/simulate/cancellation?flight_id={flight_id}")
+    assert disruption.status_code == 200
+    plan_url = f"/disruptions/{disruption.json()['id']}/plan"
+    plan = client.get(plan_url)
+    assert plan.status_code == 200
+    if plan.json()["state"] == "AWAITING_APPROVAL":
+        assert client.post(f"/approvals/{plan.json()['id']}/approve").status_code == 200
+
+    final_plan = client.get(plan_url).json()
+    final_trip = client.get(f"/trips/{trip_id}").json()
+    assert final_plan["state"] == "EXECUTED"
+    assert final_trip["status"] == "RECOVERED"
+    assert any(flight["booking_reference"] == "MOCK-" + final_plan["chosen_option_id"].upper()
+               for flight in final_trip["flights"])
+    assert final_trip["hotels"][0]["confirmation_number"].startswith("MOCK-")
+    assert final_trip["hotels"][0]["check_in"] != "2026-09-30"

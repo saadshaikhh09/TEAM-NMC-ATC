@@ -26,10 +26,10 @@ export function Tooltip({ label, children }: TooltipProps) {
       >
         {children}
       </span>
-      {/* Width is clamped to the viewport so a tooltip near the right edge cannot
-          widen the page. AppShell clips whatever still overhangs. */}
+      {/* On narrow screens the hint sits above the bottom navigation, keeping
+          its full text in view even when the trigger is near an edge. */}
       <span
-        className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-[min(16rem,calc(100vw-2rem))] -translate-x-1/2 rounded-md bg-navy px-3 py-2 text-xs font-medium leading-5 text-white opacity-0 shadow-raised transition-opacity duration-150 group-focus-within/tip:opacity-100 group-hover/tip:opacity-100"
+        className="tip-bubble pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-[min(16rem,calc(100vw-2rem))] -translate-x-1/2 rounded-md bg-navy px-3 py-2 text-xs font-medium leading-5 text-white opacity-0 shadow-raised transition-opacity duration-150 group-focus-within/tip:opacity-100 group-hover/tip:opacity-100"
         id={id}
         role="tooltip"
       >

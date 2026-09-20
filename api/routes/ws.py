@@ -9,7 +9,7 @@ from threading import Lock
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from sqlalchemy import select
 
-from core.auth import SESSION_COOKIE, user_for_token
+from core.auth import SESSION_COOKIE, browser_origin_allowed, user_for_token
 from core.db import SessionLocal
 from core.events import subscribe
 from core.models import Traveller, Trip
@@ -66,6 +66,9 @@ async def _send(websocket: WebSocket, queue: asyncio.Queue) -> None:
 
 @router.websocket("/ws")
 async def websocket_events(websocket: WebSocket) -> None:
+    if not browser_origin_allowed(websocket.headers.get("origin"), websocket.headers.get("host")):
+        await websocket.close(code=4403)
+        return
     user = user_for_token(websocket.cookies.get(SESSION_COOKIE))
     if user is None:
         await websocket.close(code=4401)

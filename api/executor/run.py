@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 from core.audit import record
 from core.events import emit
-from core.models import AgentAction
+from core.models import AgentAction, Flight
 from core.state_machine import advance
 from providers.base import FlightProvider, HotelProvider
 
@@ -81,6 +81,28 @@ def run(
         {"confirmation_reference": flight_confirmation.reference},
         plan_id=plan.id,
     )
+
+    if session.scalar(select(Flight.id).where(
+        Flight.trip_id == trip_id,
+        Flight.booking_reference == flight_confirmation.reference,
+    )) is None:
+        session.add(Flight(
+            trip_id=trip_id,
+            leg=plan.disruption.flight.leg,
+            carrier=chosen.carrier,
+            flight_number=chosen.flight_number,
+            origin=plan.disruption.flight.origin,
+            destination=plan.disruption.flight.destination,
+            origin_timezone=plan.disruption.flight.origin_timezone,
+            destination_timezone=plan.disruption.flight.destination_timezone,
+            scheduled_departure=chosen.departure,
+            scheduled_arrival=chosen.arrival,
+            status="SCHEDULED",
+            booking_reference=flight_confirmation.reference,
+            fare_inr=chosen.fare_inr,
+            cabin=chosen.cabin,
+        ))
+        session.commit()
 
     hotel_confirmation = None
     change = next((item for item in plan.hotel_changes if item.required), None)

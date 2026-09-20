@@ -11,6 +11,8 @@ def _money(value: int | None) -> str:
 
 
 def _cost_change(value: int | None) -> str:
+    if value is None:
+        return "has not been calculated"
     direction = "increases" if (value or 0) >= 0 else "decreases"
     return f"{direction} by {_money(value)}"
 
@@ -63,9 +65,13 @@ def explanation(plan) -> str:
         if change and _value(change, "required", False)
         else "No hotel date change is required."
     )
-    return (
+    recommendation = (
         f"Recommended option: {_option_name(plan)} "
         f"({_value(plan, 'chosen_option_id')}). "
+        if _value(plan, "chosen_option_id") else "No alternative satisfies the stated constraints. "
+    )
+    return (
+        recommendation +
         f"Rejected alternatives: {rejected}. {hotel} "
         f"Total trip cost {_cost_change(_value(plan, 'total_cost_delta_inr'))}. "
         f"Approval reason: {_value(plan, 'approval_reason', 'none')}. "
@@ -80,8 +86,13 @@ def member_message(plan) -> str:
         if change and _value(change, "required", False)
         else ""
     )
+    opening = (
+        f"Travel update: we recommend {_option_name(plan)}. "
+        if _value(plan, "chosen_option_id") else
+        "Travel update: no alternative satisfies your constraints. "
+    )
     return (
-        f"Travel update: we recommend {_option_name(plan)}. {hotel}"
+        opening + hotel +
         f"The total trip cost {_cost_change(_value(plan, 'total_cost_delta_inr'))}. "
         f"Your approval is needed because {_value(plan, 'approval_reason', 'the plan requires review')}. "
         "No airline booking is confirmed by this message."

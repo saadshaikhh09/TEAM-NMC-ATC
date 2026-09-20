@@ -34,6 +34,16 @@ async function reasonFor(response: Response, path: string): Promise<string> {
     const body: unknown = await response.json()
     const detail = (body as { detail?: unknown }).detail
     if (typeof detail === 'string' && detail) return detail
+    if (Array.isArray(detail)) {
+      const messages = detail.slice(0, 3).map((entry: unknown) => {
+        if (!entry || typeof entry !== 'object') return null
+        const issue = entry as { loc?: unknown; msg?: unknown }
+        const field = Array.isArray(issue.loc) ? issue.loc.filter((part) => part !== 'body').join('.') : ''
+        const message = typeof issue.msg === 'string' ? issue.msg.replace(/^Value error, /, '') : ''
+        return [field, message].filter(Boolean).join(': ')
+      }).filter(Boolean)
+      if (messages.length) return messages.join('; ')
+    }
   } catch {
     // Not JSON — a proxy error page or an empty body. The status line still says something.
   }

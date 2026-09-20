@@ -7,6 +7,7 @@ import hmac
 import re
 import secrets
 from datetime import datetime, timedelta, timezone
+from urllib.parse import urlsplit
 from uuid import UUID
 
 from fastapi import Cookie, HTTPException, Response
@@ -64,6 +65,17 @@ def verify_password(password: str, encoded: str) -> bool:
 
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
+
+
+def browser_origin_allowed(origin: str | None, host: str | None) -> bool:
+    """Reject cross-origin cookie actions even when a browser cannot read CORS output."""
+    if origin is None:
+        return True  # CLI clients and server-to-server calls have no Origin header.
+    parsed = urlsplit(origin)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc or parsed.path or parsed.query:
+        return False
+    configured = {item.strip().rstrip("/") for item in settings().cors_origins.split(",")}
+    return origin.rstrip("/") in configured or parsed.netloc == host
 
 
 def create_session(db, user_id: UUID) -> tuple[str, datetime]:

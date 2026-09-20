@@ -121,9 +121,10 @@ export function LiveFlightStatusCard({ flight }: LiveFlightStatusCardProps) {
         <p>{style.note}</p>
         <p className="font-mono text-[10px] uppercase tracking-[0.12em]">
           {nextPollAt === null || nextPoll === null ? (
-            <Tooltip label="This leg is disrupted or finished, so the monitor has stopped scheduling polls for it. Recovery drives what happens next.">
-              <span>Polling stopped</span>
-            </Tooltip>
+            flight.booking_reference?.startsWith('MOCK-') ? <span>Mock booking {flight.booking_reference}</span> :
+              <Tooltip label="This leg is disrupted or finished, so the monitor has stopped scheduling polls for it. Recovery drives what happens next.">
+                <span>Polling stopped</span>
+              </Tooltip>
           ) : (
             <Tooltip
               label={`The monitor polls on a tiered schedule to stay inside a 500-call monthly budget. Scheduled for ${formatUtc(nextPollAt)}.`}

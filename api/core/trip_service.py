@@ -40,6 +40,22 @@ class FlightInput(BaseModel):
             raise ValueError("IATA airport codes must contain exactly three letters")
         return code
 
+    @field_validator("carrier")
+    @classmethod
+    def valid_carrier(cls, value: str) -> str:
+        code = value.strip().upper()
+        if not re.fullmatch(r"[A-Z0-9]{2,3}", code):
+            raise ValueError("carrier must be a two or three character airline code")
+        return code
+
+    @field_validator("flight_number")
+    @classmethod
+    def valid_number(cls, value: str) -> str:
+        number = value.strip().upper()
+        if not re.fullmatch(r"[A-Z0-9]{2,12}", number):
+            raise ValueError("flight number must be 2 to 12 letters or digits")
+        return number
+
     @model_validator(mode="after")
     def validate_flight(self):
         if self.origin == self.destination:
@@ -89,6 +105,14 @@ class ConstraintInput(BaseModel):
     avoid_carriers: list[str] = Field(default_factory=list, max_length=20)
     auto_approve_under_inr: int | None = Field(default=None, ge=0)
 
+    @field_validator("avoid_carriers")
+    @classmethod
+    def valid_carriers(cls, values: list[str]) -> list[str]:
+        codes = [value.strip().upper() for value in values]
+        if any(not re.fullmatch(r"[A-Z0-9]{2,3}", code) for code in codes):
+            raise ValueError("each avoided carrier must be a two or three character code")
+        return list(dict.fromkeys(codes))
+
 
 class TripInput(BaseModel):
     traveller_name: str = Field(min_length=1, max_length=120)
@@ -106,6 +130,14 @@ class TripInput(BaseModel):
         if not IATA.fullmatch(code):
             raise ValueError("IATA airport codes must contain exactly three letters")
         return code
+
+    @field_validator("traveller_name")
+    @classmethod
+    def valid_name(cls, value: str) -> str:
+        name = value.strip()
+        if not name:
+            raise ValueError("traveller name is required")
+        return name
 
     @model_validator(mode="after")
     def validate_trip(self):

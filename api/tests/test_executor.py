@@ -167,6 +167,9 @@ def execution_plan():
         disruption_id = disruption.id
         session.close()
         with SessionLocal.begin() as cleanup:
+            cleanup.execute(delete(Flight).where(
+                Flight.trip_id == PRIYA_TRIP_ID, Flight.booking_reference == "BOOK-123"
+            ))
             cleanup.execute(delete(AgentAction).where(or_(
                 AgentAction.id == planning_id,
                 AgentAction.plan_id == plan_id,
@@ -223,6 +226,9 @@ def test_happy_path_persists_plan_and_writes_all_five_stages(execution_plan):
     assert len(stored.rejections) == 1
     assert stored.hotel_changes[0].executed is True
     assert session.get(Trip, PRIYA_TRIP_ID).status == "RECOVERED"
+    assert session.scalar(select(Flight).where(
+        Flight.trip_id == PRIYA_TRIP_ID, Flight.booking_reference == "BOOK-123"
+    )) is not None
 
 
 def test_flight_failure_records_failed_without_rebooked(execution_plan):

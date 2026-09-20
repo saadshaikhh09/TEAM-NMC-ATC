@@ -7,7 +7,7 @@ interface RadarPanelProps {
 }
 
 /** Statuses where the agent is actively holding the trip rather than acting on it. */
-const WATCHING: ReadonlySet<TripStatus> = new Set<TripStatus>(['CREATED', 'MONITORING', 'RECOVERED'])
+const WATCHING: ReadonlySet<TripStatus> = new Set<TripStatus>(['CREATED', 'MONITORING'])
 
 /**
  * The monitor, as a picture.
@@ -78,12 +78,12 @@ export function RadarPanel({ flights, status }: RadarPanelProps) {
           Autonomous monitor
         </p>
         <h2 className="mt-2 text-xl font-bold tracking-tight" id="radar-heading">
-          {active
+          {status === 'RECOVERED' ? 'Recovery confirmed' : active
             ? `Watching ${flights.length} leg${flights.length === 1 ? '' : 's'}`
             : 'Acting on a disruption'}
         </h2>
         <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-          {active
+          {status === 'RECOVERED' ? 'The replacement flight is recorded with its sandbox confirmation. The original disruption remains visible in the timeline.' : active
             ? 'No action needed. The agent re-checks each leg on a tiered schedule and wakes only when a status actually changes.'
             : 'A leg changed status. Planning and recovery have taken over from monitoring.'}
         </p>

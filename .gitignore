@@ -14,3 +14,4 @@ build/
 .pytest_cache/
 demo/recordings/
 graphify-out/
+tmp/

@@ -9,7 +9,7 @@ import type { ReactNode } from 'react'
  */
 
 function Bar({ className = '' }: { className?: string }) {
-  return <div aria-hidden="true" className={`animate-pulse rounded bg-surface-container-high ${className}`} />
+  return <div aria-hidden="true" className={`max-w-full animate-pulse rounded bg-surface-container-high ${className}`} />
 }
 
 function Frame({ children, label }: { children: ReactNode; label: string }) {
@@ -17,7 +17,7 @@ function Frame({ children, label }: { children: ReactNode; label: string }) {
     <section
       aria-busy="true"
       aria-label={label}
-      className="rounded-lg border border-outline-variant/70 bg-surface-container-lowest p-6 shadow-card"
+      className="min-w-0 rounded-lg border border-outline-variant/70 bg-surface-container-lowest p-4 shadow-card sm:p-6"
     >
       {children}
     </section>
@@ -29,19 +29,19 @@ export function FlightStatusSkeleton() {
   return (
     <Frame label="Loading flight status">
       <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <Bar className="h-3 w-24" />
           <Bar className="mt-3 h-6 w-40" />
         </div>
         <Bar className="h-6 w-24 rounded-full" />
       </div>
-      <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-        <div>
+      <div className="mt-6 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-4">
+        <div className="min-w-0">
           <Bar className="h-8 w-20" />
           <Bar className="mt-2 h-4 w-28" />
         </div>
         <Bar className="h-px w-16" />
-        <div className="flex flex-col items-end">
+        <div className="flex min-w-0 flex-col items-end">
           <Bar className="h-8 w-20" />
           <Bar className="mt-2 h-4 w-28" />
         </div>
@@ -61,7 +61,7 @@ export function FlightAlternativesSkeleton() {
         {[0, 1, 2].map((row) => (
           <div className="rounded-md border border-outline-variant/50 p-4" key={row}>
             <div className="flex items-center justify-between gap-4">
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <Bar className="h-4 w-28" />
                 <Bar className="mt-2 h-3 w-44" />
               </div>
@@ -80,12 +80,12 @@ export function HotelPolicySkeleton() {
     <Frame label="Loading hotel policy">
       <div className="flex flex-col gap-6 lg:flex-row">
         <Bar className="h-40 w-full rounded-md lg:w-64" />
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <Bar className="h-3 w-24" />
           <Bar className="mt-3 h-6 w-48" />
           <Bar className="mt-4 h-4 w-full" />
           <Bar className="mt-2 h-4 w-3/4" />
-          <div className="mt-6 grid grid-cols-3 gap-4">
+          <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4">
             {[0, 1, 2].map((cell) => (
               <div key={cell}>
                 <Bar className="h-3 w-16" />

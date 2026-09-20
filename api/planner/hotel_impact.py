@@ -28,5 +28,8 @@ def assess(hotel, new_arrival_utc, policy) -> dict:
         "required": required,
         "new_check_in": new_check_in,
         "new_check_out": new_check_out,
-        "cost_delta_inr": -nights_lost * hotel.nightly_rate_inr,
+        "cost_delta_inr": (
+            -nights_lost * hotel.nightly_rate_inr
+            if hotel.nightly_rate_inr is not None else None
+        ),
     }

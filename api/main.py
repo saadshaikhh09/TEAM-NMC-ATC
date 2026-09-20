@@ -3,10 +3,12 @@
 Routers are mounted here. Each router file has exactly one owner — see TEAM.md.
 Do not add business logic to this file.
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from core.config import settings
+from core.auth import browser_origin_allowed
 from core.events import subscribe
 from monitor.runner import start_monitor, stop_monitor
 from planner import orchestrate
@@ -22,6 +24,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def reject_untrusted_browser_writes(request: Request, call_next):
+    if request.method not in {"GET", "HEAD", "OPTIONS"} and not browser_origin_allowed(
+        request.headers.get("origin"), request.headers.get("host")
+    ):
+        return JSONResponse({"detail": "Origin not allowed"}, status_code=403)
+    return await call_next(request)
 
 
 @app.get("/health")
