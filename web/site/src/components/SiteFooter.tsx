@@ -44,7 +44,7 @@ export function SiteFooter() {
                 <span className="text-sm font-semibold text-white">{column.heading}</span>
                 {column.links.map((link) => (
                   <a
-                    className="text-sm text-slate-400 transition-colors hover:text-[#0284C7]"
+                    className="inline-block py-1.5 text-sm text-slate-400 transition-colors hover:text-[#0284C7]"
                     href={link.href}
                     key={link.label}
                   >

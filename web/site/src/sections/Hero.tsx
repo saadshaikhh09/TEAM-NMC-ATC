@@ -28,13 +28,13 @@ export function Hero() {
           </span>
         </p>
 
-        <h1 className="mb-5 max-w-4xl font-display text-[42px] leading-[48px] tracking-tight text-[#0A2540] sm:text-[56px] sm:leading-[64px]">
+        <h2 className="mb-5 max-w-4xl font-display text-[42px] leading-[48px] tracking-tight text-[#0A2540] sm:text-[56px] sm:leading-[64px]">
           Never manage a cancelled <br className="hidden sm:inline" />
           <span className="font-normal italic text-[#0284C7] transition-colors duration-300 hover:text-[#0369A1]">
             flight alone
           </span>{' '}
           again.
-        </h1>
+        </h2>
 
         <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-[#64748B] sm:text-lg">
           ATC polls your flights on a tiered schedule, detects a cancellation or delay, and works
